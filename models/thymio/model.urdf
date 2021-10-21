@@ -1,0 +1,192 @@
+<?xml version="1.0" ?>
+<!-- Robot -->
+ <robot name="thymio">
+    <link name="chassis">
+      <origin xyz="0 0 50" rpy="0 0 0"/>
+      <inertial>
+        <origin xyz="0 0 .01" rpy="0 0 0"/>
+        <mass value="0.270"/>
+        <inertia ixx="1.272320e-04" ixy="-1.138297e-06" ixz="-1.762013e-21" iyy="1.260759e-04" iyz="-2.367320e-23" izz="2.183003e-04"/>
+      </inertial>
+
+      <collision name="collision">
+        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0"/>
+        <geometry>
+          <mesh filename="package://models/thymio/meshes/thymio.dae"/>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://models/thymio/meshes/thymio.dae"/>
+        </geometry>
+      </visual>
+
+      <collision name="caster_collision">
+        <origin xyz="0.045 0 -0.02" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius=".01"/>
+          </geometry>
+
+          <surface>
+            <friction>
+              <ode>
+                <mu>0</mu>
+                <mu2>0</mu2>
+                <slip1>1.0</slip1>
+                <slip2>1.0</slip2>
+              </ode>
+            </friction>
+          </surface>
+      </collision>
+
+      <visual name="caster_visual">
+         <!-- <origin xyz="0.045 0 -0.0225" rpy="0 0 0"/> -->
+        <origin xyz="0.045 0 -0.02" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius=".01"/>
+          </geometry>
+      </visual>
+
+      <collision name="gripper_collision">
+        <origin xyz="0.045 0.085 -0.022" rpy="1.5707963267948966 0 3.14"/>
+        <geometry>
+          <mesh filename="package://models/thymio/meshes/gripper.dae" scale="0.1 0.1 0.1"/>
+        </geometry>
+      </collision>
+
+      <visual name="gripper_visual">
+        <origin xyz="0.045 0.085 -0.022" rpy="0 0 3.14"/>
+          <geometry>
+            <mesh filename="package://models/thymio/meshes/gripper.dae" scale="0.1 0.1 0.1"/>
+          </geometry>
+      </visual>
+
+      <collision name="raspberry_visual">
+        <origin xyz="0 0 0.038" rpy="1.5707963267948966 0 0"/>
+          <geometry>
+            <mesh filename="package://models/thymio/meshes/raspberry_case.dae" scale="0.11 0.11 0.11"/>
+          </geometry>
+      </collision>
+
+      <visual name="raspberry_visual">
+        <origin xyz="0 0 0.038" rpy="0 0 0"/>
+          <geometry>
+            <mesh filename="package://models/thymio/meshes/raspberry_case.dae" scale="0.11 0.11 0.11"/>
+          </geometry>
+      </visual>
+
+      <!-- <collision name="battery_collision">
+        <origin xyz="0 0 0.05" rpy="0 0 0"/>
+          <geometry>
+            <mesh filename="package://models/thymio/meshes/battery.dae" scale="0.08 0.08 0.08"/>
+          </geometry>
+      </collision>
+
+      <visual name="battery_visual">
+        <origin xyz="0 0 0.05" rpy="0 0 0"/>
+          <geometry>
+            <mesh filename="package://models/thymio/meshes/battery.dae" scale="0.1 0.1 0.1"/>
+          </geometry>
+      </visual> -->
+
+    </link>
+
+<!-- wheels -->
+  <link name="left_wheel">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+    <collision>
+      <geometry>
+        <cylinder length=".015" radius=".02"/>
+      </geometry>
+    </collision>
+    <visual>
+      <geometry>
+        <cylinder length=".015" radius=".02"/>
+      </geometry>
+      <material name="ambient"/>
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.01 0 0.01"/>
+      <geometry>
+        <sphere radius=".005"/>
+      </geometry>
+	  <material name="green">
+        <color rgba="0 1.0 0 1.0"/>
+  	  </material>
+    </visual>
+  	<contact>
+      <rolling_friction value="0.00"/>
+      <spinning_friction value="1.00"/>
+      <stiffness value="30000"/>
+      <damping value="1000"/>
+    </contact>
+  </link>
+
+  <link name="right_wheel">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+    <collision>
+      <geometry>
+        <cylinder length=".015" radius=".02"/>
+      </geometry>
+    </collision>
+    <visual>
+      <geometry>
+        <cylinder length=".015" radius=".02"/>
+      </geometry>
+      <material name="Front"/>
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.01 0 -0.01"/>
+      <geometry>
+        <sphere radius=".005"/>
+      </geometry>
+    </visual>
+  	<contact>
+				<lateral_friction value="90000"/>
+				<spinning_friction value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="right_wheel">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+  </link>
+    <gazebo>
+    <selfCollide>false</selfCollide>
+    <material>Gazebo/Ivory</material>
+    <plugin name="gazebo_ros_controller" filename="libgazebo_ros_control.so">
+      <robotNamespace>/cabinet</robotNamespace>
+      <robotParam>/cabinet_description</robotParam>
+    </plugin>
+  </gazebo>
+
+<!-- revolute joints -->
+  <joint name="left_wheel_hinge" type="continuous">
+    <safety_controller k_position="0.0" k_velocity="40.0" soft_lower_limit="-2.8973" soft_upper_limit="2.8973"/>
+    <origin rpy="0 1.5707 1.5707" xyz="-0.027 0.05 -0.01"/>
+    <child link="left_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="10.0"/>
+    <limit effort="12" lower="-2.8973" upper="2.8973" velocity="2.6100"/>
+  </joint>
+  <joint name="right_wheel_hinge" type="continuous">
+    <safety_controller k_position="0.0" k_velocity="40.0" soft_lower_limit="-2.8973" soft_upper_limit="2.8973"/>
+    <origin rpy="0 1.5707 1.5707" xyz="-0.027 -0.05 -0.01"/>
+    <child link="right_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="10.0"/>
+    <limit effort="12" lower="-2.8973" upper="2.8973" velocity="2.6100"/>
+    <use_parent_model_frame>0</use_parent_model_frame>
+  </joint>
+</robot>

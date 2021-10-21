@@ -1,0 +1,1741 @@
+<?xml version="1.0" ?>
+<robot name="salamander1">
+	<origin xyz="0.000000e+00 0.000000e+00 2.500000e-01" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+	<joint name="component_F_ActiveHinge__joint" type="revolute">
+		<origin xyz="0.000000e+00 7.800000e-02 -1.734723e-18" rpy="1.570796e+00 5.551115e-17 1.570796e+00"/>
+		<parent link="Core"/>
+		<child link="F_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_FFFF_ActiveHinge__joint" type="revolute">
+		<origin xyz="1.985725e-01 1.960481e-17 2.602085e-17" rpy="0.000000e+00 -2.220446e-16 0.000000e+00"/>
+		<parent link="F_Leg"/>
+		<child link="FFFF_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_FFFFFFFFF_ActiveHinge__joint" type="revolute">
+		<origin xyz="3.243450e-01 7.232997e-17 1.318390e-16" rpy="5.551115e-16 -8.881784e-16 4.283954e-16"/>
+		<parent link="FFFF_Leg"/>
+		<child link="FFFFFFFFF_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_FFFFFFFFFFF_ActiveHinge__joint" type="revolute">
+		<origin xyz="1.356862e-01 2.940110e-17 1.901423e-18" rpy="3.057233e-16 -3.133117e-32 2.049643e-16"/>
+		<parent link="FFFFFFFFF_Leg"/>
+		<child link="FFFFFFFFFFF_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_FFFFFFFL_ActiveHinge__joint" type="revolute">
+		<origin xyz="1.965156e-01 4.732912e-17 -6.494312e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+		<parent link="FFFF_Leg"/>
+		<child link="FFFFFFFL_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_FFFFFFL_ActiveHinge__joint" type="revolute">
+		<origin xyz="1.336294e-01 2.118680e-17 -6.494312e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+		<parent link="FFFF_Leg"/>
+		<child link="FFFFFFL_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_FFFFFL_ActiveHinge__joint" type="revolute">
+		<origin xyz="7.074312e-02 1.561251e-17 -6.494312e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+		<parent link="FFFF_Leg"/>
+		<child link="FFFFFL_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_FFFFFLFF_ActiveHinge__joint" type="revolute">
+		<origin xyz="1.356863e-01 0.000000e+00 0.000000e+00" rpy="1.570796e+00 -0.000000e+00 -0.000000e+00"/>
+		<parent link="FFFFFL_Leg"/>
+		<child link="FFFFFLFF_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_FFFFFLFFF_ActiveHinge__joint" type="revolute">
+		<origin xyz="7.280000e-02 0.000000e+00 0.000000e+00" rpy="-1.570796e+00 0.000000e+00 0.000000e+00"/>
+		<parent link="FFFFFLFF_Leg"/>
+		<child link="FFFFFLFFF_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_FFFL_ActiveHinge__joint" type="revolute">
+		<origin xyz="1.336294e-01 2.118680e-17 -6.494312e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+		<parent link="F_Leg"/>
+		<child link="FFFL_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_FFL_ActiveHinge__joint" type="revolute">
+		<origin xyz="7.074312e-02 1.497146e-17 -6.494312e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+		<parent link="F_Leg"/>
+		<child link="FFL_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_R_ActiveHinge__joint" type="revolute">
+		<origin xyz="7.800000e-02 0.000000e+00 0.000000e+00" rpy="1.570796e+00 -0.000000e+00 -0.000000e+00"/>
+		<parent link="Core"/>
+		<child link="R_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_RF_ActiveHinge__joint" type="revolute">
+		<origin xyz="7.280000e-02 0.000000e+00 0.000000e+00" rpy="-1.570796e+00 0.000000e+00 0.000000e+00"/>
+		<parent link="R_Leg"/>
+		<child link="RF_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<joint name="component_L_ActiveHinge__joint" type="revolute">
+		<origin xyz="-7.800000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 3.141593e+00"/>
+		<parent link="Core"/>
+		<child link="L_Leg"/>
+		<axis xyz="0.000000e+00 1.000000e+00 0.000000e+00"/>
+		<use_parent_model_frame>0</use_parent_model_frame>
+		<limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0.9212" velocity="5.235988"/>
+	</joint>
+	<link name="Core">
+		<origin xyz="0.000000e+00 2.609099e-03 -4.881745e-20" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<sensor name="core-imu_sensor" type="imu">
+			<origin xyz="0.000000e+00 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<always_on>True</always_on>
+		</sensor>
+		<visual name="component__CoreComponent__box_visual">
+			<origin xyz="0.000000e+00 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 1 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/CoreComponent.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component__CoreComponent__box_collision">
+			<origin xyz="0.000000e+00 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component__CoreComponent__box">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="8.900000e-02 8.900000e-02 6.030000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_F_ActiveHinge__frame_visual">
+			<origin xyz="5.023759e-18 6.712500e-02 -1.255940e-18" rpy="1.570796e+00 5.551115e-17 1.570796e+00"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_F_ActiveHinge__frame_collision">
+			<origin xyz="5.023759e-18 6.712500e-02 -1.255940e-18" rpy="1.570796e+00 5.551115e-17 1.570796e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_F_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_R_ActiveHinge__frame_visual">
+			<origin xyz="6.712500e-02 0.000000e+00 0.000000e+00" rpy="1.570796e+00 -0.000000e+00 -0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_R_ActiveHinge__frame_collision">
+			<origin xyz="6.712500e-02 0.000000e+00 0.000000e+00" rpy="1.570796e+00 -0.000000e+00 -0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_R_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_L_ActiveHinge__frame_visual">
+			<origin xyz="-6.712500e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 3.141593e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_L_ActiveHinge__frame_collision">
+			<origin xyz="-6.712500e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 3.141593e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_L_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="0.000000e+00 2.609099e-03 -4.881745e-20" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.28300000000000003"/>
+			<inertia ixx="0.0002985158491747146" ixy="-2.541098841762901e-21" ixz="1.3645693689496213e-21" iyy="0.00034930778010448495" iyz="1.443534026805466e-21" izz="0.000485515682508048"/>
+		</inertial>
+	</link>
+	<link name="F_Leg">
+		<origin xyz="7.306387e-02 1.009219e-17 -7.877475e-03" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_F_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_F_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_F_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_F_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_F_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FF_FixedBrick__box_visual">
+			<origin xyz="7.074312e-02 1.047266e-17 1.734723e-18" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0 0 1 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/FixedBrick.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FF_FixedBrick__box_collision">
+			<origin xyz="7.074312e-02 1.047266e-17 1.734723e-18" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FF_FixedBrick__box">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="6.288625e-02 6.288625e-02 6.030000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFF_FixedBrick__box_visual">
+			<origin xyz="1.336294e-01 2.094533e-17 1.040834e-17" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0 0 1 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/FixedBrick.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFF_FixedBrick__box_collision">
+			<origin xyz="1.336294e-01 2.094533e-17 1.040834e-17" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFF_FixedBrick__box">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="6.288625e-02 6.288625e-02 6.030000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFF_ActiveHinge__frame_visual">
+			<origin xyz="1.876975e-01 2.094533e-17 2.255141e-17" rpy="0.000000e+00 -2.220446e-16 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFF_ActiveHinge__frame_collision">
+			<origin xyz="1.876975e-01 2.094533e-17 2.255141e-17" rpy="0.000000e+00 -2.220446e-16 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFF_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFL_ActiveHinge__frame_visual">
+			<origin xyz="1.336294e-01 2.220127e-17 -5.406812e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFL_ActiveHinge__frame_collision">
+			<origin xyz="1.336294e-01 2.220127e-17 -5.406812e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFL_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFL_ActiveHinge__frame_visual">
+			<origin xyz="7.074312e-02 9.706229e-18 -5.406812e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFL_ActiveHinge__frame_collision">
+			<origin xyz="7.074312e-02 9.706229e-18 -5.406812e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFL_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="7.306387e-02 1.009219e-17 -7.877475e-03" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.15100000000000002"/>
+			<inertia ixx="0.00011458677550845723" ixy="-7.27693589060882e-20" ixz="3.464102964421557e-05" iyy="0.0006486234905638837" iyz="1.365019931250785e-20" izz="0.0006018970952643962"/>
+		</inertial>
+	</link>
+	<link name="FFFF_Leg">
+		<origin xyz="1.272763e-01 1.915922e-17 -8.037154e-03" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_FFFF_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFF_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFF_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_FFFF_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFF_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFF_FixedBrick__box_visual">
+			<origin xyz="7.074312e-02 1.047266e-17 1.734723e-18" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0 0 1 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/FixedBrick.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFF_FixedBrick__box_collision">
+			<origin xyz="7.074312e-02 1.047266e-17 1.734723e-18" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFF_FixedBrick__box">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="6.288625e-02 6.288625e-02 6.030000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFF_FixedBrick__box_visual">
+			<origin xyz="1.336294e-01 2.094533e-17 1.040834e-17" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0 0 1 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/FixedBrick.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFF_FixedBrick__box_collision">
+			<origin xyz="1.336294e-01 2.094533e-17 1.040834e-17" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFF_FixedBrick__box">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="6.288625e-02 6.288625e-02 6.030000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFFF_FixedBrick__box_visual">
+			<origin xyz="1.965156e-01 2.094533e-17 3.469447e-17" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0 0 1 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/FixedBrick.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFF_FixedBrick__box_collision">
+			<origin xyz="1.965156e-01 2.094533e-17 3.469447e-17" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFF_FixedBrick__box">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="6.288625e-02 6.288625e-02 6.030000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFFFF_FixedBrick__box_visual">
+			<origin xyz="2.594019e-01 3.839977e-17 7.806256e-17" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0 0 1 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/FixedBrick.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFFF_FixedBrick__box_collision">
+			<origin xyz="2.594019e-01 3.839977e-17 7.806256e-17" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFF_FixedBrick__box">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="6.288625e-02 6.288625e-02 6.030000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFFFFF_ActiveHinge__frame_visual">
+			<origin xyz="3.134700e-01 6.554666e-17 1.249001e-16" rpy="5.551115e-16 -8.881784e-16 4.283954e-16"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFFFF_ActiveHinge__frame_collision">
+			<origin xyz="3.134700e-01 6.554666e-17 1.249001e-16" rpy="5.551115e-16 -8.881784e-16 4.283954e-16"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFFF_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFFFL_ActiveHinge__frame_visual">
+			<origin xyz="1.965156e-01 4.167808e-17 -5.406812e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFFL_ActiveHinge__frame_collision">
+			<origin xyz="1.965156e-01 4.167808e-17 -5.406812e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFL_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFFL_ActiveHinge__frame_visual">
+			<origin xyz="1.336294e-01 2.220127e-17 -5.406812e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFL_ActiveHinge__frame_collision">
+			<origin xyz="1.336294e-01 2.220127e-17 -5.406812e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFL_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFL_ActiveHinge__frame_visual">
+			<origin xyz="7.074312e-02 9.706229e-18 -5.406812e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFL_ActiveHinge__frame_collision">
+			<origin xyz="7.074312e-02 9.706229e-18 -5.406812e-02" rpy="-1.570796e+00 1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFL_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="1.272763e-01 1.915922e-17 -8.037154e-03" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.22200000000000003"/>
+			<inertia ixx="0.00018185677901294843" ixy="-3.3691869690571264e-19" ixz="1.133545592793958e-05" iyy="0.0022250597259825403" iyz="1.7090318310777962e-20" izz="0.0021479287572830465"/>
+		</inertial>
+	</link>
+	<link name="FFFFFFFFF_Leg">
+		<origin xyz="4.811016e-02 7.458390e-18 -1.462471e-02" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_FFFFFFFFF_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFFFF_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFFF_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_FFFFFFFFF_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFFF_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFFFFFF_FixedBrick__box_visual">
+			<origin xyz="7.074312e-02 1.047266e-17 1.734723e-18" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0 0 1 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/FixedBrick.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFFFFF_FixedBrick__box_collision">
+			<origin xyz="7.074312e-02 1.047266e-17 1.734723e-18" rpy="-1.570796e+00 -1.570796e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFFFF_FixedBrick__box">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="6.288625e-02 6.288625e-02 6.030000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFFFFFFF_ActiveHinge__frame_visual">
+			<origin xyz="1.248112e-01 2.558264e-17 3.469447e-18" rpy="3.057233e-16 -3.133117e-32 2.049643e-16"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFFFFFF_ActiveHinge__frame_collision">
+			<origin xyz="1.248112e-01 2.558264e-17 3.469447e-18" rpy="3.057233e-16 -3.133117e-32 2.049643e-16"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFFFFF_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFFFFFFL_FixedBrick__box_visual">
+			<origin xyz="7.074312e-02 1.221811e-17 -6.288625e-02" rpy="-1.570796e+00 2.957871e-16 -1.823137e-17"/>
+			<material name="no_texture">
+				<color rgba="0 0 1 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/FixedBrick.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFFFFFL_FixedBrick__box_collision">
+			<origin xyz="7.074312e-02 1.221811e-17 -6.288625e-02" rpy="-1.570796e+00 2.957871e-16 -1.823137e-17"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFFFFL_FixedBrick__box">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="6.288625e-02 6.288625e-02 6.030000e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="4.811016e-02 7.458390e-18 -1.462471e-02" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.129"/>
+			<inertia ixx="0.0001464342799918622" ixy="-3.1610639339552914e-20" ixz="4.2699059935864776e-05" iyy="0.00033011209571179914" iyz="1.3801972067112015e-20" izz="0.0002505291357199369"/>
+		</inertial>
+	</link>
+	<link name="FFFFFFFFFFF_Leg">
+		<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_FFFFFFFFFFF_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFFFFFF_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFFFFF_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_FFFFFFFFFFF_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFFFFF_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.058"/>
+			<inertia ixx="1.460362666666667e-05" ixy="0.0" ixz="0.0" iyy="1.836130166666667e-05" iyz="0.0" izz="2.909826166666667e-05"/>
+		</inertial>
+	</link>
+	<link name="FFFFFFFL_Leg">
+		<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_FFFFFFFL_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFFL_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFL_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_FFFFFFFL_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFFL_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.058"/>
+			<inertia ixx="1.460362666666667e-05" ixy="0.0" ixz="0.0" iyy="1.836130166666667e-05" iyz="0.0" izz="2.909826166666667e-05"/>
+		</inertial>
+	</link>
+	<link name="FFFFFFL_Leg">
+		<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_FFFFFFL_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFFL_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFL_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_FFFFFFL_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFFL_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.058"/>
+			<inertia ixx="1.460362666666667e-05" ixy="0.0" ixz="0.0" iyy="1.836130166666667e-05" iyz="0.0" izz="2.909826166666667e-05"/>
+		</inertial>
+	</link>
+	<link name="FFFFFL_Leg">
+		<origin xyz="4.811016e-02 1.462471e-02 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_FFFFFL_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFL_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFL_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_FFFFFL_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFL_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFLF_FixedBrick__box_visual">
+			<origin xyz="7.074313e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 0.000000e+00 -1.570796e+00"/>
+			<material name="no_texture">
+				<color rgba="0 0 1 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/FixedBrick.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFLF_FixedBrick__box_collision">
+			<origin xyz="7.074313e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 0.000000e+00 -1.570796e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFLF_FixedBrick__box">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="6.288625e-02 6.288625e-02 6.030000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFLFF_ActiveHinge__frame_visual">
+			<origin xyz="1.248113e-01 0.000000e+00 0.000000e+00" rpy="1.570796e+00 -0.000000e+00 -0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFLFF_ActiveHinge__frame_collision">
+			<origin xyz="1.248113e-01 0.000000e+00 0.000000e+00" rpy="1.570796e+00 -0.000000e+00 -0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFLFF_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFLFL_FixedBrick__box_visual">
+			<origin xyz="7.074313e-02 6.288625e-02 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0 0 1 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/FixedBrick.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFLFL_FixedBrick__box_collision">
+			<origin xyz="7.074313e-02 6.288625e-02 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFLFL_FixedBrick__box">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="6.288625e-02 6.288625e-02 6.030000e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="4.811016e-02 1.462471e-02 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.129"/>
+			<inertia ixx="0.0001464342799918622" ixy="-4.269905993586483e-05" ixz="0.0" iyy="0.00023979217571993707" iyz="0.0" izz="0.0003408490557117992"/>
+		</inertial>
+	</link>
+	<link name="FFFFFLFF_Leg">
+		<origin xyz="1.840399e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_FFFFFLFF_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFLFF_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFLFF_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_FFFFFLFF_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFLFF_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_FFFFFLFFF_ActiveHinge__frame_visual">
+			<origin xyz="6.192500e-02 0.000000e+00 0.000000e+00" rpy="-1.570796e+00 0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFLFFF_ActiveHinge__frame_collision">
+			<origin xyz="6.192500e-02 0.000000e+00 0.000000e+00" rpy="-1.570796e+00 0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFLFFF_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="1.840399e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.069"/>
+			<inertia ixx="1.7430808385575836e-05" ixy="0.0" ixz="0.0" iyy="4.759945640398551e-05" iyz="0.0" izz="5.601376478956134e-05"/>
+		</inertial>
+	</link>
+	<link name="FFFFFLFFF_Leg">
+		<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_FFFFFLFFF_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFFFLFFF_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFLFFF_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_FFFFFLFFF_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFFFLFFF_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.058"/>
+			<inertia ixx="1.460362666666667e-05" ixy="0.0" ixz="0.0" iyy="1.836130166666667e-05" iyz="0.0" izz="2.909826166666667e-05"/>
+		</inertial>
+	</link>
+	<link name="FFFL_Leg">
+		<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_FFFL_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFFL_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFL_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_FFFL_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFFL_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.058"/>
+			<inertia ixx="1.460362666666667e-05" ixy="0.0" ixz="0.0" iyy="1.836130166666667e-05" iyz="0.0" izz="2.909826166666667e-05"/>
+		</inertial>
+	</link>
+	<link name="FFL_Leg">
+		<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_FFL_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_FFL_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFL_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_FFL_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_FFL_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.058"/>
+			<inertia ixx="1.460362666666667e-05" ixy="0.0" ixz="0.0" iyy="1.836130166666667e-05" iyz="0.0" izz="2.909826166666667e-05"/>
+		</inertial>
+	</link>
+	<link name="R_Leg">
+		<origin xyz="1.840399e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_R_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="0.7 0 0 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_R_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_R_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_R_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_R_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<visual name="component_RF_ActiveHinge__frame_visual">
+			<origin xyz="6.192500e-02 0.000000e+00 0.000000e+00" rpy="-1.570796e+00 0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveHinge_Frame.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_RF_ActiveHinge__frame_collision">
+			<origin xyz="6.192500e-02 0.000000e+00 0.000000e+00" rpy="-1.570796e+00 0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_RF_ActiveHinge__frame">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="4.525000e-02 5.300000e-02 1.658910e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="1.840399e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.069"/>
+			<inertia ixx="1.7430808385575836e-05" ixy="0.0" ixz="0.0" iyy="4.759945640398551e-05" iyz="0.0" izz="5.601376478956134e-05"/>
+		</inertial>
+	</link>
+	<link name="RF_Leg">
+		<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_RF_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_RF_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_RF_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_RF_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_RF_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.058"/>
+			<inertia ixx="1.460362666666667e-05" ixy="0.0" ixz="0.0" iyy="1.836130166666667e-05" iyz="0.0" izz="2.909826166666667e-05"/>
+		</inertial>
+	</link>
+	<link name="L_Leg">
+		<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+		<visual name="component_L_ActiveHinge__servo_visual">
+			<origin xyz="2.990000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<material name="no_texture">
+				<color rgba="1 0.08 0.58 1.0"/>
+			</material>
+			<geometry>
+				<mesh filename="package://models/rg_robot/meshes/ActiveCardanHinge_Servo_Holder.dae"/>
+			</geometry>
+		</visual>
+		<collision name="component_L_ActiveHinge__servo_collision">
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_L_ActiveHinge__servo">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="5.830000e-02 5.120000e-02 2.000000e-02"/>
+			</geometry>
+		</collision>
+		<collision name="component_L_ActiveHinge__servo2_collision">
+			<origin xyz="3.830000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<contact>
+				<lateral_friction value="0.8"/>
+				<rolling_friction value="0"/>
+				<spinning_friction value="1"/>
+				<stiffness value="90000"/>
+				<damping value="3333333.3333333335"/>
+			</contact>
+			<gazebo name="component_L_ActiveHinge__servo2">
+				<mu1 value="1.0"/>
+				<mu2 value="1.0"/>
+				<slip1 value="0.01"/>
+				<slip2 value="0.01"/>
+			</gazebo>
+			<geometry>
+				<box size="2.000000e-03 5.300000e-02 5.300000e-02"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="1.015000e-02 0.000000e+00 0.000000e+00" rpy="0.000000e+00 -0.000000e+00 0.000000e+00"/>
+			<mass value="0.058"/>
+			<inertia ixx="1.460362666666667e-05" ixy="0.0" ixz="0.0" iyy="1.836130166666667e-05" iyz="0.0" izz="2.909826166666667e-05"/>
+		</inertial>
+	</link>
+	<gazebo>
+		<plugin name="robot_controller" filename="libRobotControlPlugin.so">
+			<rv:robot_config xmlns:rv="https://github.com/ci-group/revolve">
+				<rv:update_rate>8.000000e+00</rv:update_rate>
+				<rv:brain>
+					<rv:learner type="bo" n_init_samples="1" n_learning_iterations="100" evaluation_rate="15.0" init_method="LHS" kernel_noise="1e-08" kernel_optimize_noise="False" kernel_sigma_sq="0.222" kernel_l="0.55" kernel_squared_exp_ard_k="4" acqui_gpucb_delta="0.5" acqui_ucb_alpha="0.44" acqui_ei_jitter="0.0" acquisition_function="UCB"/>
+					<rv:learner type="bo" n_init_samples="1" n_learning_iterations="100" evaluation_rate="15.0" init_method="LHS" kernel_noise="1e-08" kernel_optimize_noise="False" kernel_sigma_sq="0.222" kernel_l="0.55" kernel_squared_exp_ard_k="4" acqui_gpucb_delta="0.5" acqui_ucb_alpha="0.44" acqui_ei_jitter="0.0" acquisition_function="UCB"/>
+					<rv:IMC active="false" restore_checkpoint="false" save_checkpoint="true" learning_rate="5e-2;" beta1="0.9;" beta2="0.99;" weight_decay="0.001;"/>
+					<rv:sensors>
+						<rv:sensor link="Core" sensor="core-imu_sensor" type="imu" id="Core_sensor" part_id="module0"/>
+					</rv:sensors>
+					<rv:actuators>
+						<rv:servomotor type="position" id="module4__rotate" part_id="module4" part_name="component_F_ActiveHinge__joint" joint="component_F_ActiveHinge__joint" coordinates="1.0;0.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module8__rotate" part_id="module8" part_name="component_FFFF_ActiveHinge__joint" joint="component_FFFF_ActiveHinge__joint" coordinates="4.0;0.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module21__rotate" part_id="module21" part_name="component_FFFFFFFFF_ActiveHinge__joint" joint="component_FFFFFFFFF_ActiveHinge__joint" coordinates="9.0;0.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module24__rotate" part_id="module24" part_name="component_FFFFFFFFFFF_ActiveHinge__joint" joint="component_FFFFFFFFFFF_ActiveHinge__joint" coordinates="11.0;0.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module19__rotate" part_id="module19" part_name="component_FFFFFFFL_ActiveHinge__joint" joint="component_FFFFFFFL_ActiveHinge__joint" coordinates="7.0;-1.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module17__rotate" part_id="module17" part_name="component_FFFFFFL_ActiveHinge__joint" joint="component_FFFFFFL_ActiveHinge__joint" coordinates="6.0;-1.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module10__rotate" part_id="module10" part_name="component_FFFFFL_ActiveHinge__joint" joint="component_FFFFFL_ActiveHinge__joint" coordinates="5.0;-1.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module15__rotate" part_id="module15" part_name="component_FFFFFLFF_ActiveHinge__joint" joint="component_FFFFFLFF_ActiveHinge__joint" coordinates="5.0;-3.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module16__rotate" part_id="module16" part_name="component_FFFFFLFFF_ActiveHinge__joint" joint="component_FFFFFLFFF_ActiveHinge__joint" coordinates="5.0;-4.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module12__rotate" part_id="module12" part_name="component_FFFL_ActiveHinge__joint" joint="component_FFFL_ActiveHinge__joint" coordinates="3.0;-1.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module6__rotate" part_id="module6" part_name="component_FFL_ActiveHinge__joint" joint="component_FFL_ActiveHinge__joint" coordinates="2.0;-1.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module2__rotate" part_id="module2" part_name="component_R_ActiveHinge__joint" joint="component_R_ActiveHinge__joint" coordinates="0.0;1.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module3__rotate" part_id="module3" part_name="component_RF_ActiveHinge__joint" joint="component_RF_ActiveHinge__joint" coordinates="0.0;2.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+						<rv:servomotor type="position" id="module1__rotate" part_id="module1" part_name="component_L_ActiveHinge__joint" joint="component_L_ActiveHinge__joint" coordinates="0.0;-1.0;0.0">
+							<rv:pid>
+								<rv:p>1.000000e+00</rv:p>
+								<rv:i>0.000000e+00</rv:i>
+								<rv:d>0.000000e+00</rv:d>
+								<rv:i_max>0.000000e+00</rv:i_max>
+								<rv:i_min>0.000000e+00</rv:i_min>
+							</rv:pid>
+						</rv:servomotor>
+					</rv:actuators>
+				</rv:brain>
+			</rv:robot_config>
+		</plugin>
+	</gazebo>
+</robot>
