@@ -1,6 +1,7 @@
 """
 Loading and testing
 """
+import time
 from typing import AnyStr
 
 from isaacgym import gymapi
@@ -12,7 +13,7 @@ from . import Controllers
 import os
 
 
-def simulate_swarm(life_timeout: float, individual, headless: bool):
+def simulate_swarm(life_timeout: float, individual: Controllers.Controller, headless: bool):
     """
     Simulate the robot in isaac gym
     :param individual: robot controller for every member of the swarm
@@ -28,7 +29,7 @@ def simulate_swarm(life_timeout: float, individual, headless: bool):
 
     # configure sim
     sim_params = gymapi.SimParams()
-    sim_params.dt = 1.0 / 100
+    sim_params.dt = 0.005
     sim_params.substeps = 2
 
     # defining axis of rotation!
@@ -67,15 +68,19 @@ def simulate_swarm(life_timeout: float, individual, headless: bool):
     plane_params = gymapi.PlaneParams()
     plane_params.normal = gymapi.Vec3(0, 0, 1)  # z-up!
     plane_params.distance = 0
-    plane_params.static_friction = 1
-    plane_params.dynamic_friction = 1
-    plane_params.restitution = 0
+    plane_params.static_friction = 0
+    plane_params.dynamic_friction = 0
+    # plane_params.restitution = 0
     gym.add_ground(sim, plane_params)
 
     asset_options = gymapi.AssetOptions()
     asset_options.fix_base_link = False
     asset_options.flip_visual_attachments = True
-    asset_options.armature = 0.01
+    asset_options.armature = 0.0001
+    asset_options.replace_cylinder_with_capsule = False
+    # asset_options.vhacd_enabled = True
+    # asset_options.override_com = True
+    # asset_options.override_inertia = True
 
     # Set up the env grid
     num_envs = 1
@@ -85,11 +90,6 @@ def simulate_swarm(life_timeout: float, individual, headless: bool):
 
     # Some common handles for later use
     print("Creating %d environments" % num_envs)
-    num_per_row = int(math.sqrt(num_envs))
-
-    pose = gymapi.Transform()
-    pose.p = gymapi.Vec3(0, 0, 0.032)
-    pose.r = gymapi.Quat(0, 0.0, 0.0, 0.707107)
 
     # create env
     env = gym.create_env(sim, env_lower, env_upper, num_envs)
@@ -103,16 +103,18 @@ def simulate_swarm(life_timeout: float, individual, headless: bool):
     distance = 0.5
     robot_handles = []
 
-    controller_update_time = 0.25
+    controller_update_time = 0.2
     rows = 4
     # place robots
     # assert (pop_size%num_robots==0)
-
+    pose = gymapi.Transform()
+    pose.p = gymapi.Vec3(0, 0, 0.032)
+    pose.r = gymapi.Quat(0, 0.0, 0.0, 0.707107)
     for i in range(num_robots):
         pose.p = gymapi.Vec3(
-            (((i + 9) // 12 + i) % rows) * distance - (rows-1) / 2 * distance,
-            (((i + 9) // 12 + i) // rows) * distance - (rows-1) / 2 * distance,
-            0.032)
+            (((i + 9) // 12 + i) % rows) * distance - (rows - 1) / 2 * distance,
+            (((i + 9) // 12 + i) // rows) * distance - (rows - 1) / 2 * distance,
+            0.033)
 
         print("Loading asset '%s' from '%s', #%i" % (robot_asset_file, asset_root, i))
         robot_asset = gym.load_asset(
@@ -124,16 +126,28 @@ def simulate_swarm(life_timeout: float, individual, headless: bool):
 
     # get joint limits and ranges for robot
     props = gym.get_actor_dof_properties(env, robot_handle)
+    props_bodies = gym.get_actor_rigid_shape_properties(env, robot_handle)
+
 
     # Give a desired velocity to drive
     props["driveMode"].fill(gymapi.DOF_MODE_VEL)
-    props["stiffness"].fill(1000.0)
-    props["damping"].fill(600.0)
+    props["stiffness"].fill(0)
+    props["damping"].fill(10)
+    velocity_limits = props["velocity"]
     robot_num_dofs = len(props)
+    for i in range(num_robots):
+        robot_handle = robot_handles[i]
+        shape_props = gym.get_actor_rigid_shape_properties(env, robot_handle)
+        shape_props[3].friction = 0
+        shape_props[3].restitution = 1
+        gym.set_actor_dof_properties(env, robot_handle, props)
+        gym.set_actor_rigid_shape_properties(env, robot_handle, shape_props)
 
     # Point camera at environments
-    cam_pos = gymapi.Vec3(-4.0, -0.0, 4.0)
-    cam_target = gymapi.Vec3(0.0, 0.0, 0.0)
+    cam_pos = gymapi.Vec3(-2, 0, 2)
+    cam_target = gymapi.Vec3(0, 0, 0.0)
+    # cam_pos = gymapi.Vec3(-0.1, -0.1, 0.01)
+    # cam_target = gymapi.Vec3(-0.1, 0.1, 0.0)
     gym.viewer_camera_look_at(viewer, None, cam_pos, cam_target)
 
     # # subscribe to spacebar event for reset
@@ -149,9 +163,10 @@ def simulate_swarm(life_timeout: float, individual, headless: bool):
         # gym.clear_lines(viewer)
         for i in range(num_robots):
             robot_handle = robot_handles[i]
+            states = gym.get_actor_rigid_body_states(env, robot_handle, gymapi.STATE_POS)["pose"]["p"][0]
 
-            position_target = individual.controller()
-            gym.set_actor_dof_position_targets(env, robot_handle, position_target)
+            velocity_target = individual.velocity_commands(states) * velocity_limits
+            gym.set_actor_dof_velocity_targets(env, robot_handle, velocity_target)
 
     def obtain_fitness(env, body):
         body_states = gym.get_actor_rigid_body_states(env, body, gymapi.STATE_POS)["pose"]["p"][0]
@@ -163,17 +178,15 @@ def simulate_swarm(life_timeout: float, individual, headless: bool):
 
     t = 0
     # %% Simulate
-    while t <= life_timeout:
+    while t <= 9999999:
         # Every 0.01 seconds the velocity of the joints is set
         t = gym.get_sim_time(sim)
 
-        if t % controller_update_time == 0.0:
-            update_robot()
-
+        # if round(t-0.01, 3) % controller_update_time == 0.0:
+            # update_robot()
         # Step the physics
         gym.simulate(sim)
         gym.fetch_results(sim, True)
-
         gym.step_graphics(sim)
         gym.draw_viewer(viewer, sim, False)
 

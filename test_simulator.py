@@ -16,7 +16,7 @@ def main():
     #
     # robot = Individual('models/thymio/model.urdf', genotype, 420)
 
-    controller = RandomWalk(2)
+    controller = RandomWalk(10, 2)
     simulate_swarm(30, controller, False)
 
 

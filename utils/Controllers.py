@@ -3,6 +3,16 @@ import torch
 from torch import nn
 
 
+class Controller(object):
+    def __init__(self, n_states, n_actions):
+        self.n_input = n_states
+        self.n_output = n_actions
+
+    @staticmethod
+    def velocity_commands(state: np.array) -> np.array:
+        return np.array([0])
+
+
 class NeuralNetwork(torch.nn.Module):
     def __init__(self, n_input, n_hidden, n_output):
         super(NeuralNetwork, self).__init__()
@@ -32,13 +42,12 @@ class NeuralNetwork(torch.nn.Module):
         return self.NN(state)
 
 
-class NNController:
-    def __init__(self, n_state, n_actions):
-        self.model = NeuralNetwork(n_state, n_state, n_actions)
-        self.n_input = n_state
-        self.n_output = n_actions
+class NNController(Controller):
+    def __init__(self, n_states, n_actions):
+        super().__init__(n_states, n_actions)
+        self.model = NeuralNetwork(n_states, n_states, n_actions)
 
-    def controller_target(self, state: np.array) -> np.array:
+    def velocity_commands(self, state: np.array) -> np.array:
         """
         Given a state, give an appropriate action
 
@@ -51,11 +60,8 @@ class NNController:
         return action.astype('f')
 
 
-class RandomWalk:
-    def __init__(self, n_actions):
-        self.n_output = n_actions
-
-    def controller(self) -> np.array:
+class RandomWalk(Controller):
+    def velocity_commands(self, state: np.array) -> np.array:
         """
         Outputs:
         <np.array> action : A vector of motor inputs
