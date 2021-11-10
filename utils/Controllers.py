@@ -12,6 +12,10 @@ class Controller(object):
     def velocity_commands(state: np.array) -> np.array:
         return np.array([0])
 
+    @staticmethod
+    def geno2pheno(genotype: np.array):
+        return
+
 
 class NeuralNetwork(torch.nn.Module):
     def __init__(self, n_input, n_hidden, n_output):
@@ -46,6 +50,10 @@ class NNController(Controller):
     def __init__(self, n_states, n_actions):
         super().__init__(n_states, n_actions)
         self.model = NeuralNetwork(n_states, n_states, n_actions)
+
+    def geno2pheno(self, genotype: np.array):
+        weights = torch.Tensor(genotype).requires_grad(False)
+        self.model.set_weights(weights)
 
     def velocity_commands(self, state: np.array) -> np.array:
         """

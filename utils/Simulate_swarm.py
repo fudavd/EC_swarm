@@ -9,11 +9,17 @@ from isaacgym import gymutil
 from uuid import uuid4
 import math
 import numpy as np
+from sklearn.neighbors import NearestNeighbors
+
 from . import Controllers
 import os
 
+def get_nearest_neighbours_states(swarm_state: np.array, ind_state: np.array):
+    neigh = NearestNeighbors(n_neighbors=2, radius=10)
+    neigh.fit(swarm_state)
+    neigh.kneighbors(ind_state)
 
-def simulate_swarm(life_timeout: float, individual: Controllers.Controller, headless: bool):
+def simulate_swarm(life_timeout: float, individual: Controllers.Controller, headless: bool) -> np.array:
     """
     Simulate the robot in isaac gym
     :param individual: robot controller for every member of the swarm
@@ -47,7 +53,7 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
         sim_params.physx.num_position_iterations = 4
         sim_params.physx.num_velocity_iterations = 1
         sim_params.physx.num_threads = args.num_threads
-        sim_params.physx.use_gpu = True
+        sim_params.physx.use_gpu = False
 
     sim = gym.create_sim(args.compute_device_id, args.graphics_device_id, args.physics_engine, sim_params)
 
@@ -70,17 +76,12 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     plane_params.distance = 0
     plane_params.static_friction = 0
     plane_params.dynamic_friction = 0
-    # plane_params.restitution = 0
     gym.add_ground(sim, plane_params)
 
     asset_options = gymapi.AssetOptions()
     asset_options.fix_base_link = False
     asset_options.flip_visual_attachments = True
     asset_options.armature = 0.0001
-    asset_options.replace_cylinder_with_capsule = False
-    # asset_options.vhacd_enabled = True
-    # asset_options.override_com = True
-    # asset_options.override_inertia = True
 
     # Set up the env grid
     num_envs = 1
@@ -126,15 +127,12 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
 
     # get joint limits and ranges for robot
     props = gym.get_actor_dof_properties(env, robot_handle)
-    props_bodies = gym.get_actor_rigid_shape_properties(env, robot_handle)
-
 
     # Give a desired velocity to drive
     props["driveMode"].fill(gymapi.DOF_MODE_VEL)
     props["stiffness"].fill(0)
     props["damping"].fill(10)
     velocity_limits = props["velocity"]
-    robot_num_dofs = len(props)
     for i in range(num_robots):
         robot_handle = robot_handles[i]
         shape_props = gym.get_actor_rigid_shape_properties(env, robot_handle)
@@ -146,44 +144,32 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     # Point camera at environments
     cam_pos = gymapi.Vec3(-2, 0, 2)
     cam_target = gymapi.Vec3(0, 0, 0.0)
-    # cam_pos = gymapi.Vec3(-0.1, -0.1, 0.01)
-    # cam_target = gymapi.Vec3(-0.1, 0.1, 0.0)
     gym.viewer_camera_look_at(viewer, None, cam_pos, cam_target)
 
     # # subscribe to spacebar event for reset
     gym.subscribe_viewer_keyboard_event(viewer, gymapi.KEY_R, "reset")
-    # # create a local copy of initial state, which we can send back for reset
-    initial_state = np.copy(gym.get_sim_rigid_body_states(sim, gymapi.STATE_ALL))
-
-    # def get_controller_input(robot_handle):
-    #     current_sim_state = gym.get_sim_rigid_body_states(sim, gymapi.STATE_ALL)
-    #     return controller_input
 
     def update_robot():
         # gym.clear_lines(viewer)
+        swarm_state = np.copy(gym.get_sim_rigid_body_states(sim, gymapi.STATE_ALL))[::4]
         for i in range(num_robots):
             robot_handle = robot_handles[i]
-            states = gym.get_actor_rigid_body_states(env, robot_handle, gymapi.STATE_POS)["pose"]["p"][0]
+
+            states = gym.get_actor_rigid_body_states(env, robot_handle, gymapi.STATE_ALL)["pose"]["p"][0]
 
             velocity_target = individual.velocity_commands(states) * velocity_limits
             gym.set_actor_dof_velocity_targets(env, robot_handle, velocity_target)
 
-    def obtain_fitness(env, body):
-        body_states = gym.get_actor_rigid_body_states(env, body, gymapi.STATE_POS)["pose"]["p"][0]
-        current_pos = np.array((body_states[0], body_states[1], body_states[2]))
-        # pose0 = initial_state["pose"]["p"][0]
-        pose0 = gymapi.Vec3((body % rows) * distance, (body // rows) * distance, 0.032)
-        absolute_distance = current_pos[1] - pose0.y
-        return absolute_distance
-
     t = 0
+    swarm_states = []
     # %% Simulate
-    while t <= 9999999:
+    while t <= life_timeout:
         # Every 0.01 seconds the velocity of the joints is set
         t = gym.get_sim_time(sim)
 
-        # if round(t-0.01, 3) % controller_update_time == 0.0:
-            # update_robot()
+        if round(t, 3) % controller_update_time == 0.0:
+            swarm_states.append(np.copy(gym.get_sim_rigid_body_states(sim, gymapi.STATE_ALL))[::4])
+            update_robot()
         # Step the physics
         gym.simulate(sim)
         gym.fetch_results(sim, True)
@@ -192,4 +178,4 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
 
     gym.destroy_viewer(viewer)
     gym.destroy_sim(sim)
-    return
+    return swarm_states
