@@ -28,7 +28,7 @@ class NeuralNetwork(torch.nn.Module):
         )
         self.n_con1 = n_input * n_hidden
         self.n_con2 = n_hidden * n_output
-        for p in self.model.NN.parameters():
+        for p in self.NN.parameters():
             p.requires_grad = False
 
     def set_weights(self, weights: torch.Tensor):
@@ -64,8 +64,8 @@ class NNController(Controller):
         Outputs:
         <np.array> action : A vector of motor inputs
         """
-        action = self.model.forward(state.float())
-        return action.astype('f')
+        action = self.model.forward(torch.Tensor(state))
+        return action.numpy()
 
 
 class RandomWalk(Controller):

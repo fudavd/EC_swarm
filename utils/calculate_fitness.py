@@ -70,7 +70,7 @@ class FitnessCalculator:
             nsy = np.multiply(d_ij_y, neighbors[i][:])
             nsy = nsy[np.nonzero(nsy)]
 
-            if nsx:
+            if len(nsx) != 0:
                 distance_to_com_of_neighbors_x = np.mean(nsx)
                 distance_to_com_of_neighbors_y = np.mean(nsy)
 
