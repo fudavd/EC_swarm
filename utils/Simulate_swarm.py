@@ -7,9 +7,9 @@ from scipy.spatial.transform import Rotation as R
 
 import numpy as np
 
-from calculate_fitness import FitnessCalculator  # Fitness calculator class, all functions are implemented as different
+from .calculate_fitness import FitnessCalculator  # Fitness calculator class, all functions are implemented as different
 # methods of this class
-from sensors import Sensors  # Sensor class, all types of sensors are are implemented as different
+from .sensors import Sensors  # Sensor class, all types of sensors are are implemented as different
 # methods of this class
 
 from . import Controllers
@@ -150,7 +150,7 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     def update_robot(sensor_input_distance, sensor_input_heading):
         for i in range(num_robots):
             # state : np.array() --> 5 by 1. [0:3] --> distance sensor output, [4] --> heading sensor output
-            state = np.array([sensor_input_distance[i, :], sensor_input_heading[i]])
+            state = np.hstack((sensor_input_distance[i, :],sensor_input_heading[i]))
             velocity_target = individual.velocity_commands(state)  # assumed to be in format of [u,w]
             n_l = (velocity_target[0] - (velocity_target[1] / 2) * 0.085) / 0.021
             n_r = (velocity_target[0] + (velocity_target[1] / 2) * 0.085) / 0.021
@@ -172,7 +172,7 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
             positions_x.append(position[0][0])
             positions_y.append(position[0][1])
 
-            return (np.array(headings), np.array(positions_x), np.array(positions_y))
+        return (np.array(headings), np.array(positions_x), np.array(positions_y))
 
     t = 0
 
