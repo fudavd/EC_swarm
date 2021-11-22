@@ -1,14 +1,9 @@
-import math
-import numpy as np
-import time
-import os
-
 from utils.Simulate_swarm import simulate_swarm
-from utils.Controllers import NNController
+from utils.Controllers import NNController, ActiveElastic
 
 def main():
-    controller = NNController(5, 2)
-    fitness = simulate_swarm(30, controller, False)
+    controller = ActiveElastic(11, 2)
+    fitness = simulate_swarm(60, controller, False)
     print(fitness)
 
 

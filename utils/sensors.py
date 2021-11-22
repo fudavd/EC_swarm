@@ -21,7 +21,7 @@ class Sensors:
         # corresponding row in this matrix. In case of no neighbor, output matrix is a zeros matrix.
 
         robot_num = np.shape(positions[0])[0]
-        sensing_range = 1.0  # Sensing range of sensors, 25 cm (0.25) in the paper
+        sensing_range = 2.0  # Sensing range of sensors, 25 cm (0.25) in the paper
         xx1, xx2 = np.meshgrid(positions[0], positions[0])
         yy1, yy2 = np.meshgrid(positions[1], positions[1])
         d_ij_x = xx1 - xx2
@@ -82,11 +82,11 @@ class Sensors:
         d_ij[d_ij > sensing_range] = 0.0
 
         ij_ang = np.arctan2(d_ij_y, d_ij_x)
-        ij_ang = ij_ang - headings
+        ij_ang = ij_ang # - headings
         ij_ang[d_ij == 0] = 0.0
 
-        output_distances = np.zeros([robot_num, 4])
-        output_bearings = np.zeros([robot_num, 4])
+        output_distances = np.zeros([robot_num, k])
+        output_bearings = np.zeros([robot_num, k])
 
         for i in range(robot_num):
 
@@ -224,6 +224,58 @@ class Sensors:
                 avg_rel_neg_heading[i] = 0.5
 
         return avg_rel_neg_heading
+
+    def heading_sensor_ae(self, positions, headings):
+        robot_num = np.shape(positions[0])[0]
+        sensing_range = 2.0  # The range which a heading average is calculated in.
+        k = 4
+
+        xx1, xx2 = np.meshgrid(positions[0], positions[0])
+        yy1, yy2 = np.meshgrid(positions[1], positions[1])
+        d_ij_x = xx1 - xx2
+        d_ij_y = yy1 - yy2
+        d_ij = np.sqrt(np.multiply(d_ij_x, d_ij_x) + np.multiply(d_ij_y, d_ij_y))
+
+        sum_cosh = np.zeros((1, robot_num))
+        sum_sinh = np.zeros((1, robot_num))
+
+        num_neigh = np.zeros((1, robot_num))
+        selected_headings = np.zeros((robot_num, k))
+        hbars = np.zeros((robot_num, 2))
+
+        for i in range(0, robot_num):
+            sum_cosh[0, i] = np.cos(headings[i])
+            sum_sinh[0, i] = np.sin(headings[i])
+
+            for j in range(0, robot_num):
+                if d_ij[i, j] < sensing_range and i != j:
+                    # sum_cosh[0, i] = sum_cosh[0, i] + np.cos(headings[j])
+                    # sum_sinh[0, i] = sum_sinh[0, i] + np.sin(headings[j])
+                    num_neigh[0, i] = num_neigh[0, i] + 1
+
+            if num_neigh[0, i] >= k:
+                temp_distances = np.argsort(d_ij[i, :])
+                idx = temp_distances[d_ij[i, :][temp_distances] != 0][:k]
+                selected_headings[i, :] = headings[idx]
+
+                for ii in selected_headings[i, :]:
+                    sum_cosh[0, i] = sum_cosh[0, i] + np.cos(ii)
+                    sum_sinh[0, i] = sum_sinh[0, i] + np.sin(ii)
+
+            elif k >= num_neigh[0, i] > 0:
+                temp_distances = np.argsort(d_ij[i, :])
+                idx = temp_distances[d_ij[i, :][temp_distances] != 0][:int(num_neigh[0, i])]
+                selected_headings[i, 0:int(num_neigh[0, i])] = headings[idx]
+
+                for ii in range(int(num_neigh[0, i])):
+                    sum_cosh[0, i] = sum_cosh[0, i] + np.cos(headings[ii])
+                    sum_sinh[0, i] = sum_sinh[0, i] + np.sin(headings[ii])
+
+            hbars[i, 0] = np.divide(sum_cosh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
+            hbars[i, 1] = np.divide(sum_sinh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
+
+        return hbars
+
 
     def wraptopi(self, x):
         x = x % (3.1415926 * 2)

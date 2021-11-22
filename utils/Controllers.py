@@ -75,3 +75,60 @@ class RandomWalk(Controller):
         <np.array> action : A vector of motor inputs
         """
         return np.random.uniform(-1, 1, self.n_output).astype('f')
+
+class ActiveElastic(Controller):
+    def __init__(self, n_states, n_actions):
+        super().__init__(n_states, n_actions)
+
+        #  Parameters to be optimized
+        self.alpha = 1.0
+        self.beta = 2.0
+        self.K1 = 0.04
+        self.K2 = 0.6
+
+        self.epsilon = 12.0
+        self.sigma_const = 0.4
+        self.umax_const = 0.1
+        self.wmax = 1.5708 / 2.5
+
+    def velocity_commands(self, state: np.array) -> np.array:
+        k = 4
+
+        self.distances = state[0:k]
+        self.bearings = state[k:2*k]
+        self.headings = state[2*k:2*k+2]
+        self.own_heading = state[2*k+2]
+
+        self.distances[self.distances == 0] = np.inf
+
+        # Calculate proximal forces
+        pi_s = -self.epsilon * (2 * (np.divide(np.power(self.sigma_const, 4), np.power(self.distances, 5))) - (
+            np.divide(np.power(self.sigma_const, 2), np.power(self.distances, 3))))
+        px_s = np.multiply(pi_s, np.cos(np.array(self.bearings)))
+        py_s = np.multiply(pi_s, np.sin(np.array(self.bearings)))
+        pbar_xs = np.sum(px_s, axis=0)
+        pbar_ys = np.sum(py_s, axis=0)
+
+        # Calculate alignment control forces
+        hbar_x = self.headings[0]
+        hbar_y = self.headings[1]
+
+        f_x = self.alpha * pbar_xs + self.beta * hbar_x  # + self.gama * r_x
+        f_y = self.alpha * pbar_ys + self.beta * hbar_y  # + self.gama * r_y
+
+        f_mag = np.sqrt(np.square(f_x) + np.square(f_y))
+        glob_ang = np.arctan2(f_y, f_x) - self.own_heading
+
+        u = self.K1 * np.multiply(f_mag, np.cos(glob_ang)) + 0.05
+        if u > self.umax_const:
+            u = self.umax_const
+        elif u < 0:
+            u = 0.0
+
+        w = self.K2 * np.multiply(f_mag, np.sin(glob_ang))
+        if w > self.wmax:
+            w = self.wmax
+        elif w < -self.wmax:
+            w = -self.wmax
+
+        return np.array([u, w])

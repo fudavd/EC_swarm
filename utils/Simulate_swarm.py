@@ -13,6 +13,7 @@ from .sensors import Sensors  # Sensor class, all types of sensors are are imple
 # methods of this class
 
 from . import Controllers
+import time
 
 def simulate_swarm(life_timeout: float, individual: Controllers.Controller, headless: bool) -> np.array:
     """
@@ -22,6 +23,8 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     :param headless: Start UI for debugging
     :return: fitness of the individual
     """
+
+    if_random_start = True
     # %% Initialize gym
     gym = gymapi.acquire_gym()
 
@@ -96,32 +99,80 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     robot_asset_file = "/models/thymio/model.urdf"
 
     num_robots = 14
-    distance = 0.5
     robot_handles = []
     initial_positions = np.zeros((2, num_robots))  # Allocation to save initial positions of robots
 
-    controller_update_time = 0.2
-    rows = 4
-    # place robots
-    # assert (pop_size%num_robots==0)
-    pose = gymapi.Transform()
-    pose.p = gymapi.Vec3(0, 0, 0.032)
-    pose.r = gymapi.Quat(0, 0.0, 0.0, 0.707107)
-    for i in range(num_robots):
-        pose.p = gymapi.Vec3(
-            (((i + 9) // 12 + i) % rows) * distance - (rows - 1) / 2 * distance,
-            (((i + 9) // 12 + i) // rows) * distance - (rows - 1) / 2 * distance,
-            0.033)
-        initial_positions[0][i] = pose.p.x  # Save initial position x of i'th robot
-        initial_positions[1][i] = pose.p.y  # Save initial position y of i'th robot
+    if if_random_start:
+        flag = 0
+        init_area = 2.5
+        init_flag = 0
+        init_failure_1 = 1
+        a_x = (init_area / 2)
+        b_x = -(init_area / 2)
+        a_y = (init_area / 2)
+        b_y = -(init_area / 2)
 
-        print("Loading asset '%s' from '%s', #%i" % (robot_asset_file, asset_root, i))
-        robot_asset = gym.load_asset(
-            sim, asset_root, robot_asset_file, asset_options)
+        while init_failure_1 == 1 and init_flag == 0:
+            ixs = a_x + (b_x - a_x) * np.random.rand(num_robots)
+            iys = a_y + (b_y - a_y) * np.random.rand(num_robots)
+            flag = 0
 
-        # add robot
-        robot_handle = gym.create_actor(env, robot_asset, pose, f"robot_{i}", 0, 0)
-        robot_handles.append(robot_handle)
+            for i in range(num_robots):
+                for j in range(num_robots):
+                    if i != j and np.sqrt(np.square(ixs[i] - ixs[j]) + np.square(iys[i] - iys[j])) < 0.4:
+                        init_failure_1 = 1
+                        flag = 1
+                    elif flag == 0:
+                        init_failure_1 = 0
+
+        ihs = 6.28 * np.random.rand(num_robots)
+
+        pose = gymapi.Transform()
+        pose.p = gymapi.Vec3(0, 0, 0.032)
+        pose.r = gymapi.Quat(0, 0.0, 0.0, 0.707107)
+
+        for i in range(num_robots):
+            pose.p = gymapi.Vec3(ixs[i], iys[i], 0.033)
+            initial_positions[0][i] = pose.p.x  # Save initial position x of i'th robot
+            initial_positions[1][i] = pose.p.y  # Save initial position y of i'th robot
+
+            ihs_i = R.from_euler('zyx', [ihs[i], 0.0, 0.0])
+            ihs_i = ihs_i.as_quat()
+            pose.r.x = ihs_i[0]
+            pose.r.y = ihs_i[1]
+            pose.r.z = ihs_i[2]
+            pose.r.w = ihs_i[3]
+
+            print("Loading asset '%s' from '%s', #%i" % (robot_asset_file, asset_root, i))
+            robot_asset = gym.load_asset(
+                sim, asset_root, robot_asset_file, asset_options)
+
+            # add robot
+            robot_handle = gym.create_actor(env, robot_asset, pose, f"robot_{i}", 0, 0)
+            robot_handles.append(robot_handle)
+    else:
+        distance = 0.5
+        rows = 4
+
+        # place robots
+        pose = gymapi.Transform()
+        pose.p = gymapi.Vec3(0, 0, 0.032)
+        pose.r = gymapi.Quat(0, 0.0, 0.0, 0.707107)
+        for i in range(num_robots):
+            pose.p = gymapi.Vec3(
+                (((i + 9) // 12 + i) % rows) * distance - (rows - 1) / 2 * distance,
+                (((i + 9) // 12 + i) // rows) * distance - (rows - 1) / 2 * distance,
+                0.033)
+            initial_positions[0][i] = pose.p.x  # Save initial position x of i'th robot
+            initial_positions[1][i] = pose.p.y  # Save initial position y of i'th robot
+
+            print("Loading asset '%s' from '%s', #%i" % (robot_asset_file, asset_root, i))
+            robot_asset = gym.load_asset(
+                sim, asset_root, robot_asset_file, asset_options)
+
+            # add robot
+            robot_handle = gym.create_actor(env, robot_asset, pose, f"robot_{i}", 0, 0)
+            robot_handles.append(robot_handle)
 
     # get joint limits and ranges for robot
     props = gym.get_actor_dof_properties(env, robot_handle)
@@ -147,14 +198,14 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     # # subscribe to spacebar event for reset
     gym.subscribe_viewer_keyboard_event(viewer, gymapi.KEY_R, "reset")
 
-    def update_robot(sensor_input_distance, sensor_input_heading):
-        for i in range(num_robots):
+    def update_robot(sensor_input_distance, sensor_input_bearing, sensor_input_heading, own_headings=None):
+        for ii in range(num_robots):
             # state : np.array() --> 5 by 1. [0:3] --> distance sensor output, [4] --> heading sensor output
-            state = np.hstack((sensor_input_distance[i, :],sensor_input_heading[i]))
+            state = np.hstack((sensor_input_distance[ii, :], sensor_input_bearing[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
             velocity_target = individual.velocity_commands(state)  # assumed to be in format of [u,w]
             n_l = (velocity_target[0] - (velocity_target[1] / 2) * 0.085) / 0.021
             n_r = (velocity_target[0] + (velocity_target[1] / 2) * 0.085) / 0.021
-            gym.set_actor_dof_velocity_targets(env, robot_handles[i], [n_l, n_r])
+            gym.set_actor_dof_velocity_targets(env, robot_handles[ii], [n_l, n_r])
 
     def get_pos_and_headings():
         headings = []
@@ -184,18 +235,19 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     sensor = Sensors()  # Sensors init
 
     # %% Simulate
+    start = gym.get_sim_time(sim)
     while t <= life_timeout:
         # Every 0.01 seconds the velocity of the joints is set
         t = gym.get_sim_time(sim)
 
-        if round(t, 3) % controller_update_time == 0.0:
+        if (gym.get_sim_time(sim) - start) > 0.05:
             headings, positions[0], positions[1] = get_pos_and_headings()  # Update positions and headings of all robots
 
-            distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)  # The values recorded by on-board
+            distance_sensor_outputs, bearing_sensor_outputs = sensor.k_nearest_sensor(positions, headings)  # The values recorded by on-board
             # sensors of robots
-            heading_sensor_outputs = sensor.heading_sensor(positions, headings)  # The values recorded by on-board
+            heading_sensor_outputs = sensor.heading_sensor_ae(positions, headings)  # The values recorded by on-board
             # sensors of robots
-            update_robot(distance_sensor_outputs, heading_sensor_outputs)  # The connection to robot controller.
+            update_robot(distance_sensor_outputs, bearing_sensor_outputs, heading_sensor_outputs, headings)  # The connection to robot controller.
             # Ideally, this function accepts sensor readings, evaluates them on a controller (NN) and applies actuation
             # commands for each robot.
 
@@ -205,6 +257,7 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
             fitness_movement = fitness_calculator.calculate_movement(positions)  # Update fitness val
 
             # nogs = fitness_calculator.calculate_number_of_groups(positions)  # Update fitness val
+            start = gym.get_sim_time(sim)
 
         # Step the physics
         gym.simulate(sim)
@@ -214,6 +267,11 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
 
     gym.destroy_viewer(viewer)
     gym.destroy_sim(sim)
+
+    print("Cohesion is: ", fitness_coh_and_sep[0] / timestep)
+    print("Separation is: ", - fitness_coh_and_sep[1] / timestep)
+    print("Alignment is: ", fitness_alignment / timestep)
+    print("Movement is: ", fitness_movement)
 
     experiment_fitness = fitness_coh_and_sep[0] / timestep - fitness_coh_and_sep[
         1] / timestep + fitness_alignment / timestep + fitness_movement  # For the time average, divide by time step
