@@ -25,6 +25,7 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     """
 
     if_random_start = True
+    sensor_type = "4dir"  # omni, k_nearest, 4dir
     # %% Initialize gym
     gym = gymapi.acquire_gym()
 
@@ -198,11 +199,17 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     # # subscribe to spacebar event for reset
     gym.subscribe_viewer_keyboard_event(viewer, gymapi.KEY_R, "reset")
 
-    def update_robot(sensor_input_distance, sensor_input_bearing, sensor_input_heading, own_headings=None):
+    def update_robot(sensor_input_distance, sensor_input_heading, sensor_input_bearing=None, own_headings=None):
         for ii in range(num_robots):
             # state : np.array() --> 5 by 1. [0:3] --> distance sensor output, [4] --> heading sensor output
-            state = np.hstack((sensor_input_distance[ii, :], sensor_input_bearing[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
-            velocity_target = individual.velocity_commands(state)  # assumed to be in format of [u,w]
+            if sensor_type == "omni":
+                state = [np.array(sensor_input_distance[ii]), np.array(sensor_input_bearing[ii]), sensor_input_heading[ii, :], own_headings[ii]]
+            elif sensor_type == "k_nearest":
+                state = np.hstack((sensor_input_distance[ii, :], sensor_input_bearing[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
+            elif sensor_type == "4dir":
+                state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
+
+            velocity_target = individual.velocity_commands(np.array(state))  # assumed to be in format of [u,w]
             n_l = (velocity_target[0] - (velocity_target[1] / 2) * 0.085) / 0.021
             n_r = (velocity_target[0] + (velocity_target[1] / 2) * 0.085) / 0.021
             gym.set_actor_dof_velocity_targets(env, robot_handles[ii], [n_l, n_r])
@@ -243,13 +250,18 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
         if (gym.get_sim_time(sim) - start) > 0.05:
             headings, positions[0], positions[1] = get_pos_and_headings()  # Update positions and headings of all robots
 
-            distance_sensor_outputs, bearing_sensor_outputs = sensor.k_nearest_sensor(positions, headings)  # The values recorded by on-board
-            # sensors of robots
-            heading_sensor_outputs = sensor.heading_sensor_ae(positions, headings)  # The values recorded by on-board
-            # sensors of robots
-            update_robot(distance_sensor_outputs, bearing_sensor_outputs, heading_sensor_outputs, headings)  # The connection to robot controller.
-            # Ideally, this function accepts sensor readings, evaluates them on a controller (NN) and applies actuation
-            # commands for each robot.
+            if sensor_type == "omni":
+                distance_sensor_outputs, bearing_sensor_outputs = sensor.omni_dir_sensor(positions, headings)  # The values recorded by on-board
+                heading_sensor_outputs = sensor.heading_sensor_ae(positions, headings)  # The values recorded by on-board
+                update_robot(distance_sensor_outputs, heading_sensor_outputs, bearing_sensor_outputs, headings)
+            elif sensor_type == "k_nearest":
+                distance_sensor_outputs, bearing_sensor_outputs = sensor.k_nearest_sensor(positions, headings)  # The values recorded by on-board
+                heading_sensor_outputs = sensor.heading_sensor_ae(positions, headings)  # The values recorded by on-board
+                update_robot(distance_sensor_outputs, heading_sensor_outputs, bearing_sensor_outputs, headings)
+            elif sensor_type == "4dir":
+                distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
+                heading_sensor_outputs = sensor.heading_sensor_ae(positions, headings)  # The values recorded by on-board
+                update_robot(distance_sensor_outputs, heading_sensor_outputs, own_headings=headings)
 
             timestep = timestep + 1  # Time step counter
             fitness_coh_and_sep = fitness_calculator.calculate_cohesion_and_separation(positions)  # Update fitness val

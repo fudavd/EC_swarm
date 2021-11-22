@@ -30,28 +30,34 @@ class Sensors:
         d_ij[d_ij > sensing_range] = 0.0
 
         ij_ang = np.arctan2(d_ij_y, d_ij_x)
-        ij_ang = ij_ang - headings
-        ij_ang[d_ij == 0] = 0.0
 
         output = np.zeros([robot_num, 4])
+        output_old = np.zeros([robot_num, 4])
 
         for i in range(robot_num):
+            ij_ang[i, :] = ij_ang[i, :] - headings[i]
+            ij_ang[i, d_ij[i, :] == 0] = 0.0
+
             for j in range(robot_num):
                 ij_ang[i, j] = self.wraptopi(ij_ang[i, j])
 
                 if (ij_ang[i, j] < 0.7854) and (ij_ang[i, j] >= -0.7854):
-                    if (d_ij[i, j] != 0) and ((d_ij[i, j] < output[i, 0]) or (output[i, 0] == 0.0)):
+                    if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 0]) or (output[i, 0] == 0.0)):
                         output[i, 0] = 1 - (d_ij[i, j] / sensing_range)
+                        output_old[i, 0] = d_ij[i, j]
                 elif (ij_ang[i, j] < 2.3562) and (ij_ang[i, j] >= 0.7854):
-                    if (d_ij[i, j] != 0) and ((d_ij[i, j] < output[i, 1]) or (output[i, 1] == 0.0)):
+                    if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 1]) or (output[i, 1] == 0.0)):
                         output[i, 1] = 1 - (d_ij[i, j] / sensing_range)
+                        output_old[i, 1] = d_ij[i, j]
                 elif ((ij_ang[i, j] < 3.1416) and (ij_ang[i, j] >= 2.3562)) or (
                         (ij_ang[i, j] < -2.3562) and (ij_ang[i, j] >= -3.1416)):
-                    if (d_ij[i, j] != 0) and ((d_ij[i, j] < output[i, 2]) or (output[i, 2] == 0.0)):
+                    if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 2]) or (output[i, 2] == 0.0)):
                         output[i, 2] = 1 - (d_ij[i, j] / sensing_range)
+                        output_old[i, 2] = d_ij[i, j]
                 elif (ij_ang[i, j] < -0.7854) and (ij_ang[i, j] >= -2.3562):
-                    if (d_ij[i, j] != 0) and ((d_ij[i, j] < output[i, 3]) or (output[i, 3] == 0.0)):
+                    if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 3]) or (output[i, 3] == 0.0)):
                         output[i, 3] = 1 - (d_ij[i, j] / sensing_range)
+                        output_old[i, 3] = d_ij[i, j]
         return output
 
     def k_nearest_sensor(self, positions, headings):
@@ -82,13 +88,13 @@ class Sensors:
         d_ij[d_ij > sensing_range] = 0.0
 
         ij_ang = np.arctan2(d_ij_y, d_ij_x)
-        ij_ang = ij_ang # - headings
-        ij_ang[d_ij == 0] = 0.0
 
         output_distances = np.zeros([robot_num, k])
         output_bearings = np.zeros([robot_num, k])
 
         for i in range(robot_num):
+            ij_ang[i, :] = ij_ang[i, :] - headings[i]
+            ij_ang[i, d_ij[i, :] == 0] = 0.0
 
             for j in range(robot_num):
                 ij_ang[i, j] = self.wraptopi(ij_ang[i, j])
@@ -101,7 +107,8 @@ class Sensors:
                 idx = temp_distances[d_ij[i, :][temp_distances] != 0][:k]
                 output_distances[i, :] = d_ij[i, :][idx]
                 output_bearings[i, :] = ij_ang[i, :][idx]
-            elif num_neigh[0, i] <= k and num_neigh[0, i] > 0:
+
+            elif k >= num_neigh[0, i] > 0:
                 temp_distances = np.argsort(d_ij[i, :])
                 idx = temp_distances[d_ij[i, :][temp_distances] != 0][:int(num_neigh[0, i])]
                 output_distances[i, 0:int(num_neigh[0, i])] = d_ij[i, :][idx]
@@ -136,14 +143,14 @@ class Sensors:
         d_ij[d_ij > sensing_range] = 0.0
 
         ij_ang = np.arctan2(d_ij_y, d_ij_x)
-        ij_ang = ij_ang - headings
-        ij_ang[d_ij == 0] = 0.0
 
         output_distances = []
         output_angles = []
         num_neigh = np.zeros([1, robot_num])
 
         for i in range(robot_num):
+            ij_ang[i, :] = ij_ang[i, :] - headings[i]
+            ij_ang[i, d_ij[i, :] == 0] = 0.0
             distances_to_neighbors = []
             bearing_of_neighbors = []
 
@@ -240,8 +247,8 @@ class Sensors:
         sum_sinh = np.zeros((1, robot_num))
 
         num_neigh = np.zeros((1, robot_num))
-        selected_headings = np.zeros((robot_num, k))
         hbars = np.zeros((robot_num, 2))
+        selected_headings = np.zeros((robot_num, k))
 
         for i in range(0, robot_num):
             sum_cosh[0, i] = np.cos(headings[i])
@@ -249,33 +256,32 @@ class Sensors:
 
             for j in range(0, robot_num):
                 if d_ij[i, j] < sensing_range and i != j:
-                    # sum_cosh[0, i] = sum_cosh[0, i] + np.cos(headings[j])
-                    # sum_sinh[0, i] = sum_sinh[0, i] + np.sin(headings[j])
+                    sum_cosh[0, i] = sum_cosh[0, i] + np.cos(headings[j])
+                    sum_sinh[0, i] = sum_sinh[0, i] + np.sin(headings[j])
                     num_neigh[0, i] = num_neigh[0, i] + 1
 
-            if num_neigh[0, i] >= k:
-                temp_distances = np.argsort(d_ij[i, :])
-                idx = temp_distances[d_ij[i, :][temp_distances] != 0][:k]
-                selected_headings[i, :] = headings[idx]
+                if num_neigh[0, i] >= k:
+                    temp_distances = np.argsort(d_ij[i, :])
+                    idx = temp_distances[d_ij[i, :][temp_distances] != 0][:k]
+                    selected_headings[i, :] = headings[idx]
 
-                for ii in selected_headings[i, :]:
-                    sum_cosh[0, i] = sum_cosh[0, i] + np.cos(ii)
-                    sum_sinh[0, i] = sum_sinh[0, i] + np.sin(ii)
+                    for ii in selected_headings[i, :]:
+                        sum_cosh[0, i] = sum_cosh[0, i] + np.cos(ii)
+                        sum_sinh[0, i] = sum_sinh[0, i] + np.sin(ii)
 
-            elif k >= num_neigh[0, i] > 0:
-                temp_distances = np.argsort(d_ij[i, :])
-                idx = temp_distances[d_ij[i, :][temp_distances] != 0][:int(num_neigh[0, i])]
-                selected_headings[i, 0:int(num_neigh[0, i])] = headings[idx]
+                elif k >= num_neigh[0, i] > 0:
+                    temp_distances = np.argsort(d_ij[i, :])
+                    idx = temp_distances[d_ij[i, :][temp_distances] != 0][:int(num_neigh[0, i])]
+                    selected_headings[i, 0:int(num_neigh[0, i])] = headings[idx]
 
-                for ii in range(int(num_neigh[0, i])):
-                    sum_cosh[0, i] = sum_cosh[0, i] + np.cos(headings[ii])
-                    sum_sinh[0, i] = sum_sinh[0, i] + np.sin(headings[ii])
+                    for ii in range(int(num_neigh[0, i])):
+                        sum_cosh[0, i] = sum_cosh[0, i] + np.cos(headings[ii])
+                        sum_sinh[0, i] = sum_sinh[0, i] + np.sin(headings[ii])
 
             hbars[i, 0] = np.divide(sum_cosh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
             hbars[i, 1] = np.divide(sum_sinh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
 
         return hbars
-
 
     def wraptopi(self, x):
         x = x % (3.1415926 * 2)
