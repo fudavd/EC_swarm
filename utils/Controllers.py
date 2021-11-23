@@ -76,6 +76,7 @@ class RandomWalk(Controller):
         """
         return np.random.uniform(-1, 1, self.n_output).astype('f')
 
+
 class ActiveElastic_4dir(Controller):
     def __init__(self, n_states, n_actions):
         super().__init__(n_states, n_actions)
@@ -97,9 +98,9 @@ class ActiveElastic_4dir(Controller):
 
         self.distances = state[0:k]
         self.distances[self.distances == 0] = np.inf
-        self.distances = 2*(1 - self.distances)
-        self.headings = state[k:k+2]
-        self.own_heading = state[k+2]
+        self.distances = 2 * (1 - self.distances)
+        self.headings = state[k:k + 2]
+        self.own_heading = state[k + 2]
 
         # Calculate proximal forces
         pi_s = -self.epsilon * (2 * (np.divide(np.power(self.sigma_const, 4), np.power(self.distances, 5))) - (
@@ -110,13 +111,15 @@ class ActiveElastic_4dir(Controller):
         pbar_ys = np.sum(py_s, axis=0)
 
         # Calculate alignment control forces
-        hbar_x = np.cos(np.arctan2(self.headings[0]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)),
-                                    self.headings[1]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)))
-                                   - self.own_heading)
+        hbar_x = np.cos(
+            np.arctan2(self.headings[0] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)),
+                       self.headings[1] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)))
+            - self.own_heading)
 
-        hbar_y = np.sin(np.arctan2(self.headings[0]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)),
-                                    self.headings[1]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)))
-                                   - self.own_heading)
+        hbar_y = np.sin(
+            np.arctan2(self.headings[0] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)),
+                       self.headings[1] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)))
+            - self.own_heading)
 
         f_x = self.alpha * pbar_xs + self.beta * hbar_x
         f_y = self.alpha * pbar_ys + self.beta * hbar_y
@@ -157,9 +160,9 @@ class ActiveElastic_k_near(Controller):
         k = 4
 
         self.distances = state[0:k]
-        self.bearings = state[k:2*k]
-        self.headings = state[2*k:2*k+2]
-        self.own_heading = state[2*k+2]
+        self.bearings = state[k:2 * k]
+        self.headings = state[2 * k:2 * k + 2]
+        self.own_heading = state[2 * k + 2]
 
         # Calculate proximal forces
         pi_s = -self.epsilon * (2 * (np.divide(np.power(self.sigma_const, 4), np.power(self.distances, 5))) - (
@@ -170,13 +173,15 @@ class ActiveElastic_k_near(Controller):
         pbar_ys = np.sum(py_s, axis=0)
 
         # Calculate alignment control forces
-        hbar_x = np.cos(np.arctan2(self.headings[0]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)),
-                                    self.headings[1]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)))
-                                   - self.own_heading)
+        hbar_x = np.cos(
+            np.arctan2(self.headings[0] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)),
+                       self.headings[1] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)))
+            - self.own_heading)
 
-        hbar_y = np.sin(np.arctan2(self.headings[0]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)),
-                                    self.headings[1]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)))
-                                   - self.own_heading)
+        hbar_y = np.sin(
+            np.arctan2(self.headings[0] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)),
+                       self.headings[1] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)))
+            - self.own_heading)
 
         f_x = self.alpha * pbar_xs + self.beta * hbar_x
         f_y = self.alpha * pbar_ys + self.beta * hbar_y
@@ -197,6 +202,7 @@ class ActiveElastic_k_near(Controller):
             w = -self.wmax
 
         return np.array([u, w])
+
 
 class ActiveElastic_omni(Controller):
     def __init__(self, n_states, n_actions):
@@ -229,13 +235,15 @@ class ActiveElastic_omni(Controller):
         pbar_ys = np.sum(py_s, axis=0)
 
         # Calculate alignment control forces
-        hbar_x = np.cos(np.arctan2(self.headings[0]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)),
-                                    self.headings[1]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)))
-                                   - self.own_heading)
+        hbar_x = np.cos(
+            np.arctan2(self.headings[0] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)),
+                       self.headings[1] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)))
+            - self.own_heading)
 
-        hbar_y = np.sin(np.arctan2(self.headings[0]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)),
-                                    self.headings[1]/np.sqrt(np.power(self.headings[0], 2)+np.power(self.headings[0], 2)))
-                                   - self.own_heading)
+        hbar_y = np.sin(
+            np.arctan2(self.headings[0] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)),
+                       self.headings[1] / np.sqrt(np.power(self.headings[0], 2) + np.power(self.headings[0], 2)))
+            - self.own_heading)
 
         f_x = self.alpha * pbar_xs + self.beta * hbar_x
         f_y = self.alpha * pbar_ys + self.beta * hbar_y

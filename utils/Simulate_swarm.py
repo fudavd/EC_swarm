@@ -25,7 +25,7 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     """
 
     if_random_start = True
-    sensor_type = "4dir"  # omni, k_nearest, 4dir
+    sensor_type = "k_nearest"  # omni, k_nearest, 4dir
     # %% Initialize gym
     gym = gymapi.acquire_gym()
 
@@ -207,6 +207,8 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
             elif sensor_type == "k_nearest":
                 state = np.hstack((sensor_input_distance[ii, :], sensor_input_bearing[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
             elif sensor_type == "4dir":
+                state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
+            elif sensor_type == "2dir":
                 state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
 
             velocity_target = individual.velocity_commands(np.array(state))  # assumed to be in format of [u,w]
