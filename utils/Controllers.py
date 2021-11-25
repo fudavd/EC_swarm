@@ -7,6 +7,7 @@ class Controller(object):
     def __init__(self, n_states, n_actions):
         self.n_input = n_states
         self.n_output = n_actions
+        self.controller_type = "default"
 
     @staticmethod
     def velocity_commands(state: np.array) -> np.array:
@@ -49,6 +50,7 @@ class NeuralNetwork(torch.nn.Module):
 class NNController(Controller):
     def __init__(self, n_states, n_actions):
         super().__init__(n_states, n_actions)
+        self.controller_type = "NN"
         self.model = NeuralNetwork(n_states, n_states, n_actions)
 
     def geno2pheno(self, genotype: np.array):
@@ -64,6 +66,7 @@ class NNController(Controller):
         Outputs:
         <np.array> action : A vector of motor inputs
         """
+        assert (len(state) == self.n_input), "State does not correspond with expected input size"
         action = self.model.forward(torch.Tensor(state))
         return action.numpy()
 
@@ -80,6 +83,7 @@ class RandomWalk(Controller):
 class ActiveElastic_4dir(Controller):
     def __init__(self, n_states, n_actions):
         super().__init__(n_states, n_actions)
+        self.controller_type = "4dir"
 
         #  Parameters to be optimized
         self.alpha = 1.0
@@ -93,6 +97,7 @@ class ActiveElastic_4dir(Controller):
         self.wmax = 1.5708 / 2.5
 
     def velocity_commands(self, state: np.array) -> np.array:
+        assert (len(state) == self.n_input), "State does not correspond with expected input size"
         self.bearings = np.array([0.0, 1.571, 3.14, -1.571])
         k = 4
 
@@ -139,11 +144,23 @@ class ActiveElastic_4dir(Controller):
         elif w < -self.wmax:
             w = -self.wmax
 
+        if np.isnan([u, w]).max():
+            print("ERROR: output is NAN")
         return np.array([u, w])
+
+    def geno2pheno(self, genotype: np.array):
+        assert (len(genotype) == 4)
+        self.alpha = genotype[0]
+        self.beta = genotype[1]
+        self.K1 = genotype[2]
+        self.K2 = genotype[3]
+        return
+
 
 class ActiveElastic_k_near(Controller):
     def __init__(self, n_states, n_actions):
         super().__init__(n_states, n_actions)
+        self.controller_type = "k_nearest"
 
         #  Parameters to be optimized
         self.alpha = 1.0
@@ -157,6 +174,7 @@ class ActiveElastic_k_near(Controller):
         self.wmax = 1.5708 / 2.5
 
     def velocity_commands(self, state: np.array) -> np.array:
+        assert (len(state) == self.n_input), "State does not correspond with expected input size"
         k = 4
 
         self.distances = state[0:k]
@@ -207,6 +225,7 @@ class ActiveElastic_k_near(Controller):
 class ActiveElastic_omni(Controller):
     def __init__(self, n_states, n_actions):
         super().__init__(n_states, n_actions)
+        self.controller_type = "omni"
 
         #  Parameters to be optimized
         self.alpha = 1.0
@@ -220,6 +239,7 @@ class ActiveElastic_omni(Controller):
         self.wmax = 1.5708 / 2.5
 
     def velocity_commands(self, state: np.array) -> np.array:
+        assert (len(state) == self.n_input), "State does not correspond with expected input size"
         self.distances = state[0]
         self.distances[self.distances == 0] = np.inf
         self.bearings = state[1]
@@ -264,3 +284,11 @@ class ActiveElastic_omni(Controller):
             w = -self.wmax
 
         return np.array([u, w])
+
+    def geno2pheno(self, genotype: np.array):
+        assert (len(genotype) == 4)
+        self.alpha = genotype[0]
+        self.beta = genotype[1]
+        self.K1 = genotype[2]
+        self.K2 = genotype[3]
+        return

@@ -1,12 +1,6 @@
 import numpy as np
 import random as rand
-import matplotlib;
 
-matplotlib.use('module://backend_interagg')
-import matplotlib;
-
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
 import math
 
 

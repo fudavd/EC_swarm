@@ -12,20 +12,22 @@ from .calculate_fitness import FitnessCalculator  # Fitness calculator class, al
 from .sensors import Sensors  # Sensor class, all types of sensors are are implemented as different
 # methods of this class
 
-from . import Controllers
+from .Individual import Individual
 import time
 
-def simulate_swarm(life_timeout: float, individual: Controllers.Controller, headless: bool) -> np.array:
+
+def simulate_swarm(life_timeout: float, individual: Individual, headless: bool) -> np.array:
     """
     Simulate the robot in isaac gym
-    :param individual: robot controller for every member of the swarm
+    :param individual: robot phenotype for every member of the swarm
     :param life_timeout: how long should the robot live
     :param headless: Start UI for debugging
     :return: fitness of the individual
     """
 
-    if_random_start = True
-    sensor_type = "k_nearest"  # omni, k_nearest, 4dir
+    if_random_start = True  # omni, k_nearest, 4dir
+    controller = individual.controller
+    controller_type = controller.controller_type
     # %% Initialize gym
     gym = gymapi.acquire_gym()
 
@@ -52,7 +54,7 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
         sim_params.physx.num_position_iterations = 4
         sim_params.physx.num_velocity_iterations = 1
         sim_params.physx.num_threads = args.num_threads
-        sim_params.physx.use_gpu = False
+        sim_params.physx.use_gpu = True
 
     sim = gym.create_sim(args.compute_device_id, args.graphics_device_id, args.physics_engine, sim_params)
 
@@ -64,8 +66,6 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     viewer = None
     if not headless:
         viewer = gym.create_viewer(sim, gymapi.CameraProperties())
-    if viewer is None:
-        print("*** Failed to create viewer")
 
     # %% Initialize environment
     print("Initialize environment")
@@ -97,7 +97,7 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     print("Initialize Robot")
     # Load robot asset
     asset_root = "./"
-    robot_asset_file = "/models/thymio/model.urdf"
+    robot_asset_file = individual.body
 
     num_robots = 14
     robot_handles = []
@@ -202,16 +202,24 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     def update_robot(sensor_input_distance, sensor_input_heading, sensor_input_bearing=None, own_headings=None):
         for ii in range(num_robots):
             # state : np.array() --> 5 by 1. [0:3] --> distance sensor output, [4] --> heading sensor output
-            if sensor_type == "omni":
-                state = [np.array(sensor_input_distance[ii]), np.array(sensor_input_bearing[ii]), sensor_input_heading[ii, :], own_headings[ii]]
-            elif sensor_type == "k_nearest":
-                state = np.hstack((sensor_input_distance[ii, :], sensor_input_bearing[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
-            elif sensor_type == "4dir":
+            if controller_type == "omni":
+                state = [np.array(sensor_input_distance[ii]), np.array(sensor_input_bearing[ii]),
+                         sensor_input_heading[ii, :], own_headings[ii]]
+            elif controller_type == "k_nearest":
+                state = np.hstack((sensor_input_distance[ii, :], sensor_input_bearing[ii, :],
+                                   sensor_input_heading[ii, :], own_headings[ii]))
+            elif controller_type == "4dir":
                 state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
-            elif sensor_type == "2dir":
+            elif controller_type == "2dir":
                 state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
-
-            velocity_target = individual.velocity_commands(np.array(state))  # assumed to be in format of [u,w]
+            elif controller_type == "NN":
+                state = np.hstack((sensor_input_distance[ii, :], sensor_input_bearing[ii, :],
+                                   sensor_input_heading[ii, :], own_headings[ii]))
+            elif controller_type == "default":
+                state = np.empty(controller.n_input)
+            else:
+                raise ValueError("Controller type not found")
+            velocity_target = controller.velocity_commands(np.array(state))  # assumed to be in format of [u,w]
             n_l = (velocity_target[0] - (velocity_target[1] / 2) * 0.085) / 0.021
             n_r = (velocity_target[0] + (velocity_target[1] / 2) * 0.085) / 0.021
             gym.set_actor_dof_velocity_targets(env, robot_handles[ii], [n_l, n_r])
@@ -240,7 +248,7 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
     timestep = 0  # Counter to save total time steps, required for final step of fitness value calculation
 
     positions = np.full([3, num_robots], 0.01)  # Allocation to save positions of all robots in a single matrix
-    fitness_calculator = FitnessCalculator(num_robots, initial_positions, desired_movement)  #  Fitness calculator init
+    fitness_calculator = FitnessCalculator(num_robots, initial_positions, desired_movement)  # Fitness calculator init
     sensor = Sensors()  # Sensors init
 
     # %% Simulate
@@ -252,18 +260,30 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
         if (gym.get_sim_time(sim) - start) > 0.05:
             headings, positions[0], positions[1] = get_pos_and_headings()  # Update positions and headings of all robots
 
-            if sensor_type == "omni":
-                distance_sensor_outputs, bearing_sensor_outputs = sensor.omni_dir_sensor(positions, headings)  # The values recorded by on-board
-                heading_sensor_outputs = sensor.heading_sensor_ae(positions, headings)  # The values recorded by on-board
+            if controller_type == "omni":
+                distance_sensor_outputs, bearing_sensor_outputs = sensor.omni_dir_sensor(positions,
+                                                                                         headings)  # The values recorded by on-board
+                heading_sensor_outputs = sensor.heading_sensor_ae(positions,
+                                                                  headings)  # The values recorded by on-board
                 update_robot(distance_sensor_outputs, heading_sensor_outputs, bearing_sensor_outputs, headings)
-            elif sensor_type == "k_nearest":
-                distance_sensor_outputs, bearing_sensor_outputs = sensor.k_nearest_sensor(positions, headings)  # The values recorded by on-board
-                heading_sensor_outputs = sensor.heading_sensor_ae(positions, headings)  # The values recorded by on-board
+            elif controller_type == "k_nearest":
+                distance_sensor_outputs, bearing_sensor_outputs = sensor.k_nearest_sensor(positions,
+                                                                                          headings)  # The values recorded by on-board
+                heading_sensor_outputs = sensor.heading_sensor_ae(positions,
+                                                                  headings)  # The values recorded by on-board
                 update_robot(distance_sensor_outputs, heading_sensor_outputs, bearing_sensor_outputs, headings)
-            elif sensor_type == "4dir":
+            elif controller_type == "4dir":
                 distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
-                heading_sensor_outputs = sensor.heading_sensor_ae(positions, headings)  # The values recorded by on-board
+                heading_sensor_outputs = sensor.heading_sensor_ae(positions,
+                                                                  headings)  # The values recorded by on-board
                 update_robot(distance_sensor_outputs, heading_sensor_outputs, own_headings=headings)
+            elif controller_type == "default":
+                distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
+                heading_sensor_outputs = sensor.heading_sensor_ae(positions,
+                                                                  headings)  # The values recorded by on-board
+                update_robot(distance_sensor_outputs, heading_sensor_outputs, own_headings=headings)
+            else:
+                raise ValueError("Controller type not found")
 
             timestep = timestep + 1  # Time step counter
             fitness_coh_and_sep = fitness_calculator.calculate_cohesion_and_separation(positions)  # Update fitness val
@@ -281,6 +301,10 @@ def simulate_swarm(life_timeout: float, individual: Controllers.Controller, head
 
     gym.destroy_viewer(viewer)
     gym.destroy_sim(sim)
+    try:
+        1 / 0
+    except:
+        print("gpu memory cleared")
 
     print("Cohesion is: ", fitness_coh_and_sep[0] / timestep)
     print("Separation is: ", - fitness_coh_and_sep[1] / timestep)
