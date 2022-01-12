@@ -3,4 +3,4 @@ numpy>=1.9.2
 matplotlib
 
 # Non PIP Packages
-thirdparty/isaacgym/python
+-e thirdparty/isaacgym/python

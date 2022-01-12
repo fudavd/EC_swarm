@@ -1,5 +1,7 @@
 /results/*
+*.log
 
+venv/
 .venv*/
 .python-version
 Pipfile

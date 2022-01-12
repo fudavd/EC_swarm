@@ -1,5 +1,9 @@
 import math
 import unittest
+import sys
+import os
+print('Python %s on %s' % (sys.version, sys.platform))
+sys.path.append(Path(os.path.abspath(__file__)).parents[2].__str__())
 
 from utils.Simulate_swarm import simulate_swarm
 from utils import Individual

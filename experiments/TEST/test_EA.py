@@ -1,14 +1,18 @@
+from pathlib import Path
+import sys
+import os
 import unittest
-
 import numpy as np
 import argparse
-from utils import EA
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import ticker
+print('Python %s on %s' % (sys.version, sys.platform))
+sys.path.append(Path(os.path.abspath(__file__)).parents[2].__str__())
+from utils import EA
 
-matplotlib.use('module://backend_interagg')
-matplotlib.use('TkAgg')
+# matplotlib.use('module://backend_interagg')
+# matplotlib.use('TkAgg')
 
 def rosenbrock_fitness(genome):
     x, y = genome
@@ -47,14 +51,15 @@ class TestEA(unittest.TestCase):
         n_generations = 100  # generations
 
         population = learner.x_new
+
         for gen in range(n_generations):  # loop over generations
             fitnesses = []
-            for individual in population:  # loop over individuals
+            for individual in learner.x_new:  # loop over individuals
                 fitness = rosenbrock_fitness(individual)
                 fitnesses.append(fitness)
 
             learner.f_new = np.array(fitnesses)
-            population = learner.get_new_genome()
+            learner.x_new = learner.get_new_genome()
 
             if verbose:
                 if gen % 10 == 0:
@@ -78,7 +83,7 @@ class TestEA(unittest.TestCase):
                          cmap='Reds'
                          )
             plt.show()
-            fig.savefig(f"../results/TEST_{EA_type.upper()}.pdf")
+            fig.savefig(f"./results/TEST_{EA_type.upper()}.pdf")
         self.assertAlmostEqual(rosenbrock_fitness(learner.x_best_so_far[-1].flatten()), 0.0, delta=0.01)  # add assertion here
 
 

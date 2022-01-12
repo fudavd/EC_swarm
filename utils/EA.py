@@ -41,12 +41,11 @@ class DE(EA):
         self.bounds = params['bounds']  # lower/upper bound on design variables
 
         self.x = np.empty((self.Np, self.D))
+        self.f = np.ones(self.Np) * np.inf
 
-        # Initialize the arrays
+        # Initialize the array
         self.x_new = np.random.uniform(self.bounds[0], self.bounds[1], (self.Np, self.D))
-
         self.f_new = np.empty(self.Np)
-        self.f_old = np.ones(self.Np) * np.inf
 
         self.f_best_so_far = []
         self.x_best_so_far = []
@@ -59,13 +58,13 @@ class DE(EA):
         pop_best = np.min(self.f_new)  # some book keeping
         if self.f_best_so_far == [] or pop_best < self.f_best_so_far[-1]:
             self.f_best_so_far.append(pop_best)
-            self.x_best_so_far.append(self.x_new[np.where(self.f_new == pop_best)])
+            self.x_best_so_far.append(self.x_new[np.where(self.f_new == pop_best), :].squeeze())
         else:
             self.f_best_so_far.append(self.f_best_so_far[-1])
             self.x_best_so_far.append(self.x_best_so_far[-1])
 
         for i in range(self.Np):
-            if self.f_new[i] < self.f_old[i]:  # update population
+            if self.f_new[i] < self.f[i]:  # update population
                 self.x[i] = self.x_new[i]
 
             r0 = i
@@ -87,5 +86,6 @@ class DE(EA):
                 else:
                     self.x_new[i][j] = self.x[i][j]
 
-        self.f_old = self.f_new
+        self.x_new = np.clip(self.x_new, self.bounds[0], self.bounds[1])
+        self.f = self.f_new
         return self.x_new

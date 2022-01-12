@@ -1,6 +1,8 @@
 """
 Loading and testing
 """
+from typing import AnyStr
+
 from isaacgym import gymapi
 from isaacgym import gymutil
 from scipy.spatial.transform import Rotation as R
@@ -14,6 +16,7 @@ from .sensors import Sensors  # Sensor class, all types of sensors are are imple
 
 from .Individual import Individual
 import time
+from multiprocessing import Process, shared_memory
 
 
 def simulate_swarm(life_timeout: float, individual: Individual, headless: bool) -> np.array:
@@ -36,7 +39,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool) 
 
     # configure sim
     sim_params = gymapi.SimParams()
-    sim_params.dt = 0.005
+    sim_params.dt = 0.01
     sim_params.substeps = 2
 
     # defining axis of rotation!
@@ -68,7 +71,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool) 
         viewer = gym.create_viewer(sim, gymapi.CameraProperties())
 
     # %% Initialize environment
-    print("Initialize environment")
+    # print("Initialize environment")
     # Add ground plane
     plane_params = gymapi.PlaneParams()
     plane_params.normal = gymapi.Vec3(0, 0, 1)  # z-up!
@@ -89,12 +92,12 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool) 
     env_upper = gymapi.Vec3(spacing, spacing, spacing)
 
     # Some common handles for later use
-    print("Creating %d environments" % num_envs)
+    # print("Creating %d environments" % num_envs)
 
     # create env
     env = gym.create_env(sim, env_lower, env_upper, num_envs)
     # %% Initialize robot: Robobo
-    print("Initialize Robot")
+    # print("Initialize Robot")
     # Load robot asset
     asset_root = "./"
     robot_asset_file = individual.body
@@ -144,7 +147,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool) 
             pose.r.z = ihs_i[2]
             pose.r.w = ihs_i[3]
 
-            print("Loading asset '%s' from '%s', #%i" % (robot_asset_file, asset_root, i))
+            # print("Loading asset '%s' from '%s', #%i" % (robot_asset_file, asset_root, i))
             robot_asset = gym.load_asset(
                 sim, asset_root, robot_asset_file, asset_options)
 
@@ -167,7 +170,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool) 
             initial_positions[0][i] = pose.p.x  # Save initial position x of i'th robot
             initial_positions[1][i] = pose.p.y  # Save initial position y of i'th robot
 
-            print("Loading asset '%s' from '%s', #%i" % (robot_asset_file, asset_root, i))
+            # print("Loading asset '%s' from '%s', #%i" % (robot_asset_file, asset_root, i))
             robot_asset = gym.load_asset(
                 sim, asset_root, robot_asset_file, asset_options)
 
@@ -301,16 +304,47 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool) 
 
     gym.destroy_viewer(viewer)
     gym.destroy_sim(sim)
-    try:
-        1 / 0
-    except:
-        print("gpu memory cleared")
 
-    print("Cohesion is: ", fitness_coh_and_sep[0] / timestep)
-    print("Separation is: ", - fitness_coh_and_sep[1] / timestep)
-    print("Alignment is: ", fitness_alignment / timestep)
-    print("Movement is: ", fitness_movement)
+    # print("Cohesion is: ", fitness_coh_and_sep[0] / timestep)
+    # print("Separation is: ", - fitness_coh_and_sep[1] / timestep)
+    # print("Alignment is: ", fitness_alignment / timestep)
+    # print("Movement is: ", fitness_movement)
 
     experiment_fitness = fitness_coh_and_sep[0] / timestep - fitness_coh_and_sep[
         1] / timestep + fitness_alignment / timestep + fitness_movement  # For the time average, divide by time step
     return experiment_fitness
+
+
+def simulate_swarm_with_restart(life_timeout: float, individual: Individual, headless: bool) -> np.array:
+    """
+    Obtains the results for simulate_swarm() with forced gpu memory clearance for restarts.
+    :param individuals: robot phenotype for every member of the swarm
+    :param life_timeout: how long should the robot live
+    :param headless: Start UI for debugging
+    :return: fitness of the individual
+    """
+    result = np.array([0.0], dtype=np.float)
+    shared_mem = shared_memory.SharedMemory(create=True, size=result.nbytes)
+    process = Process(target=_inner_simulator_multiple_process, args=(life_timeout, individual, headless, shared_mem.name))
+    process.start()
+    process.join()
+    remote_result = np.ndarray((1,), dtype=np.float, buffer=shared_mem.buf)
+    result[:] = remote_result[:]
+    shared_mem.close()
+    shared_mem.unlink()
+    return result
+
+
+def _inner_simulator_multiple_process(life_timeout: float, individual: Individual, headless: bool, shared_mem_name: AnyStr) -> int:
+    existing_shared_mem = shared_memory.SharedMemory(name=shared_mem_name)
+    remote_result = np.ndarray((1,), dtype=np.float, buffer=existing_shared_mem.buf)
+    try:
+        fitness: np.array = simulate_swarm(life_timeout, individual, headless)
+        remote_result[:] = fitness
+        existing_shared_mem.close()
+        return 0
+    except Exception as e:
+        print(e)
+        remote_result[:] = -np.inf
+        existing_shared_mem.close()
+        return -1
