@@ -1,5 +1,6 @@
 import numpy as np
 from copy import deepcopy
+import scipy.io as sio
 
 class FitnessCalculator:
 
@@ -18,12 +19,28 @@ class FitnessCalculator:
         self.current_alignment = 0
         self.current_movement = 0
 
+        self.map = sio.loadmat('./utils/Gradient Maps/linear_10x10.mat')
+        self.map = self.map['I']
+        self.size_x = 10
+        self.size_y = 10
+        self.grad_constant_x = (len(np.arange(start=0.00, stop=self.size_x, step=0.04))) / self.size_x
+        self.grad_constant_y = (len(np.arange(start=0.00, stop=self.size_y, step=0.04))) / self.size_y
+
         self.num_robots = num_robots
         self.initial_positions = initial_positions
         self.cohesion_range = 2.0  # The range to accept as a "neighborhood" of the focal robot
         self.desired_movement = desired_movement
 
         self.dij = np.zeros((self.num_robots,self.num_robots))
+
+    def calculate_grad(self, positions):
+        self.grad_y = np.ceil(np.multiply(positions[0], self.grad_constant_x))
+        self.grad_x = np.ceil(np.multiply(positions[1], self.grad_constant_y))
+        self.grad_x = self.grad_x.astype(int)
+        self.grad_y = self.grad_y.astype(int)
+        self.grad_vals = self.map[self.grad_x, self.grad_y]
+
+        return np.sum(self.grad_vals) / self.num_robots
 
     def calculate_cohesion_and_separation(self,positions):
         # The "cohesion" and "separation", fitness function elements, as in "Evolving flocking in embodied agents based

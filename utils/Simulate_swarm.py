@@ -16,10 +16,10 @@ from .sensors import Sensors  # Sensor class, all types of sensors are are imple
 
 from .Individual import Individual
 import time
-from multiprocessing import Process, shared_memory
+# from multiprocessing import Process, shared_memory
 
 
-def simulate_swarm(life_timeout: float, individual: Individual, headless: bool) -> np.array:
+def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, objectives: list) -> np.array:
     """
     Simulate the robot in isaac gym
     :param individual: robot phenotype for every member of the swarm
@@ -292,6 +292,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool) 
             fitness_coh_and_sep = fitness_calculator.calculate_cohesion_and_separation(positions)  # Update fitness val
             fitness_alignment = fitness_calculator.calculate_alignment(headings)  # Update fitness val
             fitness_movement = fitness_calculator.calculate_movement(positions)  # Update fitness val
+            fitness_gradient = fitness_calculator.calculate_grad(positions)
 
             # nogs = fitness_calculator.calculate_number_of_groups(positions)  # Update fitness val
             start = gym.get_sim_time(sim)
@@ -309,13 +310,24 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool) 
     # print("Separation is: ", - fitness_coh_and_sep[1] / timestep)
     # print("Alignment is: ", fitness_alignment / timestep)
     # print("Movement is: ", fitness_movement)
+    fitnesses = np.array([fitness_coh_and_sep[0] / timestep,
+                          fitness_coh_and_sep[1] / timestep,
+                          fitness_alignment[0] / timestep,
+                          fitness_movement[0],
+                          fitness_gradient/255]).T
+    binary_vector = objectives
+    experiment_fitness = np.dot(binary_vector, fitnesses)
 
-    experiment_fitness = fitness_coh_and_sep[0] / timestep - fitness_coh_and_sep[
-        1] / timestep + fitness_alignment / timestep + fitness_movement  # For the time average, divide by time step
+    # experiment_fitness = fitness_coh_and_sep[0] / timestep - fitness_coh_and_sep[
+    #     1] / timestep + fitness_alignment / timestep + fitness_movement  # For the time average, divide by time step
+
+    # Gradient only fitness??
+    # experiment_fitness = fitness_gradient
+
     return experiment_fitness
 
 
-def simulate_swarm_with_restart(life_timeout: float, individual: Individual, headless: bool) -> np.array:
+def simulate_swarm_with_restart(life_timeout: float, individual: Individual, headless: bool, objectives: list) -> np.array:
     """
     Obtains the results for simulate_swarm() with forced gpu memory clearance for restarts.
     :param individuals: robot phenotype for every member of the swarm
@@ -325,7 +337,8 @@ def simulate_swarm_with_restart(life_timeout: float, individual: Individual, hea
     """
     result = np.array([0.0], dtype=np.float)
     shared_mem = shared_memory.SharedMemory(create=True, size=result.nbytes)
-    process = Process(target=_inner_simulator_multiple_process, args=(life_timeout, individual, headless, shared_mem.name))
+    process = Process(target=_inner_simulator_multiple_process,
+                      args=(life_timeout, individual, headless, objectives, shared_mem.name))
     process.start()
     process.join()
     remote_result = np.ndarray((1,), dtype=np.float, buffer=shared_mem.buf)
@@ -335,11 +348,12 @@ def simulate_swarm_with_restart(life_timeout: float, individual: Individual, hea
     return result
 
 
-def _inner_simulator_multiple_process(life_timeout: float, individual: Individual, headless: bool, shared_mem_name: AnyStr) -> int:
+def _inner_simulator_multiple_process(life_timeout: float, individual: Individual, headless: bool, objectives: list,
+                                      shared_mem_name: AnyStr) -> int:
     existing_shared_mem = shared_memory.SharedMemory(name=shared_mem_name)
     remote_result = np.ndarray((1,), dtype=np.float, buffer=existing_shared_mem.buf)
     try:
-        fitness: np.array = simulate_swarm(life_timeout, individual, headless)
+        fitness: np.array = simulate_swarm(life_timeout, individual, headless, objectives)
         remote_result[:] = fitness
         existing_shared_mem.close()
         return 0

@@ -8,6 +8,8 @@ class Controller(object):
         self.n_input = n_states
         self.n_output = n_actions
         self.controller_type = "default"
+        self.umax_const = 0.1
+        self.wmax = 1.5708 / 2.5
 
     @staticmethod
     def velocity_commands(state: np.array) -> np.array:
@@ -68,7 +70,10 @@ class NNController(Controller):
         """
         assert (len(state) == self.n_input), "State does not correspond with expected input size"
         action = self.model.forward(torch.Tensor(state))
-        return action.numpy()
+        control_input = np.zeros(2)
+        control_input[0] = action[0]*self.umax_const
+        control_input[1] = action[1]*self.wmax
+        return control_input
 
 
 class RandomWalk(Controller):
@@ -93,8 +98,6 @@ class ActiveElastic_4dir(Controller):
 
         self.epsilon = 12.0
         self.sigma_const = 0.4
-        self.umax_const = 0.1
-        self.wmax = 1.5708 / 2.5
 
     def velocity_commands(self, state: np.array) -> np.array:
         assert (len(state) == self.n_input), "State does not correspond with expected input size"
@@ -170,8 +173,6 @@ class ActiveElastic_k_near(Controller):
 
         self.epsilon = 12.0
         self.sigma_const = 0.4
-        self.umax_const = 0.1
-        self.wmax = 1.5708 / 2.5
 
     def velocity_commands(self, state: np.array) -> np.array:
         assert (len(state) == self.n_input), "State does not correspond with expected input size"
@@ -235,8 +236,6 @@ class ActiveElastic_omni(Controller):
 
         self.epsilon = 12.0
         self.sigma_const = 0.4
-        self.umax_const = 0.1
-        self.wmax = 1.5708 / 2.5
 
     def velocity_commands(self, state: np.array) -> np.array:
         assert (len(state) == self.n_input), "State does not correspond with expected input size"

@@ -3,6 +3,7 @@ import unittest
 import sys
 import os
 print('Python %s on %s' % (sys.version, sys.platform))
+from pathlib import Path
 sys.path.append(Path(os.path.abspath(__file__)).parents[2].__str__())
 
 from utils.Simulate_swarm import simulate_swarm
@@ -14,7 +15,7 @@ class TestSim(unittest.TestCase):
         genotype = Individual.thymio_genotype(controller_type)
         individual = Individual.Individual(genotype, 0)
         try:
-            fitness = simulate_swarm(30, individual, not verbose)
+            fitness = simulate_swarm(30, individual, not verbose, [0, 1, 1, 0, 1])
         except:
             raise Exception("Could not calculate fitness")
 
