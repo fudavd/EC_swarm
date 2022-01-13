@@ -18,8 +18,9 @@ class FitnessCalculator:
         self.current_separation = 0
         self.current_alignment = 0
         self.current_movement = 0
+        self.current_grad = 0
 
-        self.map = sio.loadmat('./utils/Gradient Maps/linear_10x10.mat')
+        self.map = sio.loadmat('./utils/Gradient Maps/circle_30x30.mat')
         self.map = self.map['I']
         self.size_x = 10
         self.size_y = 10
@@ -38,9 +39,17 @@ class FitnessCalculator:
         self.grad_x = np.ceil(np.multiply(positions[1], self.grad_constant_y))
         self.grad_x = self.grad_x.astype(int)
         self.grad_y = self.grad_y.astype(int)
+
+        self.grad_x[self.grad_x < 0] = 0
+        self.grad_x[self.grad_x >= self.size_x/0.04] = 0
+        self.grad_y[self.grad_y < 0] = 0
+        self.grad_y[self.grad_y >= self.size_y/0.04] = 0
+
         self.grad_vals = self.map[self.grad_x, self.grad_y]
 
-        return np.sum(self.grad_vals) / self.num_robots
+        self.current_grad = self.current_grad + (np.sum(self.grad_vals) / self.num_robots) / 255.0
+
+        return self.current_grad
 
     def calculate_cohesion_and_separation(self,positions):
         # The "cohesion" and "separation", fitness function elements, as in "Evolving flocking in embodied agents based

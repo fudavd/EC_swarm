@@ -109,13 +109,16 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
 
     if if_random_start:
         flag = 0
-        init_area = 2.5
+        init_area = 3.0
         init_flag = 0
         init_failure_1 = 1
-        a_x = (init_area / 2)
-        b_x = -(init_area / 2)
-        a_y = (init_area / 2)
-        b_y = -(init_area / 2)
+        iangle = 6.28 * np.random.rand()
+        iy = 15 + 12 * (np.cos(iangle))
+        ix = 15 + 12 * (np.sin(iangle))
+        a_x = ix + (init_area / 2)
+        b_x = ix - (init_area / 2)
+        a_y = iy + (init_area / 2)
+        b_y = iy - (init_area / 2)
 
         while init_failure_1 == 1 and init_flag == 0:
             ixs = a_x + (b_x - a_x) * np.random.rand(num_robots)
@@ -314,7 +317,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
                           fitness_coh_and_sep[1] / timestep,
                           fitness_alignment[0] / timestep,
                           fitness_movement[0],
-                          fitness_gradient/255]).T
+                          fitness_gradient / timestep]).T
     binary_vector = objectives
     experiment_fitness = np.dot(binary_vector, fitnesses)
 
