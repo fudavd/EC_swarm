@@ -1,6 +1,7 @@
 """
 Loading and testing
 """
+from multiprocessing import shared_memory, Process
 from typing import AnyStr
 
 from isaacgym import gymapi
@@ -216,8 +217,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
             elif controller_type == "2dir":
                 state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
             elif controller_type == "NN":
-                state = np.hstack((sensor_input_distance[ii, :], sensor_input_bearing[ii, :],
-                                   sensor_input_heading[ii, :], own_headings[ii]))
+                state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
             elif controller_type == "default":
                 state = np.empty(controller.n_input)
             else:
@@ -275,7 +275,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
                 heading_sensor_outputs = sensor.heading_sensor_ae(positions,
                                                                   headings)  # The values recorded by on-board
                 update_robot(distance_sensor_outputs, heading_sensor_outputs, bearing_sensor_outputs, headings)
-            elif controller_type == "4dir":
+            elif controller_type == "4dir" or controller_type == "NN":
                 distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
                 heading_sensor_outputs = sensor.heading_sensor_ae(positions,
                                                                   headings)  # The values recorded by on-board

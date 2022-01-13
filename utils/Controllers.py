@@ -41,9 +41,9 @@ class NeuralNetwork(torch.nn.Module):
         assert (len(weights) == self.n_con1 + self.n_con2)
         with torch.no_grad():
             weight_matrix1 = weights[:self.n_con1].reshape(self.NN[0].weight.shape)
-            weight_matrix2 = weights[-self.n_con2:].reshape(self.NN[1].weight.shape)
-            self.NN[0].weight = weight_matrix1
-            self.NN[1].weight = weight_matrix2
+            weight_matrix2 = weights[-self.n_con2:].reshape(self.NN[2].weight.shape)
+            self.NN[0].weight = nn.Parameter(weight_matrix1)
+            self.NN[2].weight = nn.Parameter(weight_matrix2)
 
     def forward(self, state):
         return self.NN(state)
@@ -56,7 +56,7 @@ class NNController(Controller):
         self.model = NeuralNetwork(n_states, n_states, n_actions)
 
     def geno2pheno(self, genotype: np.array):
-        weights = torch.Tensor(genotype).requires_grad(False)
+        weights = torch.Tensor(genotype)
         self.model.set_weights(weights)
 
     def velocity_commands(self, state: np.array) -> np.array:
