@@ -41,14 +41,10 @@ def main():
         for gen in range(n_generations):  # loop over generations
             fitnesses_gen = []
             population = []
-            prr = True
             for (individual, x) in enumerate(learner.x_new):  # loop over individuals
                 genotype['controller']["encoding"] = x
-                if prr:
-                    print("\n\n", learner.x_new, "\n\n")
-                    prr = False
                 swarm = Individual(genotype, individual + params['pop_size'] * gen)
-                fitness = simulate_swarm_with_restart(simulation_time, swarm, True, [0, 1, 1, 0, 1])
+                fitness = simulate_swarm_with_restart(simulation_time, swarm, True, [1, 1, 1, 1, 1])
                 swarm.set_fitness(fitness)
                 population.append(swarm)
                 fitnesses_gen.append(fitness)

@@ -40,12 +40,13 @@ class DE(EA):
         self.F = params['F']  # Mutation factor
         self.bounds = params['bounds']  # lower/upper bound on design variables
 
-        self.x = np.empty((self.Np, self.D))
-        self.f = np.ones(self.Np) * np.inf
-
-        # Initialize the array
+        # Initialize the new population array
         self.x_new = np.random.uniform(self.bounds[0], self.bounds[1], (self.Np, self.D))
         self.f_new = np.empty(self.Np)
+
+        # Initialize the current population array
+        self.x = self.x_new
+        self.f = np.ones(self.Np) * np.inf
 
         self.f_best_so_far = []
         self.x_best_so_far = []
