@@ -59,7 +59,7 @@ class DE(EA):
         pop_best = np.min(self.f_new)  # some book keeping
         if self.f_best_so_far == [] or pop_best < self.f_best_so_far[-1]:
             self.f_best_so_far.append(pop_best)
-            self.x_best_so_far.append(self.x_new[np.where(self.f_new == pop_best), :].squeeze())
+            self.x_best_so_far.append(self.x_new[np.argmin(self.f_new), :].squeeze())
         else:
             self.f_best_so_far.append(self.f_best_so_far[-1])
             self.x_best_so_far.append(self.x_best_so_far[-1])

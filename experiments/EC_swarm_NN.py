@@ -6,7 +6,7 @@ print("Experiment root: ", Path(os.path.abspath(__file__)).parents[1].__str__())
 sys.path.append(Path(os.path.abspath(__file__)).parents[1].__str__())
 
 import numpy as np
-from utils.Simulate_swarm import simulate_swarm_with_restart
+from utils.Simulate_swarm import simulate_swarm_with_restart, simulate_swarm
 from utils.EA import DE
 from utils.Individual import Individual, thymio_genotype
 
@@ -17,7 +17,7 @@ def main():
     genotype = thymio_genotype("NN", n_input, n_output)
 
     experiment_name = "NN"
-    simulation_time = 600
+    simulation_time = 20
     # setting number of:
     n_runs = 10  # runs/repetitions
     n_generations = 25  # generations
@@ -44,7 +44,7 @@ def main():
             for (individual, x) in enumerate(learner.x_new):  # loop over individuals
                 genotype['controller']["encoding"] = x
                 swarm = Individual(genotype, individual + params['pop_size'] * gen)
-                fitness = simulate_swarm_with_restart(simulation_time, swarm, True, [1, 1, 1, 1, 1])
+                fitness = simulate_swarm(simulation_time, swarm, True, [1, 1, 1, 1, 1])
                 swarm.set_fitness(fitness)
                 population.append(swarm)
                 fitnesses_gen.append(fitness)

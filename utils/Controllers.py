@@ -2,7 +2,6 @@ import numpy as np
 import torch
 from torch import nn
 
-
 class Controller(object):
     def __init__(self, n_states, n_actions):
         self.n_input = n_states
@@ -42,8 +41,8 @@ class NeuralNetwork(torch.nn.Module):
         with torch.no_grad():
             weight_matrix1 = weights[:self.n_con1].reshape(self.NN[0].weight.shape)
             weight_matrix2 = weights[-self.n_con2:].reshape(self.NN[2].weight.shape)
-            self.NN[0].weight = nn.Parameter(weight_matrix1)
-            self.NN[2].weight = nn.Parameter(weight_matrix2)
+            self.NN[0].weight = nn.Parameter(weight_matrix1, requires_grad=False)
+            self.NN[2].weight = nn.Parameter(weight_matrix2, requires_grad=False)
 
     def forward(self, state):
         return self.NN(state)
@@ -69,10 +68,8 @@ class NNController(Controller):
         <np.array> action : A vector of motor inputs
         """
         assert (len(state) == self.n_input), "State does not correspond with expected input size"
-        action = self.model.forward(torch.Tensor(state))
-        control_input = np.zeros(2)
-        control_input[0] = action[0]*self.umax_const
-        control_input[1] = action[1]*self.wmax
+        action = self.model.forward(torch.Tensor(state)).numpy()
+        control_input = action*np.array([self.umax_const, self.wmax])
         return control_input
 
 

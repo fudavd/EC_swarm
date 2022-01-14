@@ -352,13 +352,13 @@ def simulate_swarm_with_restart(life_timeout: float, individual: Individual, hea
     :param headless: Start UI for debugging
     :return: fitness of the individual
     """
-    result = np.array([0.0], dtype=np.float)
+    result = np.array([0.0], dtype=float)
     shared_mem = shared_memory.SharedMemory(create=True, size=result.nbytes)
     process = Process(target=_inner_simulator_multiple_process,
                       args=(life_timeout, individual, headless, objectives, shared_mem.name))
     process.start()
     process.join()
-    remote_result = np.ndarray((1,), dtype=np.float, buffer=shared_mem.buf)
+    remote_result = np.ndarray((1,), dtype=float, buffer=shared_mem.buf)
     result[:] = remote_result[:]
     shared_mem.close()
     shared_mem.unlink()
@@ -368,7 +368,7 @@ def simulate_swarm_with_restart(life_timeout: float, individual: Individual, hea
 def _inner_simulator_multiple_process(life_timeout: float, individual: Individual, headless: bool, objectives: list,
                                       shared_mem_name: AnyStr) -> int:
     existing_shared_mem = shared_memory.SharedMemory(name=shared_mem_name)
-    remote_result = np.ndarray((1,), dtype=np.float, buffer=existing_shared_mem.buf)
+    remote_result = np.ndarray((1,), dtype=float, buffer=existing_shared_mem.buf)
     try:
         fitness: np.array = simulate_swarm(life_timeout, individual, headless, objectives)
         remote_result[:] = fitness
