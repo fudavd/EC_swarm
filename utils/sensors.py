@@ -1,11 +1,41 @@
 import numpy as np
-
+import scipy.io as sio
 
 class Sensors:
     # Different sensor types for robots in the swarm. Each sensor is a "device" located in "each robot". This class put
     # all sensor outputs of all robots in a single matrix for convenience.
     def __init__(self):
-        pass
+        self.map = sio.loadmat('./utils/Gradient Maps/circle_30x30.mat')
+        self.map = self.map['I']
+        self.size_x = 30
+        self.size_y = 30
+        self.grad_constant_x = (len(np.arange(start=0.00, stop=self.size_x, step=0.04))) / self.size_x
+        self.grad_constant_y = (len(np.arange(start=0.00, stop=self.size_y, step=0.04))) / self.size_y
+
+    def grad_sensor(self, positions):
+        # This sensor will read the local value of the gradient at the position of each agent.
+
+        # Inputs:
+        # positions : np.array(2,number_of_robots), positions[0][:] --> x positions of all robots, positions[1][:] --> y
+        # positions of all robots
+
+        # Outputs:
+        # np.array(1, num_robots) : The local value for each agent is put in the corresponding column of the array. In
+        # case agent is on the outside of gradient, output becomes zero for that agent.
+
+        self.grad_y = np.ceil(np.multiply(positions[0], self.grad_constant_x))
+        self.grad_x = np.ceil(np.multiply(positions[1], self.grad_constant_y))
+        self.grad_x = self.grad_x.astype(int)
+        self.grad_y = self.grad_y.astype(int)
+
+        self.grad_x[self.grad_x < 0] = 0
+        self.grad_x[self.grad_x >= self.size_x/0.04] = 0
+        self.grad_y[self.grad_y < 0] = 0
+        self.grad_y[self.grad_y >= self.size_y/0.04] = 0
+
+        self.grad_vals = self.map[self.grad_x, self.grad_y]
+
+        return self.grad_vals
 
     def four_dir_sensor(self, positions, headings):
         # The sensor model used in "Evolving flocking in embodied agents based on local and global application of

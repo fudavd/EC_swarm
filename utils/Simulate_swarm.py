@@ -14,6 +14,8 @@ from .calculate_fitness import FitnessCalculator  # Fitness calculator class, al
 # methods of this class
 from .sensors import Sensors  # Sensor class, all types of sensors are are implemented as different
 # methods of this class
+from .plot_swarm import swarm_plotter  # Plotter class, to plot positions and headings of the swarm agents on the
+# gradient map
 
 from .Individual import Individual
 import time
@@ -30,6 +32,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
     """
 
     if_random_start = True  # omni, k_nearest, 4dir
+    if_plot = False
     controller = individual.controller
     controller_type = controller.controller_type
     # %% Initialize gym
@@ -206,7 +209,8 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
     # # subscribe to spacebar event for reset
     gym.subscribe_viewer_keyboard_event(viewer, gymapi.KEY_R, "reset")
 
-    def update_robot(sensor_input_distance, sensor_input_heading, sensor_input_bearing=None, own_headings=None):
+    def update_robot(sensor_input_distance, sensor_input_heading, sensor_input_bearing=None, own_headings=None,
+                     sensor_input_grad=None):
         for ii in range(num_robots):
             # state : np.array() --> 5 by 1. [0:3] --> distance sensor output, [4] --> heading sensor output
             if controller_type == "omni":
@@ -220,7 +224,8 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
             elif controller_type == "2dir":
                 state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
             elif controller_type == "NN":
-                state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
+                state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii],
+                                   sensor_input_grad[ii]))
             elif controller_type == "default":
                 state = np.empty(controller.n_input)
             else:
@@ -257,6 +262,9 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
     fitness_calculator = FitnessCalculator(num_robots, initial_positions, desired_movement)  # Fitness calculator init
     sensor = Sensors()  # Sensors init
 
+    if if_plot:
+        plotter = swarm_plotter() # Plotter init
+
     # %% Simulate
     start = gym.get_sim_time(sim)
     while t <= life_timeout:
@@ -282,7 +290,9 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
                 distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
                 heading_sensor_outputs = sensor.heading_sensor_ae(positions,
                                                                   headings)  # The values recorded by on-board
-                update_robot(distance_sensor_outputs, heading_sensor_outputs, own_headings=headings)
+                grad_sensor_outputs = sensor.grad_sensor(positions)
+                update_robot(distance_sensor_outputs, heading_sensor_outputs, own_headings=headings,
+                             sensor_input_grad=grad_sensor_outputs)
             elif controller_type == "default":
                 distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
                 heading_sensor_outputs = sensor.heading_sensor_ae(positions,
@@ -298,6 +308,10 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
             fitness_gradient = fitness_calculator.calculate_grad(positions)
 
             # nogs = fitness_calculator.calculate_number_of_groups(positions)  # Update fitness val
+
+            if if_plot:
+                plotter.plot_swarm_quiver(positions, headings)
+
             start = gym.get_sim_time(sim)
 
         # Step the physics
