@@ -1,6 +1,10 @@
+import numpy
 import numpy as np
 import torch
 from torch import nn
+
+torch.set_grad_enabled(False)
+
 
 class Controller(object):
     def __init__(self, n_states, n_actions):
@@ -24,39 +28,62 @@ class NeuralNetwork(torch.nn.Module):
         super(NeuralNetwork, self).__init__()
         self.NN = nn.Sequential(
             nn.Linear(n_input, n_hidden, bias=False),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Linear(n_hidden, n_output, bias=False),
             nn.Tanh()
         )
         self.n_con1 = n_input * n_hidden
         self.n_con2 = n_hidden * n_output
-        for p in self.NN.parameters():
-            p.requires_grad = False
 
-    def set_weights(self, weights: torch.Tensor):
+    def set_weights(self, weights: numpy.array):
+        """
+        Set the weights of the Neural Network controller
+        """
+        weights = torch.tensor(weights)
+        assert (len(weights) == self.n_con1 + self.n_con2)
+        weight_matrix1 = weights[:self.n_con1].reshape(self.NN[0].weight.shape)
+        weight_matrix2 = weights[-self.n_con2:].reshape(self.NN[2].weight.shape)
+        self.NN[0].weight = nn.Parameter(weight_matrix1)
+        self.NN[2].weight = nn.Parameter(weight_matrix2)
+
+    def forward(self, state):
+        return self.NN(torch.tensor(state, dtype=float)).numpy()
+
+
+class NumpyNetwork:
+    def __init__(self, n_input, n_hidden, n_output):
+        self.n_con1 = n_input * n_hidden
+        self.n_con2 = n_hidden * n_output
+        self.lin1 = np.random.uniform(-1, 1, (n_hidden, n_input))
+        self.lin2 = np.random.uniform(-1, 1, (n_output, n_hidden))
+
+    def set_weights(self, weights: np.array):
         """
         Set the weights of the Neural Network controller
         """
         assert (len(weights) == self.n_con1 + self.n_con2)
-        with torch.no_grad():
-            weight_matrix1 = weights[:self.n_con1].reshape(self.NN[0].weight.shape)
-            weight_matrix2 = weights[-self.n_con2:].reshape(self.NN[2].weight.shape)
-            self.NN[0].weight = nn.Parameter(weight_matrix1, requires_grad=False)
-            self.NN[2].weight = nn.Parameter(weight_matrix2, requires_grad=False)
+        weight_matrix1 = weights[:self.n_con1].reshape(self.lin1.shape)
+        weight_matrix2 = weights[-self.n_con2:].reshape(self.lin2.shape)
+        self.lin1 = weight_matrix1
+        self.lin2 = weight_matrix2
 
-    def forward(self, state):
-        return self.NN(state)
+    def forward(self, state: numpy.array):
+        hid_l = np.maximum(0, np.dot(self.lin1, state))
+        output_l = 1/(1+np.exp(-np.dot(self.lin2, hid_l)))
+        return output_l
 
 
 class NNController(Controller):
-    def __init__(self, n_states, n_actions):
+    def __init__(self, n_states, n_actions, torch_=True):
         super().__init__(n_states, n_actions)
         self.controller_type = "NN"
-        self.model = NeuralNetwork(n_states, n_states, n_actions)
+        if torch_:
+            self.model = NeuralNetwork(n_states, n_states, n_actions)
+        else:
+            self.model = NumpyNetwork(n_states, n_states, n_actions)
 
     def geno2pheno(self, genotype: np.array):
-        weights = torch.Tensor(genotype)
-        self.model.set_weights(weights)
+        self.model.set_weights(genotype)
 
     def velocity_commands(self, state: np.array) -> np.array:
         """
@@ -68,8 +95,8 @@ class NNController(Controller):
         <np.array> action : A vector of motor inputs
         """
         assert (len(state) == self.n_input), "State does not correspond with expected input size"
-        action = self.model.forward(torch.Tensor(state)).numpy()
-        control_input = action*np.array([self.umax_const, self.wmax])
+        action = self.model.forward(state)
+        control_input = action * np.array([self.umax_const, self.wmax])
         return control_input
 
 

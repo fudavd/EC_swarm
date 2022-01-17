@@ -63,7 +63,10 @@ class Individual:
             params['output_space'] = 2
 
         if controller_type == 'NN':
-            controller = Controllers.NNController(params['input_space'], params['output_space'])
+            if "torch" not in params:
+                controller = Controllers.NNController(params['input_space'], params['output_space'])
+            else:
+                controller = Controllers.NNController(params['input_space'], params['output_space'], params['torch'])
         elif controller_type == 'Rand':
             controller = Controllers.RandomWalk(params['input_space'], params['output_space'])
         elif controller_type == '4dir':

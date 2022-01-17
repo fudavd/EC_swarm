@@ -27,5 +27,5 @@ class swarm_plotter:
         plt.quiver(positions[0], positions[1], np.cos(headings), np.sin(headings))
 
         # plt.draw()
-        plt.pause(0.000001)
+        plt.pause(0.001)
         plt.clf()
