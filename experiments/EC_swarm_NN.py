@@ -52,7 +52,7 @@ def main():
 
             # %% Some bookkeeping
             genomes.append(learner.x_new.tolist())
-            print("\n\n", genomes, "\n\n")
+            print("\n\n", genomes.__len__(), "\n\n")
             fitnesses.append(fitnesses_gen)
 
             learner.f_new = -np.array(fitnesses_gen)

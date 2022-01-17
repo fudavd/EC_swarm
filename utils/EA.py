@@ -1,6 +1,6 @@
 import numpy as np
 import random as rand
-
+import copy
 import math
 
 
@@ -45,7 +45,7 @@ class DE(EA):
         self.f_new = np.empty(self.Np)
 
         # Initialize the current population array
-        self.x = self.x_new
+        self.x = copy.deepcopy(self.x_new)
         self.f = np.ones(self.Np) * np.inf
 
         self.f_best_so_far = []
@@ -59,14 +59,14 @@ class DE(EA):
         pop_best = np.min(self.f_new)  # some book keeping
         if self.f_best_so_far == [] or pop_best < self.f_best_so_far[-1]:
             self.f_best_so_far.append(pop_best)
-            self.x_best_so_far.append(self.x_new[np.argmin(self.f_new), :].squeeze())
+            self.x_best_so_far.append(copy.deepcopy(self.x_new[np.argmin(self.f_new), :].squeeze()))
         else:
             self.f_best_so_far.append(self.f_best_so_far[-1])
             self.x_best_so_far.append(self.x_best_so_far[-1])
 
         for i in range(self.Np):
             if self.f_new[i] < self.f[i]:  # update population
-                self.x[i] = self.x_new[i]
+                self.x[i] = copy.deepcopy(self.x_new[i])
 
             r0 = i
             while (r0 == i):
@@ -83,9 +83,9 @@ class DE(EA):
             for j in range(self.D):
                 if (rand.random() <= self.Cr or j == jrand):
                     # Mutation
-                    self.x_new[i][j] = self.x[r0][j] + self.F * (self.x[r1][j] - self.x[r2][j])
+                    self.x_new[i][j] = copy.deepcopy(self.x[r0][j] + self.F * (self.x[r1][j] - self.x[r2][j]))
                 else:
-                    self.x_new[i][j] = self.x[i][j]
+                    self.x_new[i][j] = copy.deepcopy(self.x[i][j])
 
         self.x_new = np.clip(self.x_new, self.bounds[0], self.bounds[1])
         self.f = self.f_new
