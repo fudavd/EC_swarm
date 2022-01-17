@@ -211,7 +211,6 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
 
     def update_robot(sensor_input_distance, sensor_input_heading, sensor_input_bearing=None, own_headings=None,
                      sensor_input_grad=None):
-        t_tot = 0
         for ii in range(num_robots):
             # state : np.array() --> 5 by 1. [0:3] --> distance sensor output, [4] --> heading sensor output
             if controller_type == "omni":
@@ -231,14 +230,10 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
                 state = np.empty(controller.n_input)
             else:
                 raise ValueError("Controller type not found")
-            tic = time.perf_counter()
             velocity_target = controller.velocity_commands(np.array(state))  # assumed to be in format of [u,w]
             n_l = (velocity_target[0] - (velocity_target[1] / 2) * 0.085) / 0.021
             n_r = (velocity_target[0] + (velocity_target[1] / 2) * 0.085) / 0.021
             gym.set_actor_dof_velocity_targets(env, robot_handles[ii], [n_l, n_r])
-            toc = time.perf_counter()
-            t_tot += (toc - tic)
-        print(t_tot, ',')
 
     def get_pos_and_headings():
         headings = []
