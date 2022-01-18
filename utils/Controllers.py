@@ -47,7 +47,7 @@ class NeuralNetwork(torch.nn.Module):
         self.NN[2].weight = nn.Parameter(weight_matrix2)
 
     def forward(self, state):
-        return self.NN(torch.tensor(state, dtype=float)).numpy()
+        return self.NN(torch.tensor(state, dtype=torch.float)).numpy()
 
 
 class NumpyNetwork:
@@ -61,7 +61,7 @@ class NumpyNetwork:
         """
         Set the weights of the Neural Network controller
         """
-        assert (len(weights) == self.n_con1 + self.n_con2)
+        assert (len(weights) == self.n_con1 + self.n_con2, f"Got {len(weights)} but expected {self.n_con1 + self.n_con2}")
         weight_matrix1 = weights[:self.n_con1].reshape(self.lin1.shape)
         weight_matrix2 = weights[-self.n_con2:].reshape(self.lin2.shape)
         self.lin1 = weight_matrix1
