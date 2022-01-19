@@ -101,9 +101,9 @@ class NNController(Controller):
 
         assert (len(state) == self.n_input), "State does not correspond with expected input size"
         state[:4] = map_state(0, 2, -1, 1, state[:4])  # Assumed distance sensing range is 2.0 meters. If not, check!
-        # Heading average, already converted
-        state[6] = map_state(-3.1416, 3.1416, -1, 1, state[6])  # Own heading, [-pi, pi]
-        state[7] = map_state(0, 255.0, -1, 1, state[7])  # Gradient value, [0, 255]
+        state[4] = map_state(-3.1416, 3.1416, -1, 1, state[4]) # Heading average, already converted
+        state[5] = map_state(-3.1416, 3.1416, -1, 1, state[5])  # Own heading, [-pi, pi]
+        state[6] = map_state(0, 255.0, -1, 1, state[6])  # Gradient value, [0, 255]
 
         action = self.model.forward(state)
         control_input = action * np.array([self.umax_const, self.wmax])
