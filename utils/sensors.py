@@ -88,6 +88,8 @@ class Sensors:
                     if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 3]) or (output[i, 3] == 0.0)):
                         output[i, 3] = 1 - (d_ij[i, j] / sensing_range)
                         output_old[i, 3] = d_ij[i, j]
+
+        output[output == 0] = 2.0
         return output
 
     def k_nearest_sensor(self, positions, headings):
@@ -310,8 +312,9 @@ class Sensors:
 
             hbars[i, 0] = np.divide(sum_cosh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
             hbars[i, 1] = np.divide(sum_sinh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
+            average_angle = np.arctan2(hbars[i, 1], hbars[i, 0])
 
-        return hbars
+        return average_angle
 
     def wraptopi(self, x):
         x = x % (3.1415926 * 2)

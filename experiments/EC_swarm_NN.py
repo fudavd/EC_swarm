@@ -12,7 +12,7 @@ from utils.Individual import Individual, thymio_genotype
 
 
 def main():
-    n_input = 8
+    n_input = 7
     n_output = 2
     genotype = thymio_genotype("NN", n_input, n_output)
     genotype['controller']["params"]['torch'] = False

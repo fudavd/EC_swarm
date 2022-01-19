@@ -22,8 +22,8 @@ class FitnessCalculator:
 
         self.map = sio.loadmat('./utils/Gradient Maps/circle_30x30.mat')
         self.map = self.map['I']
-        self.size_x = 10
-        self.size_y = 10
+        self.size_x = 30
+        self.size_y = 30
         self.grad_constant_x = (len(np.arange(start=0.00, stop=self.size_x, step=0.04))) / self.size_x
         self.grad_constant_y = (len(np.arange(start=0.00, stop=self.size_y, step=0.04))) / self.size_y
 
