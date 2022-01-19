@@ -68,8 +68,9 @@ class NumpyNetwork:
         self.lin2 = weight_matrix2
 
     def forward(self, state: numpy.array):
-        hid_l = np.maximum(0, np.dot(self.lin1, state))
+        hid_l = np.maximum(np.dot(self.lin1, state)*0.01, np.dot(self.lin1, state))
         output_l = 1/(1+np.exp(-np.dot(self.lin2, hid_l)))
+        output_l[1] = output_l[1]*2-1
         return output_l
 
 
@@ -99,11 +100,10 @@ class NNController(Controller):
             return min_to + np.multiply((max_to - min_to), np.divide((state_portion - min_from), (max_from - min_from)))
 
         assert (len(state) == self.n_input), "State does not correspond with expected input size"
-
-        state[0:4] = map_state(0, 2, -1, 1, state[0:4])  # Assumed distance sensing range is 2.0 meters. If not, check!
-        state[4:6] = map_state(0, 1, -1, 1, state[4:6])  # Heading average, already converted to an angle, [0,1]
-        state[6:8] = map_state(-3.1416, 3.1416, -1, 1, state[6:8])  # Own heading, [-pi, pi]
-        state[8] = map_state(0, 255.0, -1, 1, state[8])  # Gradient value, [0, 255]
+        state[:4] = map_state(0, 2, -1, 1, state[:4])  # Assumed distance sensing range is 2.0 meters. If not, check!
+        # Heading average, already converted
+        state[6] = map_state(-3.1416, 3.1416, -1, 1, state[6])  # Own heading, [-pi, pi]
+        state[7] = map_state(0, 255.0, -1, 1, state[7])  # Gradient value, [0, 255]
 
         action = self.model.forward(state)
         control_input = action * np.array([self.umax_const, self.wmax])
