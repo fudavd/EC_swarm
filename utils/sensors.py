@@ -312,7 +312,8 @@ class Sensors:
 
             hbars[i, 0] = np.divide(sum_cosh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
             hbars[i, 1] = np.divide(sum_sinh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
-            average_angle = np.arctan2(hbars[i, 1], hbars[i, 0])
+
+        average_angle = np.arctan2(hbars[:, 1], hbars[:, 0])
 
         return average_angle
 

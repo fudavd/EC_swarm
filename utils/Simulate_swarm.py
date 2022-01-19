@@ -224,7 +224,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
             elif controller_type == "2dir":
                 state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
             elif controller_type == "NN":
-                state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii],
+                state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii], own_headings[ii],
                                    sensor_input_grad[ii]))
             elif controller_type == "default":
                 state = np.empty(controller.n_input)
