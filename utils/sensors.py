@@ -12,6 +12,18 @@ class Sensors:
         self.grad_constant_x = (len(np.arange(start=0.00, stop=self.size_x, step=0.04))) / self.size_x
         self.grad_constant_y = (len(np.arange(start=0.00, stop=self.size_y, step=0.04))) / self.size_y
 
+        rgs_index = 0
+        rgs_xs = np.zeros(60)
+        rgs_ys = np.zeros(60)
+
+        for theta in np.arange(start=0.01, stop=6.2832, step=6.2832/60):
+            rgs_xs[rgs_index] = 8*np.cos(theta)
+            rgs_ys[rgs_index] = 8*np.sin(theta)
+            rgs_index = rgs_index + 1
+
+        self.rgs_xs = np.rint(rgs_xs)
+        self.rgs_ys = np.rint(rgs_ys)
+
     def grad_sensor(self, positions):
         # This sensor will read the local value of the gradient at the position of each agent.
 
@@ -63,31 +75,63 @@ class Sensors:
 
         output = np.zeros([robot_num, 4])
         output_old = np.zeros([robot_num, 4])
+        self.fourdirneighbourhoods = np.zeros([robot_num, robot_num])
+        oldnegbyquadrants = np.full([robot_num, 4], 99)
 
         for i in range(robot_num):
             ij_ang[i, :] = ij_ang[i, :] - headings[i]
             ij_ang[i, d_ij[i, :] == 0] = 0.0
+            self.fourdirneighbourhoods[i, :] = 0.0
+            oldnegbyquadrants[i, :] = 99
 
             for j in range(robot_num):
                 ij_ang[i, j] = self.wraptopi(ij_ang[i, j])
 
                 if (ij_ang[i, j] < 0.7854) and (ij_ang[i, j] >= -0.7854):
                     if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 0]) or (output[i, 0] == 0.0)):
-                        output[i, 0] = 1 - (d_ij[i, j] / sensing_range)
+                        output[i, 0] = d_ij[i, j]
                         output_old[i, 0] = d_ij[i, j]
+                        if oldnegbyquadrants[i, 0] == 99:
+                            oldnegbyquadrants[i, 0] = j
+                            self.fourdirneighbourhoods[i, j] = 1.0
+                        else:
+                            self.fourdirneighbourhoods[i, oldnegbyquadrants[i, 0]] = 0
+                            self.fourdirneighbourhoods[i, j] = 1.0
+                            oldnegbyquadrants[i, 0] = j
                 elif (ij_ang[i, j] < 2.3562) and (ij_ang[i, j] >= 0.7854):
                     if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 1]) or (output[i, 1] == 0.0)):
-                        output[i, 1] = 1 - (d_ij[i, j] / sensing_range)
+                        output[i, 1] = d_ij[i, j]
                         output_old[i, 1] = d_ij[i, j]
+                        if oldnegbyquadrants[i, 1] == 99:
+                            oldnegbyquadrants[i, 1] = j
+                            self.fourdirneighbourhoods[i, j] = 1.0
+                        else:
+                            self.fourdirneighbourhoods[i, oldnegbyquadrants[i, 1]] = 0
+                            self.fourdirneighbourhoods[i, j] = 1.0
+                            oldnegbyquadrants[i, 1] = j
                 elif ((ij_ang[i, j] < 3.1416) and (ij_ang[i, j] >= 2.3562)) or (
                         (ij_ang[i, j] < -2.3562) and (ij_ang[i, j] >= -3.1416)):
                     if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 2]) or (output[i, 2] == 0.0)):
-                        output[i, 2] = 1 - (d_ij[i, j] / sensing_range)
+                        output[i, 2] = d_ij[i, j]
                         output_old[i, 2] = d_ij[i, j]
+                        if oldnegbyquadrants[i, 2] == 99:
+                            oldnegbyquadrants[i, 2] = j
+                            self.fourdirneighbourhoods[i, j] = 1.0
+                        else:
+                            self.fourdirneighbourhoods[i, oldnegbyquadrants[i, 2]] = 0
+                            self.fourdirneighbourhoods[i, j] = 1.0
+                            oldnegbyquadrants[i, 2] = j
                 elif (ij_ang[i, j] < -0.7854) and (ij_ang[i, j] >= -2.3562):
                     if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 3]) or (output[i, 3] == 0.0)):
-                        output[i, 3] = 1 - (d_ij[i, j] / sensing_range)
+                        output[i, 3] = d_ij[i, j]
                         output_old[i, 3] = d_ij[i, j]
+                        if oldnegbyquadrants[i, 3] == 99:
+                            oldnegbyquadrants[i, 3] = j
+                            self.fourdirneighbourhoods[i, j] = 1.0
+                        else:
+                            self.fourdirneighbourhoods[i, oldnegbyquadrants[i, 3]] = 0
+                            self.fourdirneighbourhoods[i, j] = 1.0
+                            oldnegbyquadrants[i, 3] = j
 
         output[output == 0] = 2.0
         return output
@@ -316,6 +360,77 @@ class Sensors:
         average_angle = np.arctan2(hbars[:, 1], hbars[:, 0])
 
         return average_angle
+
+    def heading_sensor_4dir(self, headings):
+        robot_num = np.shape(headings)[0]
+        neighborhood_headings = np.zeros([robot_num, 4])
+        neighbor_counter = np.zeros(robot_num)
+        average_headings = np.zeros(robot_num)
+
+        for i in range(robot_num):
+            neighbor_counter[i] = 0
+            neighborhood_headings[i, :] = 0.0
+            average_headings[i] = 0.0
+            for j in range(robot_num):
+                if self.fourdirneighbourhoods[i, j] == 1:
+                    neighborhood_headings[i, int(neighbor_counter[i])] = headings[j] - headings[i]
+                    neighbor_counter[i] = neighbor_counter[i] + 1
+
+            average_headings[i] = np.sum(neighborhood_headings[i, :]) / neighbor_counter[i]
+            average_headings[i] = self.wraptopi(average_headings[i])
+
+        return average_headings
+
+    def real_grad_sensor(self, positions):
+        robot_num = np.shape(positions[0])[0]
+        max_ascent_dir = np.zeros((robot_num, 2))
+        max_ascent = np.zeros(robot_num)
+        max_ascent_angle = np.zeros(robot_num)
+
+        self.grad_y = np.ceil(np.multiply(positions[0], self.grad_constant_x))
+        self.grad_x = np.ceil(np.multiply(positions[1], self.grad_constant_y))
+        self.grad_x = self.grad_x.astype(int)
+        self.grad_y = self.grad_y.astype(int)
+
+        self.grad_x[self.grad_x < 0] = 0
+        self.grad_x[self.grad_x >= self.size_x/0.04] = 0
+        self.grad_y[self.grad_y < 0] = 0
+        self.grad_y[self.grad_y >= self.size_y/0.04] = 0
+        self.grad_vals = self.map[self.grad_x, self.grad_y]
+
+        for i in range(robot_num):
+            max_ascent_dir[i][:] = np.array([0, 0])
+            max_ascent[i] = 0.0
+
+            for indxs in np.arange(start=0, stop=60, step=1):
+                neg_cel_x = self.grad_x[i] + self.rgs_xs[indxs]
+                neg_cel_y = self.grad_y[i] + self.rgs_ys[indxs]
+
+                if neg_cel_x < 1:
+                    neg_cel_x = 1
+                elif neg_cel_x > 749:
+                    neg_cel_x = 749
+
+                if neg_cel_y < 1:
+                    neg_cel_y = 1
+                elif neg_cel_y > 749:
+                    neg_cel_y = 749
+
+                grad_neg_cel = self.map[int(neg_cel_x), int(neg_cel_y)]
+
+                if grad_neg_cel < 0:
+                    grad_neg_cel = 0
+
+                if grad_neg_cel > self.grad_vals[i]:
+                    if (grad_neg_cel - self.grad_vals[i]) >= max_ascent[i]:
+                        max_ascent_dir[i][1] = self.rgs_xs[indxs]
+                        max_ascent_dir[i][0] = self.rgs_ys[indxs]
+                        max_ascent[i] = grad_neg_cel - self.grad_vals[i]
+
+            max_ascent_angle[i] = np.arctan2(max_ascent_dir[i][1], max_ascent_dir[i][0])
+
+        print(np.rad2deg(max_ascent_angle))
+        return max_ascent_angle
 
     def wraptopi(self, x):
         x = x % (3.1415926 * 2)
