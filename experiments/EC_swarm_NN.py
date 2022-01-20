@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 import os
-import sys; print('Python %s on %s' % (sys.version, sys.platform))
+import sys;
+
+from utils.Simulate_swarm_population import simulate_swarm_population
+
+print('Python %s on %s' % (sys.version, sys.platform))
 from pathlib import Path
 print("Experiment root: ", Path(os.path.abspath(__file__)).parents[1].__str__())
 sys.path.append(Path(os.path.abspath(__file__)).parents[1].__str__())
 
 import numpy as np
-from utils.Simulate_swarm import simulate_swarm_with_restart
+# from utils.Simulate_swarm import simulate_swarm_with_restart
 from utils.EA import DE
 from utils.Individual import Individual, thymio_genotype
 
@@ -45,13 +49,14 @@ def main():
             for (individual, x) in enumerate(learner.x_new):  # loop over individuals
                 genotype['controller']["encoding"] = x
                 swarm = Individual(genotype, individual + params['pop_size'] * gen)
-                fitness = simulate_swarm_with_restart(simulation_time, swarm, True, [0, 0, 0, 0, 1])
-                fitness_retest = simulate_swarm_with_restart(simulation_time, swarm, True, [0, 0, 0, 0, 1])
-                fitness = min(fitness, fitness_retest)
-                swarm.set_fitness(fitness)
+                # fitness = simulate_swarm_with_restart(simulation_time, swarm, True, [0, 0, 0, 0, 1])
+                # fitness_retest = simulate_swarm_with_restart(simulation_time, swarm, True, [0, 0, 0, 0, 1])
+                # fitness = min(fitness, fitness_retest)
+                # swarm.set_fitness(fitness)
+                # fitnesses_gen.append(fitness)
                 population.append(swarm)
-                fitnesses_gen.append(fitness)
 
+            fitnesses_gen = simulate_swarm_population(simulation_time, population, True, [0, 0, 0, 0, 1])
             # %% Some bookkeeping
             genomes.append(learner.x_new.tolist())
             print("\n\n", genomes.__len__(), "\n\n")
