@@ -76,13 +76,13 @@ class Sensors:
         output = np.zeros([robot_num, 4])
         output_old = np.zeros([robot_num, 4])
         self.fourdirneighbourhoods = np.zeros([robot_num, robot_num])
-        oldnegbyquadrants = np.full([robot_num, 4], 99)
+        self.oldnegbyquadrants = np.full([robot_num, 4], 99)
 
         for i in range(robot_num):
             ij_ang[i, :] = ij_ang[i, :] - headings[i]
             ij_ang[i, d_ij[i, :] == 0] = 0.0
             self.fourdirneighbourhoods[i, :] = 0.0
-            oldnegbyquadrants[i, :] = 99
+            self.oldnegbyquadrants[i, :] = 99
 
             for j in range(robot_num):
                 ij_ang[i, j] = self.wraptopi(ij_ang[i, j])
@@ -91,47 +91,47 @@ class Sensors:
                     if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 0]) or (output[i, 0] == 0.0)):
                         output[i, 0] = d_ij[i, j]
                         output_old[i, 0] = d_ij[i, j]
-                        if oldnegbyquadrants[i, 0] == 99:
-                            oldnegbyquadrants[i, 0] = j
+                        if self.oldnegbyquadrants[i, 0] == 99:
+                            self.oldnegbyquadrants[i, 0] = j
                             self.fourdirneighbourhoods[i, j] = 1.0
                         else:
-                            self.fourdirneighbourhoods[i, oldnegbyquadrants[i, 0]] = 0
+                            self.fourdirneighbourhoods[i, self.oldnegbyquadrants[i, 0]] = 0
                             self.fourdirneighbourhoods[i, j] = 1.0
-                            oldnegbyquadrants[i, 0] = j
+                            self.oldnegbyquadrants[i, 0] = j
                 elif (ij_ang[i, j] < 2.3562) and (ij_ang[i, j] >= 0.7854):
                     if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 1]) or (output[i, 1] == 0.0)):
                         output[i, 1] = d_ij[i, j]
                         output_old[i, 1] = d_ij[i, j]
-                        if oldnegbyquadrants[i, 1] == 99:
-                            oldnegbyquadrants[i, 1] = j
+                        if self.oldnegbyquadrants[i, 1] == 99:
+                            self.oldnegbyquadrants[i, 1] = j
                             self.fourdirneighbourhoods[i, j] = 1.0
                         else:
-                            self.fourdirneighbourhoods[i, oldnegbyquadrants[i, 1]] = 0
+                            self.fourdirneighbourhoods[i, self.oldnegbyquadrants[i, 1]] = 0
                             self.fourdirneighbourhoods[i, j] = 1.0
-                            oldnegbyquadrants[i, 1] = j
+                            self.oldnegbyquadrants[i, 1] = j
                 elif ((ij_ang[i, j] < 3.1416) and (ij_ang[i, j] >= 2.3562)) or (
                         (ij_ang[i, j] < -2.3562) and (ij_ang[i, j] >= -3.1416)):
                     if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 2]) or (output[i, 2] == 0.0)):
                         output[i, 2] = d_ij[i, j]
                         output_old[i, 2] = d_ij[i, j]
-                        if oldnegbyquadrants[i, 2] == 99:
-                            oldnegbyquadrants[i, 2] = j
+                        if self.oldnegbyquadrants[i, 2] == 99:
+                            self.oldnegbyquadrants[i, 2] = j
                             self.fourdirneighbourhoods[i, j] = 1.0
                         else:
-                            self.fourdirneighbourhoods[i, oldnegbyquadrants[i, 2]] = 0
+                            self.fourdirneighbourhoods[i, self.oldnegbyquadrants[i, 2]] = 0
                             self.fourdirneighbourhoods[i, j] = 1.0
-                            oldnegbyquadrants[i, 2] = j
+                            self.oldnegbyquadrants[i, 2] = j
                 elif (ij_ang[i, j] < -0.7854) and (ij_ang[i, j] >= -2.3562):
                     if (d_ij[i, j] != 0) and ((d_ij[i, j] < output_old[i, 3]) or (output[i, 3] == 0.0)):
                         output[i, 3] = d_ij[i, j]
                         output_old[i, 3] = d_ij[i, j]
-                        if oldnegbyquadrants[i, 3] == 99:
-                            oldnegbyquadrants[i, 3] = j
+                        if self.oldnegbyquadrants[i, 3] == 99:
+                            self.oldnegbyquadrants[i, 3] = j
                             self.fourdirneighbourhoods[i, j] = 1.0
                         else:
-                            self.fourdirneighbourhoods[i, oldnegbyquadrants[i, 3]] = 0
+                            self.fourdirneighbourhoods[i, self.oldnegbyquadrants[i, 3]] = 0
                             self.fourdirneighbourhoods[i, j] = 1.0
-                            oldnegbyquadrants[i, 3] = j
+                            self.oldnegbyquadrants[i, 3] = j
 
         output[output == 0] = 2.0
         return output
@@ -364,22 +364,17 @@ class Sensors:
     def heading_sensor_4dir(self, headings):
         robot_num = np.shape(headings)[0]
         neighborhood_headings = np.zeros([robot_num, 4])
-        neighbor_counter = np.zeros(robot_num)
-        average_headings = np.zeros(robot_num)
 
         for i in range(robot_num):
-            neighbor_counter[i] = 0
             neighborhood_headings[i, :] = 0.0
-            average_headings[i] = 0.0
-            for j in range(robot_num):
-                if self.fourdirneighbourhoods[i, j] == 1:
-                    neighborhood_headings[i, int(neighbor_counter[i])] = headings[j] - headings[i]
-                    neighbor_counter[i] = neighbor_counter[i] + 1
+            for j in range(4):
+                if self.oldnegbyquadrants[i, j] != 99:
+                    neighborhood_headings[i, j] = self.wraptopi(headings[self.oldnegbyquadrants[i, j]] - headings[i])
 
-            average_headings[i] = np.sum(neighborhood_headings[i, :]) / neighbor_counter[i]
-            average_headings[i] = self.wraptopi(average_headings[i])
+            # average_headings[i] = np.sum(neighborhood_headings[i, :]) / neighbor_counter[i]
+            # average_headings[i] = self.wraptopi(average_headings[i])
 
-        return average_headings
+        return neighborhood_headings
 
     def real_grad_sensor(self, positions):
         robot_num = np.shape(positions[0])[0]

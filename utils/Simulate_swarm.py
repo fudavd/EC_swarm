@@ -196,8 +196,8 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
     for i in range(num_robots):
         robot_handle = robot_handles[i]
         shape_props = gym.get_actor_rigid_shape_properties(env, robot_handle)
-        shape_props[3].friction = 0
-        shape_props[3].restitution = 1
+        shape_props[2].friction = 0
+        shape_props[2].restitution = 1
         gym.set_actor_dof_properties(env, robot_handle, props)
         gym.set_actor_rigid_shape_properties(env, robot_handle, shape_props)
 
@@ -224,8 +224,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
             elif controller_type == "2dir":
                 state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
             elif controller_type == "NN":
-                state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii], own_headings[ii],
-                                   sensor_input_grad[ii]))
+                state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], sensor_input_grad[ii]))
             elif controller_type == "default":
                 state = np.empty(controller.n_input)
             else:
@@ -286,10 +285,16 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
                 heading_sensor_outputs = sensor.heading_sensor_ae(positions,
                                                                   headings)  # The values recorded by on-board
                 update_robot(distance_sensor_outputs, heading_sensor_outputs, bearing_sensor_outputs, headings)
-            elif controller_type == "4dir" or controller_type == "NN":
+            elif controller_type == "4dir":
                 distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
                 heading_sensor_outputs = sensor.heading_sensor_ae(positions,
                                                                   headings)  # The values recorded by on-board
+                grad_sensor_outputs = sensor.grad_sensor(positions)
+                update_robot(distance_sensor_outputs, heading_sensor_outputs, own_headings=headings,
+                             sensor_input_grad=grad_sensor_outputs)
+            elif controller_type == "NN":
+                distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
+                heading_sensor_outputs = sensor.heading_sensor_4dir(headings)  # The values recorded by on-board
                 grad_sensor_outputs = sensor.grad_sensor(positions)
                 update_robot(distance_sensor_outputs, heading_sensor_outputs, own_headings=headings,
                              sensor_input_grad=grad_sensor_outputs)

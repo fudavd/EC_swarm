@@ -17,7 +17,7 @@ from utils import Individual
 
 class TestSim(unittest.TestCase):
     def test_sim(self, controller_type="Rand", headless=False):
-        genotype = Individual.thymio_genotype("NN", 7, 2)
+        genotype = Individual.thymio_genotype("NN", 9, 2)
         # genotype = Individual.thymio_genotype("4dir", 7, 2)
         # genotype = Individual.thymio_genotype(controller_type, 7, 2)
         # x_best_data = np.load("./results/NN/0/x_best.npy")[-1]

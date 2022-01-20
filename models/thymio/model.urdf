@@ -23,20 +23,6 @@
         </geometry>
       </visual>
 
-     <collision name="gripper_collision">
-        <origin xyz="0.045 0.085 -0.01" rpy="1.5707963267948966 0 3.14"/>
-        <geometry>
-          <mesh filename="package://models/thymio/meshes/gripper.dae" scale="0.1 0.1 0.1"/>
-        </geometry>
-      </collision>
-
-      <visual name="gripper_visual">
-        <origin xyz="0.045 0.085 -0.01" rpy="0 0 3.14"/>
-          <geometry>
-            <mesh filename="package://models/thymio/meshes/gripper.dae" scale="0.1 0.1 0.1"/>
-          </geometry>
-      </visual>
-
       <collision name="raspberry_visual">
         <origin xyz="0 0 0.038" rpy="1.5707963267948966 0 0"/>
           <geometry>

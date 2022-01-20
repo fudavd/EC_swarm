@@ -12,13 +12,13 @@ from utils.Individual import Individual, thymio_genotype
 
 
 def main():
-    n_input = 7
+    n_input = 9
     n_output = 2
     genotype = thymio_genotype("NN", n_input, n_output)
     genotype['controller']["params"]['torch'] = False
 
     experiment_name = "NN"
-    simulation_time = 600
+    simulation_time = 300
     # setting number of:
     n_runs = 10  # runs/repetitions
     n_generations = 25  # generations
@@ -46,6 +46,8 @@ def main():
                 genotype['controller']["encoding"] = x
                 swarm = Individual(genotype, individual + params['pop_size'] * gen)
                 fitness = simulate_swarm_with_restart(simulation_time, swarm, True, [0, 0, 0, 0, 1])
+                fitness_retest = simulate_swarm_with_restart(simulation_time, swarm, True, [0, 0, 0, 0, 1])
+                fitness = min(fitness, fitness_retest)
                 swarm.set_fitness(fitness)
                 population.append(swarm)
                 fitnesses_gen.append(fitness)

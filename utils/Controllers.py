@@ -61,14 +61,15 @@ class NumpyNetwork:
         """
         Set the weights of the Neural Network controller
         """
-        assert (len(weights) == self.n_con1 + self.n_con2, print(f"Got {len(weights)} but expected {self.n_con1 + self.n_con2}"))
+        assert len(weights) == self.n_con1 + self.n_con2, f"Got {len(weights)} but expected {self.n_con1 + self.n_con2}"
         weight_matrix1 = weights[:self.n_con1].reshape(self.lin1.shape)
         weight_matrix2 = weights[-self.n_con2:].reshape(self.lin2.shape)
         self.lin1 = weight_matrix1
         self.lin2 = weight_matrix2
 
     def forward(self, state: numpy.array):
-        hid_l = np.maximum(np.dot(self.lin1, state)*0.01, np.dot(self.lin1, state))
+        # hid_l = np.maximum(np.dot(self.lin1, state)*0.01, np.dot(self.lin1, state))
+        hid_l = np.log(1 + np.exp(np.dot(self.lin1, state)))
         output_l = 1/(1+np.exp(-np.dot(self.lin2, hid_l)))
         output_l[1] = output_l[1]*2-1
         return output_l
@@ -100,10 +101,11 @@ class NNController(Controller):
         """
 
         assert (len(state) == self.n_input), "State does not correspond with expected input size"
-        state[:4] = self.map_state(0, 2, -1, 1, state[:4])  # Assumed distance sensing range is 2.0 meters. If not, check!
-        state[4] = self.map_state(-3.1416, 3.1416, -1, 1, state[4]) # Heading average, already converted
-        state[5] = self.map_state(-3.1416, 3.1416, -1, 1, state[5])  # Own heading, [-pi, pi]
-        state[6] = self.map_state(0, 255.0, -1, 1, state[6])  # Gradient value, [0, 255]
+        state[:4] = self.map_state(0, 2, -1, 1, state[:4])
+        state[4:8] = self.map_state(-np.pi, np.pi, -1, 1, state[4:8])  # Assumed distance sensing range is 2.0 meters. If not, check!
+        # state[4] = self.map_state(-3.1416, 3.1416, -1, 1, state[4]) # Heading average, already converted
+        # state[5] = self.map_state(-3.1416, 3.1416, -1, 1, state[5])  # Own heading, [-pi, pi]
+        state[-1] = self.map_state(0, 255.0, -1, 1, state[-1])  # Gradient value, [0, 255]
 
         action = self.model.forward(state)
         control_input = action * np.array([self.umax_const, self.wmax])
