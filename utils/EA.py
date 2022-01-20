@@ -41,7 +41,7 @@ class DE(EA):
         self.bounds = params['bounds']  # lower/upper bound on design variables
 
         # Initialize the new population array
-        self.x_new = np.random.uniform(self.bounds[0], self.bounds[1], (self.Np, self.D))
+        self.x_new = np.random.uniform(self.bounds[0], self.bounds[1], (self.Np, self.D))/5
         self.f_new = np.empty(self.Np)
 
         # Initialize the current population array
@@ -65,7 +65,7 @@ class DE(EA):
             self.x_best_so_far.append(self.x_best_so_far[-1])
 
         for i in range(self.Np):
-            if self.f_new[i] < self.f[i]:  # update population
+            if (self.f_new[i] < self.f[i]) or (np.random.rand() <= 0.05):  # update population
                 self.x[i] = copy.deepcopy(self.x_new[i])
 
             r0 = i

@@ -43,7 +43,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
 
     # configure sim
     sim_params = gymapi.SimParams()
-    sim_params.dt = 0.01
+    sim_params.dt = 0.1
     sim_params.substeps = 2
 
     # defining axis of rotation!
@@ -271,7 +271,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
         # Every 0.01 seconds the velocity of the joints is set
         t = gym.get_sim_time(sim)
 
-        if (gym.get_sim_time(sim) - start) > 0.05:
+        if (gym.get_sim_time(sim) - start) > 0.095:
             headings, positions[0], positions[1] = get_pos_and_headings()  # Update positions and headings of all robots
 
             if controller_type == "omni":
