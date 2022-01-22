@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os
-import sys;
+import sys
 
 from utils.Simulate_swarm_population import simulate_swarm_with_restart_population
 

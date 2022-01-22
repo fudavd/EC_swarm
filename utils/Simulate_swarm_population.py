@@ -7,7 +7,6 @@ import signal
 import sys
 from multiprocessing import shared_memory, Process
 from typing import AnyStr
-from joblib import Parallel, delayed
 from isaacgym import gymapi
 from isaacgym import gymutil
 from scipy.spatial.transform import Rotation as R
