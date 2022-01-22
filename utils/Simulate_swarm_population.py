@@ -341,8 +341,6 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
                     headings) / timestep  # Update fitness val
                 fitness_mat[3, i_env] = fitness_list[i_env].calculate_movement(positions)  # Update fitness val
                 fitness_mat[4, i_env] = fitness_list[i_env].calculate_grad(positions) / timestep
-            if timestep == 1:
-                start_val = copy.deepcopy(fitness_mat[4, :])
             start = gym.get_sim_time(sim)
 
         # Step the physics
@@ -366,7 +364,6 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
 
     binary_vector = objectives
     gen_fitnesses = np.dot(binary_vector, fitness_mat)
-    gen_fitnesses -= start_val
 
     # experiment_fitness = fitness_coh_and_sep[0] / timestep - fitness_coh_and_sep[
     #     1] / timestep + fitness_alignment / timestep + fitness_movement  # For the time average, divide by time step
@@ -374,9 +371,6 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
     # Gradient only fitness??
     # experiment_fitness = fitness_gradient
     pool_obj.close()
-    signal.signal(signal.SIGTERM, pool_obj.close())
-    signal.signal(signal.SIGINT, pool_obj.close())
-    signal.signal(signal.SIGQUIT, pool_obj.close())
     return gen_fitnesses
 
 
