@@ -2,10 +2,11 @@
 import os
 import sys;
 
-from utils.Simulate_swarm_population import simulate_swarm_population
+from utils.Simulate_swarm_population import simulate_swarm_with_restart_population
 
 print('Python %s on %s' % (sys.version, sys.platform))
 from pathlib import Path
+
 print("Experiment root: ", Path(os.path.abspath(__file__)).parents[1].__str__())
 sys.path.append(Path(os.path.abspath(__file__)).parents[1].__str__())
 
@@ -21,16 +22,17 @@ def main():
     genotype = thymio_genotype("NN", n_input, n_output)
     genotype['controller']["params"]['torch'] = False
 
-    experiment_name = "NN"
+    experiment_name = "NN_pop_min3"
     simulation_time = 300
     # setting number of:
     n_runs = 10  # runs/repetitions
     n_generations = 25  # generations
+    reps = 2
 
     params = {}
     params['bounds'] = (-10, 10)
-    params['D'] = (n_input+n_output)*n_input
-    params['pop_size'] = 10
+    params['D'] = (n_input + n_output) * n_input
+    params['pop_size'] = 25
     params['CR'] = 0.9
     params['F'] = 0.5
 
@@ -56,7 +58,10 @@ def main():
                 # fitnesses_gen.append(fitness)
                 population.append(swarm)
 
-            fitnesses_gen = simulate_swarm_population(simulation_time, population, True, [0, 0, 0, 0, 1])
+            fitnesses_gen = simulate_swarm_with_restart_population(simulation_time, population, True, [0, 0, 0, 0, 1])
+            for _ in range(reps):
+                fitnesses_gen_rep = simulate_swarm_with_restart_population(simulation_time, population, True, [0, 0, 0, 0, 1])
+                fitnesses_gen = np.min((fitnesses_gen, fitnesses_gen_rep), axis=0)
             # %% Some bookkeeping
             genomes.append(learner.x_new.tolist())
             print("\n\n", genomes.__len__(), "\n\n")

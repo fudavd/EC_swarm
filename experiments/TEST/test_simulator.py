@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.append(Path(os.path.abspath(__file__)).parents[2].__str__())
 
-from utils.Simulate_swarm import simulate_swarm_with_restart
+from utils.Simulate_swarm_population import simulate_swarm_with_restart_population
 from utils import Individual
 
 
@@ -43,7 +43,7 @@ class TestSim(unittest.TestCase):
         try:
             t_avg = 0
             for _ in range(10):
-                fitness = simulate_swarm_with_restart(60, individual, False, [1, 1, 1, 1, 1])
+                fitness = simulate_swarm_with_restart_population(60, [individual], False, [1, 1, 1, 1, 1])
                 toc = time.perf_counter()
                 t_avg += (toc - tic) / 10
                 tic = toc
