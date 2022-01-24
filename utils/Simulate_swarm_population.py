@@ -3,6 +3,7 @@ Loading and testing
 """
 import copy
 import multiprocessing
+from functools import partial
 import signal
 import sys
 from multiprocessing import shared_memory, Process
@@ -24,9 +25,9 @@ from .plot_swarm import swarm_plotter  # Plotter class, to plot positions and he
 from .Individual import Individual
 import time
 
-def calc_vel_targets(input):
-    states, controller = input
-    velocity_target = controller.velocity_commands(np.hstack(states))  # assumed to be in format of [u,w]
+
+def calc_vel_targets(controller, states):
+    velocity_target = controller.velocity_commands(np.array(states))  # assumed to be in format of [u,w]
     n_l = (velocity_target[0] - (velocity_target[1] / 2) * 0.085) / 0.021
     n_r = (velocity_target[0] + (velocity_target[1] / 2) * 0.085) / 0.021
     return [n_l, n_r]
@@ -107,11 +108,14 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
     robot_handles_list = []
     fitness_list = []
     sensor_list = []
+    num_robots = 14
+    pool_obj = multiprocessing.Pool(num_robots)
+    controller = individuals[0].controller
+    controller_type = controller.controller_type
+    calc_vel_targets_partial = partial(calc_vel_targets, controller)
     print("Creating %d environments" % num_envs)
     for i_env in range(num_envs):
         individual = individuals[i_env]
-        controller = individual.controller
-        controller_type = controller.controller_type
 
         # create env
         env = gym.create_env(sim, env_lower, env_upper, num_envs)
@@ -122,7 +126,6 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
         asset_root = "./"
         robot_asset_file = individual.body
 
-        num_robots = 14
         robot_handles = []
         initial_positions = np.zeros((2, num_robots))  # Allocation to save initial positions of robots
 
@@ -255,33 +258,36 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
             gym.set_actor_dof_velocity_targets(env, robot_handles[ii], velocity_commands[ii])
 
     def get_pos_and_headings(env, robot_handles):
-        headings = []
-        positions_x = []
-        positions_y = []
+        headings = np.zeros((num_robots,))
+        positions_x = np.zeros_like(headings)
+        positions_y = np.zeros_like(headings)
 
         for i in range(num_robots):
-            body_angle = gym.get_actor_rigid_body_states(env, robot_handles[i], gymapi.STATE_POS)["pose"]["r"][0]
-            body_angle_mat = np.array([body_angle[0], body_angle[1], body_angle[2], body_angle[3]])
+            body_pose = gym.get_actor_rigid_body_states(env, robot_handles[i], gymapi.STATE_POS)["pose"][0]
+            body_angle_mat = np.array(body_pose[1].tolist())
             r = R.from_quat(body_angle_mat)
-            r = r.as_euler('zyx')
-            headings.append(r[0])
+            headings[i] = r.as_euler('zyx')[0]
 
-            position = gym.get_actor_rigid_body_states(env, robot_handles[i], gymapi.STATE_POS)["pose"]["p"][0:1]
-            positions_x.append(position[0][0])
-            positions_y.append(position[0][1])
+            positions_x[i] = body_pose[0][0]
+            positions_y[i] = body_pose[0][1]
 
-        return (np.array(headings), np.array(positions_x), np.array(positions_y))
+        return (headings, positions_x, positions_y)
 
     t = 0
     timestep = 0  # Counter to save total time steps, required for final step of fitness value calculation
     fitness_mat = np.zeros((len(objectives), len(individuals)))
     # Create viewer
     viewer = None
+    plot = False
     if not headless:
         viewer = gym.create_viewer(sim, gymapi.CameraProperties())
         cam_pos = gymapi.Vec3(-2 + ix, iy, 2)
         cam_target = gymapi.Vec3(ix, iy, 0.0)
         gym.viewer_camera_look_at(viewer, None, cam_pos, cam_target)
+
+        if len(individuals) == 1:
+            plotter = swarm_plotter()  # Plotter init
+            plot = True
 
     # %% Simulate
     start = gym.get_sim_time(sim)
@@ -341,6 +347,8 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
                     headings) / timestep  # Update fitness val
                 fitness_mat[3, i_env] = fitness_list[i_env].calculate_movement(positions)  # Update fitness val
                 fitness_mat[4, i_env] = fitness_list[i_env].calculate_grad(positions) / timestep
+            if plot:
+                plotter.plot_swarm_quiver(positions, headings)
             start = gym.get_sim_time(sim)
 
         # Step the physics

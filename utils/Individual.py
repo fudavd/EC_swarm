@@ -43,8 +43,7 @@ class Individual:
 
     def geno2pheno(self, genotype):
         self.genotype = genotype
-        self.body = self.set_body(genotype['morphology'])
-        self.controller = self.set_brain(genotype['controller'])
+        self.controller.geno2pheno(genotype)
         self.phenotype["brain"] = self.controller
 
     def get_phenotype(self):

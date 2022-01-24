@@ -65,7 +65,8 @@ class DE(EA):
             self.x_best_so_far.append(self.x_best_so_far[-1])
 
         for i in range(self.Np):
-            if (self.f_new[i] < self.f[i]) or (np.random.rand() <= 0.05):  # update population
+            if self.f_new[i] < self.f[i]:  # update population
+                self.f[i] = self.f_new[i]
                 self.x[i] = copy.deepcopy(self.x_new[i])
 
             r0 = i
@@ -88,5 +89,4 @@ class DE(EA):
                     self.x_new[i][j] = copy.deepcopy(self.x[i][j])
 
         self.x_new = np.clip(self.x_new, self.bounds[0], self.bounds[1])
-        self.f = self.f_new
         return self.x_new
