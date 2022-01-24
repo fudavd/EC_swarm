@@ -359,7 +359,7 @@ class Sensors:
 
         average_angle = np.arctan2(hbars[:, 1], hbars[:, 0])
 
-        return average_angle
+        return hbars
 
     def heading_sensor_4dir(self, headings):
         robot_num = np.shape(headings)[0]

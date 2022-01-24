@@ -22,12 +22,12 @@ def main():
     genotype = thymio_genotype("NN", n_input, n_output)
     genotype['controller']["params"]['torch'] = False
 
-    experiment_name = "NN_pop_min3"
+    experiment_name = "TEST"
     simulation_time = 300
     # setting number of:
     n_runs = 10  # runs/repetitions
-    n_generations = 25  # generations
-    reps = 2
+    n_generations = 100  # generations
+    reps = 1
 
     params = {}
     params['bounds'] = (-10, 10)
@@ -72,8 +72,9 @@ def main():
             learner.save_checkpoint()
             print(f"Experiment {experiment_name}: {run}/{n_runs}\n"
                   f"Finished gen: {gen}/{n_generations}\n"
-                  f"\tBest gen: {learner.x_best_so_far[-1]}"
-                  f"\tBest fit: {-learner.f_best_so_far[-1]}")
+                  f"\tBest gen: {learner.x_best_so_far[-1]}\n"
+                  f"\tBest fit: {-learner.f_best_so_far[-1]}\n"
+                  f"\tMean fit: {np.mean(-learner.f)}\n")
 
         learner.save_results()
 
