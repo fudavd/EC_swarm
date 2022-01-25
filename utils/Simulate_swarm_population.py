@@ -26,10 +26,10 @@ from .Individual import Individual
 import time
 
 
-def calc_vel_targets(controller, states):
-    velocity_target = controller.velocity_commands(np.array(states))  # assumed to be in format of [u,w]
-    n_l = (velocity_target[0] - (velocity_target[1] / 2) * 0.085) / 0.021
-    n_r = (velocity_target[0] + (velocity_target[1] / 2) * 0.085) / 0.021
+def calc_vel_targets(controllers, states):
+    velocity_target = controllers[int(states[0])].velocity_commands(np.array(states[1:]))  # assumed to be in format of [u,w]
+    n_l = ((velocity_target[0]+0.025) - (velocity_target[1] / 2) * 0.085) / 0.021
+    n_r = ((velocity_target[0]+0.025) + (velocity_target[1] / 2) * 0.085) / 0.021
     return [n_l, n_r]
 
 
@@ -75,8 +75,6 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
 
     sim = gym.create_sim(args.compute_device_id, args.graphics_device_id, args.physics_engine, sim_params)
 
-    pool_obj = multiprocessing.Pool()
-
     if sim is None:
         print("*** Failed to create sim")
         quit()
@@ -108,14 +106,14 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
     robot_handles_list = []
     fitness_list = []
     sensor_list = []
+    controllers = []
     num_robots = 14
     pool_obj = multiprocessing.Pool(num_robots)
-    controller = individuals[0].controller
-    controller_type = controller.controller_type
-    calc_vel_targets_partial = partial(calc_vel_targets, controller)
     print("Creating %d environments" % num_envs)
     for i_env in range(num_envs):
         individual = individuals[i_env]
+        controllers.append(individual.controller)
+        controller_type = controllers[i_env].controller_type
 
         # create env
         env = gym.create_env(sim, env_lower, env_upper, num_envs)
@@ -226,12 +224,13 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
         fitness_list.append(
             FitnessCalculator(num_robots, initial_positions, desired_movement))  # Fitness calculator init
         sensor_list.append(Sensors())  # Sensors init
+    calc_vel_targets_partial = partial(calc_vel_targets, controllers)
 
-    def update_robot(env, robot_handles, sensor_input_distance, sensor_input_heading, sensor_input_bearing=None,
+    def update_robot(env, i_env , robot_handles, sensor_input_distance, sensor_input_heading, sensor_input_bearing=None,
                      own_headings=None,
                      sensor_input_grad=None):
         states = np.hstack(
-            (sensor_input_distance, sensor_input_heading, sensor_input_grad.reshape((num_robots, 1)))).tolist()
+            (i_env*np.ones((num_robots, 1)), sensor_input_distance, sensor_input_heading, sensor_input_grad.reshape((num_robots, 1)))).tolist()
         velocity_commands = pool_obj.map(calc_vel_targets_partial, states)
         for ii in range(num_robots):
             gym.set_actor_dof_velocity_targets(env, robot_handles[ii], velocity_commands[ii])
@@ -286,21 +285,21 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
                                                                                                          headings)  # The values recorded by on-board
                     heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions,
                                                                                   headings)  # The values recorded by on-board
-                    update_robot(env, robot_handles, distance_sensor_outputs, heading_sensor_outputs,
+                    update_robot(env, i_env, robot_handles, distance_sensor_outputs, heading_sensor_outputs,
                                  bearing_sensor_outputs, headings)
                 elif controller_type == "k_nearest":
                     distance_sensor_outputs, bearing_sensor_outputs = sensor_list[i_env].k_nearest_sensor(positions,
                                                                                                           headings)  # The values recorded by on-board
                     heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions,
                                                                                   headings)  # The values recorded by on-board
-                    update_robot(env, robot_handles, distance_sensor_outputs, heading_sensor_outputs,
+                    update_robot(env, i_env, robot_handles, distance_sensor_outputs, heading_sensor_outputs,
                                  bearing_sensor_outputs, headings)
                 elif controller_type == "4dir":
                     distance_sensor_outputs = sensor_list[i_env].four_dir_sensor(positions, headings)
                     heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions,
                                                                                   headings)  # The values recorded by on-board
                     grad_sensor_outputs = sensor_list[i_env].grad_sensor(positions)
-                    update_robot(env, robot_handles, distance_sensor_outputs, heading_sensor_outputs,
+                    update_robot(env, i_env, robot_handles, distance_sensor_outputs, heading_sensor_outputs,
                                  own_headings=headings,
                                  sensor_input_grad=grad_sensor_outputs)
                 elif controller_type == "NN":
@@ -308,14 +307,14 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
                     heading_sensor_outputs = sensor_list[i_env].heading_sensor_4dir(
                         headings)  # The values recorded by on-board
                     grad_sensor_outputs = sensor_list[i_env].grad_sensor(positions)
-                    update_robot(env, robot_handles, distance_sensor_outputs, heading_sensor_outputs,
+                    update_robot(env, i_env, robot_handles, distance_sensor_outputs, heading_sensor_outputs,
                                  own_headings=headings,
                                  sensor_input_grad=grad_sensor_outputs)
                 elif controller_type == "default":
                     distance_sensor_outputs = sensor_list[i_env].four_dir_sensor(positions, headings)
                     heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions,
                                                                                   headings)  # The values recorded by on-board
-                    update_robot(env, robot_handles, distance_sensor_outputs, heading_sensor_outputs,
+                    update_robot(env, i_env, robot_handles, distance_sensor_outputs, heading_sensor_outputs,
                                  own_headings=headings)
                 else:
                     raise ValueError("Controller type not found")
