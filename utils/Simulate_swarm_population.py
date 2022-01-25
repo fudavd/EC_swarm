@@ -230,30 +230,9 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
     def update_robot(env, robot_handles, sensor_input_distance, sensor_input_heading, sensor_input_bearing=None,
                      own_headings=None,
                      sensor_input_grad=None):
-        if controller_type == "omni":
-            inputs = [((sensor_input_distance[ii], sensor_input_bearing[ii],
-                        sensor_input_heading[ii, :], own_headings[ii]), controller)
-                      for ii in range(num_robots)]
-        elif controller_type == "k_nearest":
-            inputs = [((sensor_input_distance[ii, :], sensor_input_bearing[ii, :],
-                        sensor_input_heading[ii, :], own_headings[ii]), controller)
-                      for ii in range(num_robots)]
-        elif controller_type == "4dir":
-            inputs = [((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]), controller)
-                      for ii in range(num_robots)]
-        elif controller_type == "2dir":
-            inputs = [((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]), controller)
-                      for ii in range(num_robots)]
-        elif controller_type == "NN":
-            inputs = [((sensor_input_distance[ii, :], sensor_input_heading[ii, :], sensor_input_grad[ii]), controller)
-                      for ii in range(num_robots)]
-        elif controller_type == "default":
-            inputs = [((0), controller)
-                      for ii in range(num_robots)]
-        else:
-            raise ValueError("Controller type not found")
-
-        velocity_commands = pool_obj.map(calc_vel_targets, inputs)
+        states = np.hstack(
+            (sensor_input_distance, sensor_input_heading, sensor_input_grad.reshape((num_robots, 1)))).tolist()
+        velocity_commands = pool_obj.map(calc_vel_targets_partial, states)
         for ii in range(num_robots):
             gym.set_actor_dof_velocity_targets(env, robot_handles[ii], velocity_commands[ii])
 

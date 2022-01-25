@@ -22,6 +22,14 @@ class Controller(object):
     def geno2pheno(genotype: np.array):
         return
 
+    @staticmethod
+    def save_geno(path: str):
+        return
+
+    @staticmethod
+    def load_geno(path: str):
+        return
+
 
 class NeuralNetwork(torch.nn.Module):
     def __init__(self, n_input, n_hidden, n_output):
@@ -51,26 +59,36 @@ class NeuralNetwork(torch.nn.Module):
 
 
 class NumpyNetwork:
-    def __init__(self, n_input, n_hidden, n_output):
+    def __init__(self, n_input, n_hidden, n_output, reservoir=True):
+        self.reservoir = reservoir
         self.n_con1 = n_input * n_hidden
         self.n_con2 = n_hidden * n_output
         self.lin1 = np.random.uniform(-1, 1, (n_hidden, n_input))
-        self.lin2 = np.random.uniform(-1, 1, (n_output, n_hidden))
+        if reservoir:
+            self.lin2 = np.random.uniform(-1, 1, (n_hidden, n_input))
+        self.output = np.random.uniform(-1, 1, (n_output, n_hidden))
 
     def set_weights(self, weights: np.array):
         """
         Set the weights of the Neural Network controller
         """
-        assert len(weights) == self.n_con1 + self.n_con2, f"Got {len(weights)} but expected {self.n_con1 + self.n_con2}"
-        weight_matrix1 = weights[:self.n_con1].reshape(self.lin1.shape)
-        weight_matrix2 = weights[-self.n_con2:].reshape(self.lin2.shape)
-        self.lin1 = weight_matrix1
-        self.lin2 = weight_matrix2
+        if self.reservoir:
+            assert len(weights) == self.n_con2, f"Got {len(weights)} but expected {self.n_con2}"
+            weight_matrix = weights[-self.n_con2:].reshape(self.output.shape)
+            self.output = weight_matrix
+        else:
+            assert len(weights) == self.n_con1 + self.n_con2, f"Got {len(weights)} but expected {self.n_con1 + self.n_con2}"
+            weight_matrix1 = weights[:self.n_con1].reshape(self.lin1.shape)
+            weight_matrix2 = weights[-self.n_con2:].reshape(self.output.shape)
+            self.lin1 = weight_matrix1
+            self.output = weight_matrix2
 
     def forward(self, state: numpy.array):
         # hid_l = np.maximum(np.dot(self.lin1, state)*0.01, np.dot(self.lin1, state))
         hid_l = np.log(1 + np.exp(np.dot(self.lin1, state)))
-        output_l = 1/(1+np.exp(-np.dot(self.lin2, hid_l)))
+        if self.reservoir:
+            hid_l = np.log(1 + np.exp(np.dot(self.lin2, state)))
+        output_l = 1/(1+np.exp(-np.dot(self.output, hid_l)))
         output_l[1] = output_l[1]*2-1
         return output_l
 
@@ -110,6 +128,14 @@ class NNController(Controller):
         action = self.model.forward(state)
         control_input = action * np.array([self.umax_const, self.wmax])
         return control_input
+
+    def save_geno(self, path: str):
+        if self.model.reservoir:
+            np.save(path + "/resevoir", [self.model.lin1, self.model.lin2, self.model.output], allow_pickle=True)
+
+    def load_geno(self, path: str):
+        if self.model.reservoir:
+            self.model.lin1, self.model.lin2, self.model.output = np.load(path + "/resevoir.npy", allow_pickle=True)
 
 
 class RandomWalk(Controller):
