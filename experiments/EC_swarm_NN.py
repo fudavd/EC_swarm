@@ -22,17 +22,18 @@ def main():
     genotype = thymio_genotype("NN", n_input, n_output)
     genotype['controller']["params"]['torch'] = False
 
-    experiment_name = "NN_reservoir_move_25x25"
     simulation_time = 600
     # setting number of:
-    n_runs = 10  # runs/repetitions
-    n_generations = 25  # generations
+    n_runs = 3  # runs/repetitions
+    n_generations = 100  # generations
+    pop_size = 25
     reps = 1
+    experiment_name = f"NN_reservoir_min2_{pop_size}x{n_generations}"
 
     params = {}
     params['bounds'] = (-10, 10)
     params['D'] = n_output * n_input
-    params['pop_size'] = 25
+    params['pop_size'] = pop_size
     params['CR'] = 0.9
     params['F'] = 0.5
 
