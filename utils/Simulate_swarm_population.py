@@ -27,8 +27,8 @@ from .Individual import Individual
 import time
 
 
-def calc_vel_targets(controllers, states):
-    velocity_target = controllers.velocity_commands(np.array(states))  # assumed to be in format of [u,w]
+def calc_vel_targets(controller, states):
+    velocity_target = controller.velocity_commands(np.array(states))  # assumed to be in format of [u,w]
     n_l = ((velocity_target[0]+0.025) - (velocity_target[1] / 2) * 0.085) / 0.021
     n_r = ((velocity_target[0]+0.025) + (velocity_target[1] / 2) * 0.085) / 0.021
     return [n_l, n_r]
@@ -226,16 +226,16 @@ def simulate_swarm_population(life_timeout: float, individuals: list, headless: 
         fitness_list.append(
             FitnessCalculator(num_robots, initial_positions, desired_movement))  # Fitness calculator init
         sensor_list.append(Sensors())  # Sensors init
-    calc_vel_targets_partial = partial(calc_vel_targets, controllers)
 
     def update_robot(env, i_env , robot_handles, sensor_input_distance, sensor_input_heading, sensor_input_bearing=None,
                      own_headings=None,
                      sensor_input_grad=None):
         states = np.hstack(
             (sensor_input_distance, sensor_input_heading, sensor_input_grad.reshape((num_robots, 1)))).tolist()
-        velocity_commands = pool_obj.starmap(calc_vel_targets,  zip(itertools.repeat(controller_list[i_env]), states))
+        # velocity_commands = pool_obj.starmap(calc_vel_targets,  zip(itertools.repeat(controller_list[i_env]), states))
         for ii in range(num_robots):
-            gym.set_actor_dof_velocity_targets(env, robot_handles[ii], velocity_commands[ii])
+            velocity_command = calc_vel_targets(controller_list[i_env], states[ii])
+            gym.set_actor_dof_velocity_targets(env, robot_handles[ii], velocity_command)
 
     def get_pos_and_headings(env, robot_handles):
         headings = np.zeros((num_robots,))

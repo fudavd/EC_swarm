@@ -24,7 +24,7 @@ def main():
 
     simulation_time = 600
     # setting number of:
-    n_runs = 3  # runs/repetitions
+    n_runs = 10  # runs/repetitions
     n_generations = 100  # generations
     pop_size = 25
     reps = 1
@@ -48,19 +48,40 @@ def main():
         learner = DE(params, output_dir=learner_res_dir)
         genotype['controller']["encoding"] = np.ones(n_output * n_input)
         swarm = Individual(genotype, 0)
-        swarm.controller.save_geno(learner_res_dir)
-        for gen in range(n_generations):  # loop over generations
+        gen_start = 0
+        if not os.path.exists(f"{learner_res_dir}/resevoir.npy"):
+            swarm.controller.save_geno(learner_res_dir)
+        else:
+            if os.path.exists(f"{learner_res_dir}/genomes.npy"):
+                try:
+                    learner.load_checkpoint()
+                    genomes = np.load(f"{learner_res_dir}/genomes.npy", allow_pickle=True).tolist()
+                    fitnesses = np.load(f"{learner_res_dir}/fitnesses.npy", allow_pickle=True).tolist()
+                    gen_start = len(np.load(f"{learner_res_dir}/x_best.npy", allow_pickle=True))
+                    swarm.controller.load_geno(learner_res_dir)
+                    if gen_start == 1 or (not genomes.__len__() == gen_start):
+                        print("Generation buffer and genomes size does not match!", file=sys.stderr)
+                        genomes = [genomes]
+                        fitnesses = [fitnesses]
+
+                    print(f"### Starting experiment from checkpoint ###\n"
+                          f"Generation:\t{gen_start}/{n_generations}\n"
+                          f"Best genome: {learner.x_best_so_far[-1]}\n"
+                          f"\tBest fit: {-learner.f_best_so_far[-1]}\n"
+                          f"\tMean fit: {np.mean(-learner.f)}\n"
+                          )
+                except Exception as e:
+                    print(e)
+                    sys.exit(e)
+            else:
+                swarm.controller.load_geno(learner_res_dir)
+                print("Could not find corresponding genomes restart experiment from gen 0!", file=sys.stderr)
+
+        for gen in range(gen_start, n_generations):  # loop over generations
             fitnesses_gen = []
             population = []
             for (individual, x) in enumerate(learner.x_new):  # loop over individuals
                 swarm.geno2pheno(x)
-                # genotype['controller']["encoding"] = x
-                # swarm = Individual(genotype, individual + params['pop_size'] * gen)
-                # fitness = simulate_swarm_with_restart(simulation_time, swarm, True, [0, 0, 0, 0, 1])
-                # fitness_retest = simulate_swarm_with_restart(simulation_time, swarm, True, [0, 0, 0, 0, 1])
-                # fitness = min(fitness, fitness_retest)
-                # swarm.set_fitness(fitness)
-                # fitnesses_gen.append(fitness)
                 population.append(copy.deepcopy(swarm))
 
             fitnesses_gen = simulate_swarm_with_restart_population(simulation_time, population, True, [0, 0, 0, 0, 1])
@@ -74,8 +95,10 @@ def main():
             learner.f_new = -np.array(fitnesses_gen)
             learner.x_new = learner.get_new_genome()
             learner.save_checkpoint()
+            np.save(f"{learner_res_dir}/genomes.npy", genomes)
+            np.save(f"{learner_res_dir}/fitnesses.npy", fitnesses)
             print(f"Experiment {experiment_name}: {run}/{n_runs}\n"
-                  f"Finished gen: {genomes.__len__()}/{n_generations}\n"
+                  f"Finished gen: {fitnesses.__len__()}/{n_generations}\n"
                   f"\tBest gen: {learner.x_best_so_far[-1]}\n"
                   f"\tBest fit: {-learner.f_best_so_far[-1]}\n"
                   f"\tMean fit: {np.mean(-learner.f)}\n")

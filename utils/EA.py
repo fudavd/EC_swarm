@@ -14,9 +14,6 @@ class EA(object):
         self.directory_name = output_dir
 
     def save_results(self):
-        np.save(self.directory_name + '/' + 'fitnesses', np.array(self.f))
-        np.save(self.directory_name + '/' + 'genomes', np.array(self.x))
-
         np.save(self.directory_name + '/' + 'f_best', np.array(self.f_best_so_far))
         np.save(self.directory_name + '/' + 'x_best', np.array(self.x_best_so_far))
 
@@ -25,6 +22,16 @@ class EA(object):
         np.save(self.directory_name + '/' + 'last_x_new', np.array(self.x_new))
         np.save(self.directory_name + '/' + 'last_x', np.array(self.x))
         np.save(self.directory_name + '/' + 'last_f', np.array(self.f))
+
+    def load_checkpoint(self):
+        self.load_results()
+        self.x_new = np.load(self.directory_name + '/' + 'last_x_new.npy')
+        self.x = np.load(self.directory_name + '/' + 'last_x.npy')
+        self.f = np.load(self.directory_name + '/' + 'last_f.npy')
+
+    def load_results(self):
+        self.f_best_so_far = np.load(self.directory_name + '/' + 'f_best.npy').tolist()
+        self.x_best_so_far = np.load(self.directory_name + '/' + 'x_best.npy').tolist()
 
     @staticmethod
     def get_new_genome(self):
