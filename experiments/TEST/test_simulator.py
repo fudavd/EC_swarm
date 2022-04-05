@@ -17,19 +17,12 @@ from utils import Individual
 
 class TestSim(unittest.TestCase):
     def test_sim(self, controller_type="Rand", headless=False):
-        genotype = Individual.thymio_genotype("NN", 9, 2)
+        genotype = Individual.thymio_genotype(controller_type, 9, 2)
         individual = Individual.Individual(genotype, 0)
-        tic = time.perf_counter()
         try:
-            t_avg = 0
-            for _ in range(10):
-                fitness = simulate_swarm_with_restart_population(600, [individual], False, [0, 0, 0, 0, 1])
-                toc = time.perf_counter()
-                t_avg += (toc - tic) / 10
-                tic = toc
+            fitness = simulate_swarm_with_restart_population(600, [individual], headless, [0, 0, 0, 0, 1])
         except:
             raise Exception("Could not calculate fitness")
-        print(f"Average Simulate_Swarm running time: {t_avg:0.4f} seconds")
         self.assertEqual(fitness > 0, True)
 
 

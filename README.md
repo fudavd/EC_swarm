@@ -1,6 +1,23 @@
 # EC_swarm
-Pipeline for using Evolutionary Computing techniques applied on swarm robotics
+Pipeline for using Evolutionary Computing techniques applied on swarm robotics.
 
+------
+####This branch is directly related to the following paper:
+https://arxiv.org/pdf/2203.11585.pdf
+
+
+To run the same evolutionary experiments as presented in the paper run the following line after installation:
+
+```
+./run-experiment.sh EC_swarm_EvoExp
+```
+
+To retest the best controllers run:
+```
+./run-experiment.sh RetestBest
+```
+
+---
 REQUIREMENTS
 ------------
 

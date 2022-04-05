@@ -14,6 +14,7 @@ from utils import EA
 # matplotlib.use('module://backend_interagg')
 # matplotlib.use('TkAgg')
 
+
 def rosenbrock_fitness(genome):
     x, y = genome
     return 100 * ((y - (x ** 2)) ** 2) + ((1 - (x ** 2)) ** 2)

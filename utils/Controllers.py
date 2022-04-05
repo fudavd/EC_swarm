@@ -15,7 +15,7 @@ class Controller(object):
         self.wmax = 1.5708 / 2.5
 
     @staticmethod
-    def velocity_commands(state: np.array) -> np.array:
+    def velocity_commands(state: np.ndarray) -> np.ndarray:
         return np.array([0])
 
     @staticmethod
@@ -108,14 +108,12 @@ class NNController(Controller):
     def map_state(self, min_from, max_from, min_to, max_to, state_portion):
         return min_to + np.multiply((max_to - min_to), np.divide((state_portion - min_from), (max_from - min_from)))
 
-    def velocity_commands(self, state: np.array) -> np.array:
+    def velocity_commands(self, state: np.ndarray) -> np.ndarray:
         """
         Given a state, give an appropriate action
 
-        Inputs:
-        <np.array> state : A single observation of the current state, dimension is (state_dim)
-        Outputs:
-        <np.array> action : A vector of motor inputs
+        :param <np.array> state: A single observation of the current state, dimension is (state_dim)
+        :return: <np.array> action: A vector of motor inputs
         """
 
         assert (len(state) == self.n_input), "State does not correspond with expected input size"
@@ -139,10 +137,12 @@ class NNController(Controller):
 
 
 class RandomWalk(Controller):
-    def velocity_commands(self, state: np.array) -> np.array:
+    def velocity_commands(self, state: np.ndarray) -> np.ndarray:
         """
-        Outputs:
-        <np.array> action : A vector of motor inputs
+        Given a state, give an appropriate action.
+
+        :param state: A single observation of the current state, dimension is (state_dim)
+        :return: A vector of random motor inputs [-1, 1]
         """
         return np.random.uniform(-1, 1, self.n_output).astype('f')
 
@@ -161,7 +161,13 @@ class ActiveElastic_4dir(Controller):
         self.epsilon = 12.0
         self.sigma_const = 0.4
 
-    def velocity_commands(self, state: np.array) -> np.array:
+    def velocity_commands(self, state: np.ndarray) -> np.ndarray:
+        """
+        Given a state, give an appropriate action.
+
+        :param state: A single observation of the current state, dimension is (state_dim)
+        :return: A vector of motor inputs
+        """
         assert (len(state) == self.n_input), "State does not correspond with expected input size"
         self.bearings = np.array([0.0, 1.571, 3.14, -1.571])
         k = 4

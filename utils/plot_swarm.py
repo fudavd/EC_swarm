@@ -1,3 +1,5 @@
+import re
+
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io as sio
@@ -5,17 +7,17 @@ from scipy.ndimage import rotate
 
 class swarm_plotter:
 
-    def __init__(self):
+    def __init__(self, arena: str = "circle_30x30"):
         self.xleftlimit = 0
         self.yleftlimit = 0
-        self.xrightlimit = 30
-        self.yrightlimit = 30
+        self.xrightlimit = int(re.findall('\d+', arena)[-1])
+        self.yrightlimit = int(re.findall('\d+', arena)[-1])
 
-        self.mapp = sio.loadmat('./utils/Gradient Maps/circle_30x30.mat')
+        self.mapp = sio.loadmat(f'./utils/Gradient Maps/{arena}.mat')
         self.mapp = self.mapp['I']
         self.mapp = rotate(self.mapp, angle=90)
-        self.size_x = 30
-        self.size_y = 30
+        self.size_x = int(re.findall('\d+', arena)[-1])
+        self.size_y = int(re.findall('\d+', arena)[-1])
 
         plt.ion()
         plt.show()

@@ -1,18 +1,20 @@
 import numpy as np
 from copy import deepcopy
+import re
 import scipy.io as sio
 
+
 class FitnessCalculator:
+    def __init__(self, num_robots: int, initial_positions: np.ndarray, desired_movement: float, arena: str = "circle_30x30"):
+        """
+        A calculator class for all fitness functions/elements.
 
-    def __init__(self, num_robots, initial_positions, desired_movement):
-        # A calculator class for all fitness functions/elements.
+        :param num_robots: (integer) : Number of robots in the swarm
+        :param initial_positions: initial (x,y) positions of all robots
+        :param desired_movement: The desired distance to be traveled by the swarm
+        :param arena: Type of arena
+        """
 
-        # Arguments:
-        # num_robots (integer) : Number of robots in the swarm
-        # initial_positions : np.array(2,number_of_robots) --> initial x positions of all robots,  positions[1][:] -->
-        # initial y positions of all robots
-        # desired_movement (float) : The desired distance to be traveled by the swarm. Defined in "Evolving flocking in
-        # embodied agents based on local and global application of Reynolds"
 
         self.current_cohesion = 0
         self.current_separation = 0
@@ -20,10 +22,10 @@ class FitnessCalculator:
         self.current_movement = 0
         self.current_grad = 0
 
-        self.map = sio.loadmat('./utils/Gradient Maps/circle_30x30.mat')
+        self.map = sio.loadmat(f'./utils/Gradient Maps/{arena}.mat')
         self.map = self.map['I']
-        self.size_x = 30
-        self.size_y = 30
+        self.size_x = int(re.findall('\d+', arena)[-1])
+        self.size_y = int(re.findall('\d+', arena)[-1])
         self.grad_constant_x = (len(np.arange(start=0.00, stop=self.size_x, step=0.04))) / self.size_x
         self.grad_constant_y = (len(np.arange(start=0.00, stop=self.size_y, step=0.04))) / self.size_y
 
@@ -51,20 +53,16 @@ class FitnessCalculator:
 
         return self.current_grad
 
-    def calculate_cohesion_and_separation(self,positions):
-        # The "cohesion" and "separation", fitness function elements, as in "Evolving flocking in embodied agents based
-        # on local and global application of Reynolds".
+    def calculate_cohesion_and_separation(self, positions):
+        """
+        The "cohesion" and "separation", fitness function elements, as in "Evolving flocking in embodied agents based
+        on local and global application of Reynolds".
 
-        # Input:
-        # positions : np.array(2,number_of_robots), positions[0][:] --> x positions of all robots, positions[1][:] --> y
-        # positions of all robots
+        :param positions: (x,y) positions of all robots
 
-        # Output:
-        # np.array([current_cohesion], [current_separation]) --> In each call of this function, the "cohesion" and
-        # "separation" values are returned. In order to get a value between 0-1 for each (time average), the value
-        # returned by this function should be divided by the number which this function is called (time step).
-
-        # In case of no neighbors, "cohesion" is calculated as zero for that robot, separation is naturally zero.
+        :return: cohesion and separation values [0, 1]
+        In case of no neighbors, "cohesion" is calculated as zero for that robot, separation is naturally zero.
+        """
 
         distance_to_com_of_neighbors = np.zeros((1, self.num_robots))
         cohesion_metric = np.zeros((1, self.num_robots))
@@ -109,22 +107,16 @@ class FitnessCalculator:
         return np.array([self.current_cohesion, self.current_separation])
 
     def calculate_alignment(self, headings):
-        # The "alignment", fitness function element, as in "Evolving flocking in embodied agents based
-        # on local and global application of Reynolds".
+        """
+        The "alignment", fitness function element, as in "Evolving flocking in embodied agents based
+        on local and global application of Reynolds". Requires calculate_cohesion_and_separation() method to work
+        alongside, this method use some information from there.
 
-        # Requires calculate_cohesion_and_separation() method to work alongside, this method use some information from
-        # there.
+        :param headings: heading angles of all robots, in radians
 
-        # Input:
-        # headings : np.array(1, number_of_robots), heading angles of all robots, in radians
-
-        # Output:
-        # np.array([current_alignment] --> In each call of this function, the "alignment"
-        # value is returned. In order to get a value between 0-1 for "alignment" (time average), the value
-        # returned by this function should be divided by the number which this function is called (time step).
-
-        # In case of no neighbors, "alignment" is calculated as zero for that robot, separation is naturally zero.
-
+        :return: alignment value [0, 1]
+        In case of no neighbors, "alignment" is calculated as zero for that robot, separation is naturally zero.
+        """
         sum_cosh = np.zeros((1, self.num_robots))
         sum_sinh = np.zeros((1, self.num_robots))
         number_of_neighbors = np.zeros((1, self.num_robots))
@@ -147,18 +139,14 @@ class FitnessCalculator:
 
         return np.array([self.current_alignment])
 
-    def calculate_movement(self,positions):
-        # The "movement", fitness function element, as in "Evolving flocking in embodied agents based
-        # on local and global application of Reynolds".
+    def calculate_movement(self, positions):
+        """
+        The "movement", fitness function element, as in "Evolving flocking in embodied agents based
+        on local and global application of Reynolds".
 
-        # Input:
-        # positions : np.array(2,number_of_robots), positions[0][:] --> x positions of all robots, positions[1][:] --> y
-        # positions of all robots
-
-        # Output:
-        # np.array([total_movement] --> In each call of this function, the "movement"
-        # value is returned. In order to get a value between 0-1 for "movement" (time average), the value
-        # returned by this function should be divided by the number which this function is called (time step).
+        :param positions: (x, y) positions of all robots
+        :return: movement value [0, 1]
+        """
 
         total_movement = 0
 
@@ -174,15 +162,13 @@ class FitnessCalculator:
 
         return np.array([total_movement])
 
-    def calculate_number_of_groups(self,positions):
-        # The number of groups, calculated based on "equivalence classes".
+    def calculate_number_of_groups(self, positions) -> int:
+        """
+        The number of groups, calculated based on "equivalence classes".
 
-        # Input:
-        # positions : np.array(2,number_of_robots), positions[0][:] --> x positions of all robots, positions[1][:] --> y
-        # positions of all robots
-
-        # Output:
-        # number_of_groups (integer)
+        :param positions: (x, y) positions of all robots
+        :return: number_of_groups (integer)
+        """
 
         sensing_range = 2.0  # The range to assume robots can sense each other.
         member_number = np.shape(positions[0])[0]

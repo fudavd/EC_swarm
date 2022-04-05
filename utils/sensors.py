@@ -1,14 +1,15 @@
 import numpy as np
 import scipy.io as sio
+import re
 
 class Sensors:
     # Different sensor types for robots in the swarm. Each sensor is a "device" located in "each robot". This class put
     # all sensor outputs of all robots in a single matrix for convenience.
-    def __init__(self):
-        self.map = sio.loadmat('./utils/Gradient Maps/circle_30x30.mat')
+    def __init__(self, arena: str = "circle_30x30"):
+        self.map = sio.loadmat(f'./utils/Gradient Maps/{arena}.mat')
         self.map = self.map['I']
-        self.size_x = 30
-        self.size_y = 30
+        self.size_x = int(re.findall('\d+', arena)[-1])
+        self.size_y = int(re.findall('\d+', arena)[-1])
         self.grad_constant_x = (len(np.arange(start=0.00, stop=self.size_x, step=0.04))) / self.size_x
         self.grad_constant_y = (len(np.arange(start=0.00, stop=self.size_y, step=0.04))) / self.size_y
 
@@ -24,17 +25,14 @@ class Sensors:
         self.rgs_xs = np.rint(rgs_xs)
         self.rgs_ys = np.rint(rgs_ys)
 
-    def grad_sensor(self, positions):
-        # This sensor will read the local value of the gradient at the position of each agent.
+    def grad_sensor(self, positions: np.ndarray) -> np.ndarray:
+        """
+        Read the local value of the gradient at the position of each agent.
 
-        # Inputs:
-        # positions : np.array(2,number_of_robots), positions[0][:] --> x positions of all robots, positions[1][:] --> y
-        # positions of all robots
+        :param positions: (x, y) positions of all robots
 
-        # Outputs:
-        # np.array(1, num_robots) : The local value for each agent is put in the corresponding column of the array. In
-        # case agent is on the outside of gradient, output becomes zero for that agent.
-
+        :return: The local value for each agent. If agent is on the outside output is zero
+        """
         self.grad_y = np.ceil(np.multiply(positions[0], self.grad_constant_x))
         self.grad_x = np.ceil(np.multiply(positions[1], self.grad_constant_y))
         self.grad_x = self.grad_x.astype(int)
@@ -49,18 +47,16 @@ class Sensors:
 
         return self.grad_vals
 
-    def four_dir_sensor(self, positions, headings):
-        # The sensor model used in "Evolving flocking in embodied agents based on local and global application of
-        # Reynolds"
+    def four_dir_sensor(self, positions: np.ndarray, headings: np.ndarray) -> np.ndarray:
+        """
+        The sensor model used in "Evolving flocking in embodied agents based on local and global application of
+        Reynolds"
 
-        # Inputs:
-        # positions : np.array(2,number_of_robots), positions[0][:] --> x positions of all robots, positions[1][:] --> y
-        # positions of all robots
-        # headings: np.array(1, number_of_robots), heading angles of all robots, in radians
+        :param positions: (x, y) positions of all robots
+        :param headings: heading angles of all robots, in radians
 
-        # Outputs:
-        # np.array(4, num_robots) : 4 distances that sensors of each robot measures, are located in
-        # corresponding row in this matrix. In case of no neighbor, output matrix is a zeros matrix.
+        :return: 4 nearest neighbour distances per robot
+        """
 
         robot_num = np.shape(positions[0])[0]
         sensing_range = 2.0  # Sensing range of sensors, 25 cm (0.25) in the paper
@@ -136,20 +132,15 @@ class Sensors:
         output[output == 0] = 2.0
         return output
 
-    def k_nearest_sensor(self, positions, headings):
-        # The sensor model for giving distance and bearing for k-nearest neighbor of each robot.
+    def k_nearest_sensor(self, positions: np.ndarray, headings: np.ndarray) -> np.ndarray:
+        """
+        The sensor model for giving distance and bearing for k-nearest neighbor of each robot.
 
-        # Inputs:
-        # positions : np.array(2,number_of_robots), positions[0][:] --> x positions of all robots, positions[1][:] --> y
-        # positions of all robots
-        # headings: np.array(1, number_of_robots), heading angles of all robots, in radians
+        :param positions: (x, y) positions of all robots
+        :param headings: heading angles of all robots, in radians
 
-        # Outputs:
-        # output_distances: np.array(k, num_robots) : k distances that sensors of each robot measures, are located in
-        # corresponding row in this matrix.
-        # output_bearings: np.array(k, num_robots) : k bearing angles that sensors of each robot measures, are located
-        # in corresponding row in this matrix.
-        # In case of neighbors < k, matrices are filled with zeros.
+        :return: k-nearest neighbour distances per robot
+        """
 
         robot_num = np.shape(positions[0])[0]
         sensing_range = 2.0  # Sensing range of sensors
@@ -192,22 +183,15 @@ class Sensors:
 
         return output_distances, output_bearings
 
-    def omni_dir_sensor(self, positions, headings):
-        # The sensor model for giving distance and bearing for every neighbor within a certain radius.
+    def omni_dir_sensor(self, positions: np.ndarray, headings: np.ndarray) -> (np.ndarray, np.ndarray):
+        """
+        The sensor model for giving distance and bearing for every neighbor within a certain radius.
 
-        # Inputs:
-        # positions : np.array(2,number_of_robots), positions[0][:] --> x positions of all robots, positions[1][:] --> y
-        # positions of all robots
-        # headings: np.array(1, number_of_robots), heading angles of all robots, in radians
+        :param positions: (x, y) positions of all robots
+        :param headings: heading angles of all robots, in radians
 
-        # Outputs:
-        # list: output_distances[output_distances_robot1, output_distances_robot2, ..., output_distances_robotn]
-        # list: output_bearings[output_bearings_robot1, output_bearings_robot2, ..., output_bearings_robotn]
-        # output_distances_robot_n: np.array(neighbor_number, 1) : Distances that sensor of n'th robot
-        # measures, are located in corresponding row in this matrix.
-        # output_bearings_robot_n: np.array(neighbor_number, 1) : Bearing angles that sensor of n'th robot measures,
-        # are located in corresponding row of this matrix.
-        # In case of no neighbors, output_distances_robot_n and output_bearings_robot_n is [1,1] zero matrix.
+        :return: inter robot distances, with corresponding bearing angles
+        """
 
         robot_num = np.shape(positions[0])[0]
         sensing_range = 2.0  # The radius for omni-directional sensing
@@ -251,19 +235,15 @@ class Sensors:
 
         return output_distances, output_angles
 
-    def heading_sensor(self, positions, headings):
-        # The sensor model for giving a value between 0 and 1 according to the relative angle difference between focal
-        # robot and average heading angle of neighbors. As defined in "Evolving flocking in embodied agents based on
-        # local and global application of Reynolds".
+    def heading_sensor(self, positions: np.ndarray, headings: np.ndarray) -> np.ndarray:
+        """
+        The sensor model for relative angle difference between focal robot and average heading angle of neighbors.
 
-        # Inputs:
-        # positions : np.array(2,number_of_robots), positions[0][:] --> x positions of all robots, positions[1][:] --> y
-        # positions of all robots
-        # headings: np.array(1, number_of_robots), heading angles of all robots, in radians
+        :param positions: (x, y) positions of all robots
+        :param headings: heading angles of all robots, in radians
 
-        # Outputs:
-        # avg_rel_neg_heading: np.array(1, number_of_robots) --> the value calculated for each robot. In case of no
-        # neighbors, the value is 0.5 (the same with perfectly matching heading angles).
+        :return: relative heading angle with respect to neighbours for all robots
+        """
 
         robot_num = np.shape(positions[0])[0]
         sensing_range = 2.0  # The range which a heading average is calculated in.
@@ -308,7 +288,15 @@ class Sensors:
 
         return avg_rel_neg_heading
 
-    def heading_sensor_ae(self, positions, headings):
+    def heading_sensor_ae(self, positions: np.ndarray, headings: np.ndarray) -> np.ndarray:
+        """
+        The sensor model for **vectorized** relative angle difference between focal robot and average heading angle of neighbors.
+
+        :param positions: (x, y) positions of all robots
+        :param headings: heading angles of all robots, in radians
+
+        :return: relative heading angle with respect to neighbours for all robots, vectorized
+        """
         robot_num = np.shape(positions[0])[0]
         sensing_range = 2.0  # The range which a heading average is calculated in.
         # k = 4
@@ -336,23 +324,6 @@ class Sensors:
                     sum_sinh[0, i] = sum_sinh[0, i] + np.sin(headings[j])
                     num_neigh[0, i] = num_neigh[0, i] + 1
 
-                # if num_neigh[0, i] >= k:
-                #     temp_distances = np.argsort(d_ij[i, :])
-                #     idx = temp_distances[d_ij[i, :][temp_distances] != 0][:k]
-                #     selected_headings[i, :] = headings[idx]
-                #
-                #     for ii in selected_headings[i, :]:
-                #         sum_cosh[0, i] = sum_cosh[0, i] + np.cos(ii)
-                #         sum_sinh[0, i] = sum_sinh[0, i] + np.sin(ii)
-                #
-                # elif k >= num_neigh[0, i] > 0:
-                #     temp_distances = np.argsort(d_ij[i, :])
-                #     idx = temp_distances[d_ij[i, :][temp_distances] != 0][:int(num_neigh[0, i])]
-                #     selected_headings[i, 0:int(num_neigh[0, i])] = headings[idx]
-                #
-                #     for ii in range(int(num_neigh[0, i])):
-                #         sum_cosh[0, i] = sum_cosh[0, i] + np.cos(headings[ii])
-                #         sum_sinh[0, i] = sum_sinh[0, i] + np.sin(headings[ii])
 
             hbars[i, 0] = np.divide(sum_cosh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
             hbars[i, 1] = np.divide(sum_sinh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
@@ -361,7 +332,14 @@ class Sensors:
 
         return hbars
 
-    def heading_sensor_4dir(self, headings):
+    def heading_sensor_4dir(self, headings: np.ndarray) -> np.ndarray:
+        """
+        The sensor model for heading angle of 4-directional nearest neighbors.
+
+        :param headings: heading angles of 4-neighbours for all robots, in radians
+
+        :return: relative heading angle with respect to neighbours for all robots
+        """
         robot_num = np.shape(headings)[0]
         neighborhood_headings = np.zeros([robot_num, 4])
 
@@ -371,12 +349,16 @@ class Sensors:
                 if self.oldnegbyquadrants[i, j] != 99:
                     neighborhood_headings[i, j] = self.wraptopi(headings[self.oldnegbyquadrants[i, j]] - headings[i])
 
-            # average_headings[i] = np.sum(neighborhood_headings[i, :]) / neighbor_counter[i]
-            # average_headings[i] = self.wraptopi(average_headings[i])
-
         return neighborhood_headings
 
-    def real_grad_sensor(self, positions):
+    def real_grad_sensor(self, positions: np.ndarray) -> np.ndarray:
+        """
+        Estimate the local gradient sensor derivative direction by central differencing
+
+        :param positions: (x, y) positions of all robots
+
+        :return: Direction of the local gradient in radians
+        """
         robot_num = np.shape(positions[0])[0]
         max_ascent_dir = np.zeros((robot_num, 2))
         max_ascent = np.zeros(robot_num)
