@@ -8,7 +8,7 @@ Pipeline for using Evolutionary Computing techniques applied on swarm robotics.
 Link to this work can be found here
 https://doi.org/10.1145/3512290.3528735
 
-To run the same evolutionary experiments as presented in the paper run the following line after [Installation](##Installation):
+To run the same evolutionary experiments as presented in the paper run the following line after [Installation](#installation):
 
 ```
 ./run-experiment.sh EC_swarm_EvoExp
