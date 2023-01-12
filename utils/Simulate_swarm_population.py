@@ -1,4 +1,3 @@
-import multiprocessing
 import re
 from multiprocessing import shared_memory, Process
 from typing import AnyStr
@@ -95,16 +94,13 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
     env_upper = gymapi.Vec3(spacing, spacing, spacing)
 
     # Some common handles for later use
-    desired_movement = 10  # This values is required for the "movement" metric
+    desired_movement = 10  # This value is required for the "movement" metric
     env_list = []
     robot_handles_list = []
     fitness_list = []
     sensor_list = []
-    controllers = []
     num_robots = swarm_size
-    pool_obj = multiprocessing.Pool(num_robots)
     controller_list = []
-    # calc_vel_targets_partial = partial(calc_vel_targets, controller)
     print("Creating %d environments" % num_envs)
     for i_env in range(num_envs):
         individual = individuals[i_env]
@@ -238,7 +234,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
             positions_x[i] = body_pose[0][0]
             positions_y[i] = body_pose[0][1]
 
-        return (headings, positions_x, positions_y)
+        return headings, positions_x, positions_y
 
     t = 0
     timestep = 0  # Counter to save total time steps, required for final step of fitness value calculation
@@ -326,7 +322,6 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
     binary_vector = objectives
     gen_fitnesses = np.dot(binary_vector, fitness_mat)
 
-    pool_obj.close()
     return gen_fitnesses
 
 

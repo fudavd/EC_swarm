@@ -55,10 +55,10 @@ class Individual:
     def set_brain(self, brain_description: Dict):
         controller_type = brain_description['type']
         params = brain_description['params']
-        if not np.isreal(brain_description["encoding"]).any():
+        if not np.isreal(brain_description["encoding"]).any() and not controller_type == 'Rand':
             print("Invalid encoding: set brain to Default (RandomWalk)")
             controller_type = "Rand"
-            params['input_space'] = 5
+            params['input_space'] = 0
             params['output_space'] = 2
 
         if controller_type == 'NN':

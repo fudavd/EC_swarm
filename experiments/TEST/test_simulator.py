@@ -1,10 +1,6 @@
-import math
 import unittest
 import sys
 import os
-import time
-
-import numpy as np
 
 print('Python %s on %s' % (sys.version, sys.platform))
 from pathlib import Path
@@ -20,7 +16,7 @@ class TestSim(unittest.TestCase):
         genotype = Individual.thymio_genotype(controller_type, 9, 2)
         individual = Individual.Individual(genotype, 0)
         try:
-            fitness = simulate_swarm_with_restart_population(600, [individual], headless, [0, 0, 0, 0, 1])
+            fitness = simulate_swarm_with_restart_population(600, [individual], 14, headless, [0, 0, 0, 0, 1])
         except:
             raise Exception("Could not calculate fitness")
         self.assertEqual(fitness > 0, True)

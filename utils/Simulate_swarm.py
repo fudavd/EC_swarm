@@ -12,7 +12,7 @@ import numpy as np
 
 from .calculate_fitness import FitnessCalculator  # Fitness calculator class, all functions are implemented as different
 # methods of this class
-from .sensors import Sensors  # Sensor class, all types of sensors are are implemented as different
+from .sensors import Sensors  # Sensor class, all types of sensors are implemented as different
 # methods of this class
 from .plot_swarm import swarm_plotter  # Plotter class, to plot positions and headings of the swarm agents on the
 # gradient map
@@ -254,7 +254,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
 
     t = 0
 
-    desired_movement = 10  # This values is required for the "movement" metric
+    desired_movement = 10  # This value is required for the "movement" metric
     timestep = 0  # Counter to save total time steps, required for final step of fitness value calculation
 
     positions = np.full([3, num_robots], 0.01)  # Allocation to save positions of all robots in a single matrix
