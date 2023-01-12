@@ -1,6 +1,31 @@
 # EC_swarm
 Pipeline for using Evolutionary Computing techniques applied on swarm robotics.
 
+------
+#### This branch is directly related to the following paper:
+### Co-evolution of graph neural networks in competing swarms 
+
+Link to this work can be found here
+[]
+
+To run the same evolutionary experiments as presented in the paper run the following line after [Installation](#installation):
+
+```
+./run-experiment.sh EC_swarm_EvoExp
+```
+
+To retest the best controllers run:
+```
+./run-experiment.sh RetestBest
+```
+
+
+### Citation:
+```
+
+```
+
+---
 REQUIREMENTS
 ------------
 
@@ -16,15 +41,10 @@ git clone https://github.com/fudavd/EC_swarm
 ```
 
 - Download and extract Isaac Gym in the `/thirdparty/` folder (can be downloaded from [here](https://developer.nvidia.com/isaac-gym))
-- Create a Python virtual environment in the `EC_swarm' root directory:
+- Create a Python virtual environment in the `EC_swarm` root directory:
 ```bash
 virtualenv -p=python3.8 .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-------
-#### This repo is directly related to the following paper:
-* Van Diggelen, F., Luo, J., Karagüzel, T. A., Cambier, N., Ferrante, E., & Eiben, A. E. (2022, July). Environment induced emergence of collective behavior in evolving swarms with limited sensing. In _Proceedings of the Genetic and Evolutionary Computation Conference_ (pp. 31-39). https://doi.org/10.1145/3512290.3528735. [**[Branch]**](https://github.com/fudavd/EC_swarm/tree/GECCO_2022)
-
----
