@@ -40,7 +40,6 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
     if_random_start = True  # omni, k_nearest, 4dir
 
     # %% Initialize gym
-    global gym
     gym = gymapi.acquire_gym()
 
     # Parse arguments

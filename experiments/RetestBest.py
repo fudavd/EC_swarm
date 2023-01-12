@@ -25,7 +25,7 @@ def Robustness():
     for exp_nr, condition in enumerate(conditions):
         robustness_res_dir = os.path.join("DATA/Robustness", f"evo{condition}/")
         if not os.path.exists(robustness_res_dir):
-            os.mkdir(robustness_res_dir)
+            os.makedirs(robustness_res_dir, exist_ok=True)
         best_genome_dir = os.path.join("DATA/DE-results", f"{condition}x{condition}", f"{best_runs[exp_nr]}/")
 
         genotype['controller']["encoding"] = np.ones(n_output * n_input)
