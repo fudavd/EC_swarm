@@ -23,7 +23,7 @@ def main():
     genotype = thymio_genotype("NN", n_input, n_output)
     genotype['controller']["params"]['torch'] = False
 
-    simulation_time = 60
+    simulation_time = 600
     # setting number of:
     n_subs = 2  # number of subgroups
     n_runs = 30  # runs
