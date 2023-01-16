@@ -53,7 +53,7 @@ def main():
             genotype['controller']["encoding"] = np.ones(n_output * n_input)
             swarm = Individual(genotype, 0)
             gen_start = 0
-            if not os.path.exists(f"{learner_res_dir}/resevoir.npy"):
+            if not os.path.exists(f"{learner_res_dir}/reservoir.npy"):
                 swarm.controller.save_geno(learner_res_dir)
             else:
                 if os.path.exists(f"{learner_res_dir}/genomes.npy"):
@@ -85,7 +85,7 @@ def main():
                 population = []
                 for (individual, x) in enumerate(learner.x_new):  # loop over individuals
                     swarm.geno2pheno(x)
-                    population.append(copy.deepcopy(swarm))
+                    population.append([copy.deepcopy(swarm)]*14)
 
                 fitnesses_gen = np.inf
                 for _ in range(reps):

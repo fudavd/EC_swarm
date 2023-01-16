@@ -27,8 +27,8 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
     """
     Parallelized simulation of all 'robot swarm' individuals in the population using Isaac gym
     
-    :param individuals: robot phenotype for every member of the swarm
     :param life_timeout: how long should the robot live
+    :param individuals: List of swarm instances that define every robot member phenotypes
     :param swarm_size: number of members inside the swarm
     :param headless: Start UI for debugging
     :param objectives: specify which components of the fitness function should be returned
@@ -101,11 +101,12 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
     sensor_list = []
     num_robots = swarm_size
     controller_list = []
+    controller_types_list = []
     print("Creating %d environments" % num_envs)
     for i_env in range(num_envs):
         individual = individuals[i_env]
-        controller_list.append(individual.controller)
-        controller_type = individual.controller.controller_type
+        controller_list.append(np.array([member.controller for member in individual]))
+        controller_types_list.append(np.array([member.controller.controller_type for member in individual]))
         # create env
         env = gym.create_env(sim, env_lower, env_upper, num_envs)
         env_list.append(env)
@@ -113,7 +114,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
         # print("Initialize Robot")
         # Load robot asset
         asset_root = "./"
-        robot_asset_file = individual.body
+
 
         robot_handles = []
         initial_positions = np.zeros((2, num_robots))  # Allocation to save initial positions of robots
@@ -164,6 +165,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
                 pose.r.w = ihs_i[3]
 
                 # print("Loading asset '%s' from '%s', #%i" % (robot_asset_file, asset_root, i))
+                robot_asset_file = individual[i].body
                 robot_asset = gym.load_asset(
                     sim, asset_root, robot_asset_file, asset_options)
 
@@ -193,7 +195,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
                 # add robot
                 robot_handle = gym.create_actor(env, robot_asset, pose, f"robot_{i}", 0, 0)
                 robot_handles.append(robot_handle)
-        robot_handles_list.append(robot_handles)
+        robot_handles_list.append(np.array(robot_handles))
 
         # get joint limits and ranges for robot
         props = gym.get_actor_dof_properties(env, robot_handle)
@@ -210,14 +212,17 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
             shape_props[2].restitution = 1
             gym.set_actor_dof_properties(env, robot_handle, props)
             gym.set_actor_rigid_shape_properties(env, robot_handle, shape_props)
+            if individual[i].phenotype["color"] != None:
+                color = individual[i].phenotype["color"]
+                gym.set_rigid_body_color(env, robot_handle, 0, gymapi.MESH_VISUAL, gymapi.Vec3(*color))
 
         positions = np.full([3, num_robots], 0.01)
         fitness_list.append(FitnessCalculator(num_robots, initial_positions, desired_movement, arena=arena))
         sensor_list.append(Sensors(arena=arena))
 
-    def update_robot(env, i_env , robot_handles, states):
-        for ii in range(num_robots):
-            velocity_command = calc_vel_targets(controller_list[i_env], states[ii])
+    def update_robot(env, controllers, robot_handles, states):
+        for ii in range(len(robot_handles)):
+            velocity_command = calc_vel_targets(controllers[ii], states[ii])
             gym.set_actor_dof_velocity_targets(env, robot_handles[ii], velocity_command)
 
     def get_pos_and_headings(env, robot_handles):
@@ -262,45 +267,50 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
             for i_env in range(num_envs):
                 env = env_list[i_env]
                 robot_handles = robot_handles_list[i_env]
+                controller_types = controller_types_list[i_env]
+                controller = controller_list[i_env]
                 # Update positions and headings of all robots
                 headings, positions[0], positions[1] = get_pos_and_headings(env, robot_handles)
-                if controller_type == "omni":
+                if "omni" in controller_types:
+                    indices = [i for i, x in enumerate(controller_types) if x == "omni"]
                     distance_sensor_outputs, bearing_sensor_outputs = sensor_list[i_env].omni_dir_sensor(positions, headings)
                     heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions, headings)
                     states = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
                                         bearing_sensor_outputs.reshape((num_robots, 1)),
-                                        headings.reshape((num_robots, 1)))).tolist()
-                    update_robot(env, i_env, robot_handles, states)
-                elif controller_type == "k_nearest":
+                                        headings.reshape((num_robots, 1))))
+                    update_robot(env, controller[i_env][indices], robot_handles[indices], states[indices, :])
+                if "k_nearest" in controller_types:
+                    indices = [i for i, x in enumerate(controller_types) if x == "k_nearest"]
                     distance_sensor_outputs, bearing_sensor_outputs = sensor_list[i_env].k_nearest_sensor(positions, headings)
                     heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions, headings)
                     states = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
                                         bearing_sensor_outputs.reshape((num_robots, 1)),
-                                        headings.reshape((num_robots, 1)))).tolist()
-                    update_robot(env, i_env, robot_handles, states)
-                elif controller_type == "4dir":
+                                        headings.reshape((num_robots, 1))))
+                    update_robot(env, controller[indices], robot_handles[indices], states[indices, :])
+                if "4dir" in controller_types:
+                    indices = [i for i, x in enumerate(controller_types) if x == "4dir"]
                     distance_sensor_outputs = sensor_list[i_env].four_dir_sensor(positions, headings)
                     heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions, headings)
                     grad_sensor_outputs = sensor_list[i_env].grad_sensor(positions)
                     states = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
                                         headings.reshape((num_robots, 1)),
-                                        grad_sensor_outputs.reshape((num_robots, 1)))).tolist()
-                    update_robot(env, i_env, robot_handles, states)
-                elif controller_type == "NN":
+                                        grad_sensor_outputs.reshape((num_robots, 1))))
+                    update_robot(env, controller[indices], robot_handles[indices], states[indices, :])
+                if "NN" in controller_types:
+                    indices = [i for i, x in enumerate(controller_types) if x == "NN"]
                     distance_sensor_outputs = sensor_list[i_env].four_dir_sensor(positions, headings)
                     heading_sensor_outputs = sensor_list[i_env].heading_sensor_4dir(headings)
                     grad_sensor_outputs = sensor_list[i_env].grad_sensor(positions)
                     states = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
-                                        grad_sensor_outputs.reshape((num_robots, 1)))).tolist()
-                    update_robot(env, i_env, robot_handles, states)
-                elif controller_type == "default":
+                                        grad_sensor_outputs.reshape((num_robots, 1))))
+                    update_robot(env, controller[indices], robot_handles[indices], states[indices, :])
+                if "default" in controller_types:
+                    indices = [i for i, x in enumerate(controller_types) if x == "default"]
                     distance_sensor_outputs = sensor_list[i_env].four_dir_sensor(positions, headings)
                     heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions, headings)
                     states = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
-                                        headings.reshape((num_robots, 1)))).tolist()
-                    update_robot(env, i_env, robot_handles, states)
-                else:
-                    raise ValueError("Controller type not found")
+                                        headings.reshape((num_robots, 1))))
+                    update_robot(env, controller[indices], robot_handles[indices], states[indices, :])
 
                 fitness_mat[:2, i_env] = fitness_list[i_env].calculate_cohesion_and_separation(positions) / timestep
                 fitness_mat[2, i_env] = fitness_list[i_env].calculate_alignment(headings) / timestep

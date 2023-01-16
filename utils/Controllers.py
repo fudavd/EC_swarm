@@ -129,11 +129,11 @@ class NNController(Controller):
 
     def save_geno(self, path: str):
         if self.model.reservoir:
-            np.save(path + "/resevoir", [self.model.lin1, self.model.lin2, self.model.output], allow_pickle=True)
+            np.save(path + "/reservoir", [self.model.lin1, self.model.lin2, self.model.output], allow_pickle=True)
 
     def load_geno(self, path: str):
         if self.model.reservoir:
-            self.model.lin1, self.model.lin2, self.model.output = np.load(path + "/resevoir.npy", allow_pickle=True)
+            self.model.lin1, self.model.lin2, self.model.output = np.load(path + "/reservoir.npy", allow_pickle=True)
 
 
 class RandomWalk(Controller):
