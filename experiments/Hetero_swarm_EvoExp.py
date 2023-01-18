@@ -26,7 +26,7 @@ def main():
     simulation_time = 600
     # setting number of:
     n_subs = 2  # number of subgroups
-    n_runs = 30  # runs
+    n_runs = 1  # runs
     n_generations = 100  # generations
     pop_size = 25  # number of individuals
     swarm_size = 20
@@ -45,7 +45,7 @@ def main():
         for run in range(n_runs):
             experiment_name = f"{arena}x{arena}"
             arena_type = f"circle_{arena}x{arena}"
-            genomes = []
+            genomes = [[] for _ in range(n_subs)]
             fitnesses = []
             learners = []
             swarms = []
@@ -99,6 +99,7 @@ def main():
                     for (individual, x) in enumerate(learner.x_new):  # loop over individuals
                         sub_swarm.geno2pheno(x)
                         population[individual] += [sub_swarm]*int(swarm_size/n_subs)
+                    genomes[n_sub].append(learner.x_new.tolist())
 
                 fitnesses_gen = [np.inf]*pop_size
                 for _ in range(reps):
@@ -107,25 +108,24 @@ def main():
                                                                                objectives=[0, 0, 0, 0, 1],
                                                                                arena=arena_type)
                     fitnesses_gen = np.min((fitnesses_gen, fitnesses_gen_rep), axis=0)
-                genomes.append(learner.x_new.tolist())
                 fitnesses.append(fitnesses_gen)
 
                 # %% Some bookkeeping
-                for learner in learners:
+                for (n_sub, learner) in enumerate(learners):
                     learner.f_new = -np.array(fitnesses_gen)
                     learner.x_new = learner.get_new_genome()
                     learner.save_checkpoint()
-                    np.save(f"{learner.directory_name}/genomes.npy", genomes)
+                    np.save(f"{learner.directory_name}/genomes.npy", genomes[n_sub])
                     np.save(f"{learner.directory_name}/fitnesses.npy", fitnesses)
-                    print(f"Experiment {experiment_name}: {run}/{n_runs}\n"
+                    print(f"Experiment {experiment_name}: {run}/{n_runs} | {learner.directory_name}\n"
                           f"Finished gen: {fitnesses.__len__()}/{n_generations}\n"
                           f"\tBest gen: {learner.x_best_so_far[-1]}\n"
                           f"\tBest fit: {-learner.f_best_so_far[-1]}\n"
                           f"\tMean fit: {np.mean(-learner.f)}\n")
-            for learner in learners:
+            for (n_sub, learner) in enumerate(learners):
                 learner.save_results()
 
-                np.save(f"{learner.directory_name}/genomes.npy", genomes)
+                np.save(f"{learner.directory_name}/genomes.npy", genomes[n_sub])
                 np.save(f"{learner.directory_name}/fitnesses.npy", fitnesses)
 
 
