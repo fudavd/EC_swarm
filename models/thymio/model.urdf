@@ -3,7 +3,7 @@
  <robot name="thymio">
     <link name="chassis">
       <inertial>
-        <mass value="0.170"/>
+        <mass value="0.230"/>
         <inertia ixx="1.272320e-04" ixy="0" ixz="0" iyy="1.272320e-04" iyz="0" izz="2.272320e-04"/>
       </inertial>
 

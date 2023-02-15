@@ -64,7 +64,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
         sim_params.physx.num_position_iterations = 4
         sim_params.physx.num_velocity_iterations = 1
         sim_params.physx.num_threads = args.num_threads
-        sim_params.physx.use_gpu = True
+        sim_params.physx.use_gpu = False
 
     sim = gym.create_sim(args.compute_device_id, args.graphics_device_id, args.physics_engine, sim_params)
 
@@ -85,8 +85,8 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
     asset_options = gymapi.AssetOptions()
     asset_options.fix_base_link = False
     asset_options.flip_visual_attachments = True
-    asset_options.replace_cylinder_with_capsule = True
-    asset_options.armature = 0.005
+    # asset_options.replace_cylinder_with_capsule = False
+    asset_options.armature = 0.0001
 
     # Set up the env grid
     num_envs = len(individuals)
@@ -210,6 +210,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
             robot_handle = robot_handles[i]
             shape_props = gym.get_actor_rigid_shape_properties(env, robot_handle)
             shape_props[2].friction = 0
+            shape_props[2].restitution = 0
             gym.set_actor_dof_properties(env, robot_handle, props)
             gym.set_actor_rigid_shape_properties(env, robot_handle, shape_props)
             if individual[i].phenotype["color"] != None:
