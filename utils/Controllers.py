@@ -3,13 +3,16 @@ import numpy as np
 import torch
 from torch import nn
 
+from graph_network.GCN_layer import GCNLayerNumpy
+
 torch.set_grad_enabled(False)
 
 
 class Controller(object):
-    def __init__(self, n_states, n_actions):
+    def __init__(self, n_states, n_actions,  gcn_output_dim=0):
         self.n_input = n_states
         self.n_output = n_actions
+        self.gcn_output_dim = gcn_output_dim
         self.controller_type = "default"
         self.umax_const = 0.1
         self.wmax = 1.5708 / 2.5
@@ -135,6 +138,76 @@ class NNController(Controller):
         if self.model.reservoir:
             self.model.lin1, self.model.lin2, self.model.output = np.load(path + "/resevoir.npy", allow_pickle=True)
 
+
+class GNNController(Controller):
+    def __init__(self, n_states:int, n_actions:int, gcn_output_dim:int = 1, torch_=False):
+        super().__init__(n_states, n_actions,  gcn_output_dim)
+        """
+        The GNN controller is a graph neural network controller.
+        First, uses message passing to update the node states.
+        This node states are encoded into a latent space.
+        The latent space is concatenated to the state and fed into a linear layer.
+
+        1. Obs <- env.Step(actions_[t-1])
+        2. NodeStates_latent <- GCN(Obs)
+        3. Action <- LinearLayer(NodeStates_latent + Obs)
+
+        :param n_states: Number of states
+        :param n_actions: Number of actions
+        :param gcn_output_dim: Dimension of the latent space
+        :param torch_: If true, uses torch, else uses numpy
+        """
+        self.controller_type = "GNN"
+        input_dim = n_states + gcn_output_dim
+        hidden_dim = n_states
+
+        self.gcn = GCNLayerNumpy(n_states, gcn_output_dim, n_actions)
+        if torch_:
+            self.LinearLayer = NeuralNetwork(input_dim, hidden_dim, n_actions)
+        else:
+            self.LinearLayer = NumpyNetwork(input_dim, hidden_dim, n_actions)
+
+    def geno2pheno(self, genotype: np.array):
+        assert len(genotype) == 4, "Genotype must be a list of 4 elements [GCN(W), LinearLayer(lin1, lin2, output)]]"
+        self.LinearLayer.set_weights(genotype[1:])
+        self.gcn.set_weights(genotype[0])
+        
+
+    def map_state(self, min_from, max_from, min_to, max_to, state_portion):
+        return min_to + np.multiply((max_to - min_to), np.divide((state_portion - min_from), (max_from - min_from)))
+
+    def velocity_commands(self, state: np.ndarray) -> np.ndarray:
+        """
+        Given a state, give an appropriate action
+
+        :param <np.array> state: A single observation of the current state, dimension is (state_dim)
+        :return: <np.array> action: A vector of motor inputs
+        """
+
+        assert (len(state) == self.n_input), "State does not correspond with expected input size"
+        state[:4] = self.map_state(0, 2, -1, 1, state[:4])
+        state[4:8] = self.map_state(-np.pi, np.pi, -1, 1, state[4:8])  # Assumed distance sensing range is 2.0 meters. If not, check!
+        # state[4] = self.map_state(-3.1416, 3.1416, -1, 1, state[4]) # Heading average, already converted
+        # state[5] = self.map_state(-3.1416, 3.1416, -1, 1, state[5])  # Own heading, [-pi, pi]
+        state[-1] = self.map_state(0, 255.0, -1, 1, state[-1])  # Gradient value, [0, 255]
+
+        node_states = self.gcn.forward(state)
+        state = np.concatenate((node_states, state))
+        action = self.LinearLayer.forward(state)
+        control_input = action * np.array([self.umax_const, self.wmax])
+        return control_input
+
+    def save_geno(self, path: str):
+        if self.LinearLayer.reservoir:
+            np.save(path + "/reservoir_linear", [self.LinearLayer.lin1, self.LinearLayer.lin2, self.LinearLayer.output], allow_pickle=True)
+        if self.gcn.reservoir:
+            np.save(path + "/reservoir_gcn", [self.gcn.W], allow_pickle=True)
+            
+    def load_geno(self, path: str):
+        if self.LinearLayer.reservoir:
+            self.LinearLayer.lin1, self.LinearLayer.lin2, self.LinearLayer.output = np.load(path + "/reservoir_linear.npy", allow_pickle=True)
+        if self.gcn.reservoir:
+            self.gcn.W = np.load(path + "/reservoir_gcn.npy", allow_pickle=True)
 
 class RandomWalk(Controller):
     def velocity_commands(self, state: np.ndarray) -> np.ndarray:
