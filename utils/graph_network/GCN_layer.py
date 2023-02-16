@@ -43,7 +43,7 @@ class GCNLayerNumpy:
         K-hops: {self.filter_number}
         """
     
-    def set_weight(self, W):
+    def set_weights(self, W):
 
         assert W.shape == (self.in_features, self.out_features), "Weight matrix shape mismatch"
         self.W = W
