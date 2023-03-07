@@ -42,7 +42,6 @@ class TestEA(unittest.TestCase):
         params = {}
         params['bounds'] = (-10, 10)
         params['D'] = 2
-        params['evaluate_objective_type'] = 'full'
         params['pop_size'] = 250
         params['sigma0'] = 0.5
 
