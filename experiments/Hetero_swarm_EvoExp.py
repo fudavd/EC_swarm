@@ -31,7 +31,7 @@ def main():
     n_generations = 100  # generations
     pop_size = 30  # number of individuals
     swarm_size = 20
-    reps = 2  # repetitions per individual
+    reps = 3  # repetitions per individual
     arenas = [30]
 
     params = {}
@@ -106,7 +106,7 @@ def main():
                                                                                headless=True,
                                                                                objectives=[0, 0, 0, 0, 1],
                                                                                arena=arena_type)
-                    fitnesses_gen = np.min((fitnesses_gen, fitnesses_gen_rep), axis=0)
+                    fitnesses_gen = np.median((fitnesses_gen, fitnesses_gen_rep), axis=0)
 
                 # %% Some bookkeeping
                 genomes.append(learner.x_new.tolist())
