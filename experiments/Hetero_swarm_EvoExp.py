@@ -42,7 +42,7 @@ def main():
     #params['F'] = 0.5
     params['sigma0'] = 0.5
 
-    run_start = 170
+    run_start = 40
     for arena in arenas:
         for run in range(run_start, run_start+n_runs):
             experiment_name = f"{arena}x{arena}_pop{pop_size}"
@@ -100,13 +100,13 @@ def main():
                         sub_swarm.geno2pheno(x[n_sub*n_input*n_output:(1 + n_sub)*n_input*n_output])
                         population[individual] += [sub_swarm]*int(swarm_size/n_subs)
 
-                fitnesses_gen = [np.inf]*pop_size
-                for _ in range(reps):
-                    fitnesses_gen_rep = simulate_swarm_with_restart_population(simulation_time, population, swarm_size,
-                                                                               headless=True,
-                                                                               objectives=[0, 0, 0, 0, 1],
-                                                                               arena=arena_type)
-                    fitnesses_gen = np.median((fitnesses_gen, fitnesses_gen_rep), axis=0)
+                fitnesses_gen = np.zeros((pop_size, reps))
+                for r in range(reps):
+                    fitnesses_gen[:,r] = simulate_swarm_with_restart_population(simulation_time, population, swarm_size,
+	                                                                        headless=True,
+	                                                                        objectives=[0, 0, 0, 0, 1],
+	                                                                        arena=arena_type)
+		fitnesses_gen = np.median(fitnesses_gen, axis=1)
 
                 # %% Some bookkeeping
                 genomes.append(learner.x_new.tolist())
