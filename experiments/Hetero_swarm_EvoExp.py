@@ -42,7 +42,7 @@ def main():
     #params['F'] = 0.5
     params['sigma0'] = 0.5
 
-    run_start = 40
+    run_start = 0
     for arena in arenas:
         for run in range(run_start, run_start+n_runs):
             experiment_name = f"{arena}x{arena}_pop{pop_size}"
@@ -106,7 +106,7 @@ def main():
 	                                                                        headless=True,
 	                                                                        objectives=[0, 0, 0, 0, 1],
 	                                                                        arena=arena_type)
-		fitnesses_gen = np.median(fitnesses_gen, axis=1)
+                fitnesses_gen = np.median(fitnesses_gen, axis=1)
 
                 # %% Some bookkeeping
                 genomes.append(learner.x_new.tolist())
