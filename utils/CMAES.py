@@ -49,6 +49,6 @@ class CMAes(EA.EA):
         self.x = copy.deepcopy(self.x_new)
         self.f = copy.deepcopy(self.f_new)
         self.x_new = np.array(self.es.ask())
-        #TODO self.x_new = np.clip(self.x_new, self.bounds[0], self.bounds[1])
+        self.x_new = np.clip(self.x_new, self.bounds[0], self.bounds[1])
         return self.x_new
 
