@@ -1,5 +1,5 @@
 # PIP install
-numpy>=1.9.2
+numpy>=1.9.2,<=1.21.2
 matplotlib
 cma
 

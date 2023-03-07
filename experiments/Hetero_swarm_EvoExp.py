@@ -14,6 +14,7 @@ from utils.Simulate_swarm_population import simulate_swarm_with_restart_populati
 
 # from utils.Simulate_swarm import simulate_swarm_with_restart
 from utils.EA import DE
+from utils.CMAES import CMAes
 from utils.Individual import Individual, thymio_genotype
 
 
@@ -26,7 +27,7 @@ def main():
     simulation_time = 600
     # setting number of:
     n_subs = 2  # number of subgroups
-    n_runs = 1  # runs
+    n_runs = 10  # runs
     n_generations = 100  # generations
     pop_size = 30  # number of individuals
     swarm_size = 20
@@ -34,23 +35,24 @@ def main():
     arenas = [30]
 
     params = {}
-    params['bounds'] = (-10, 10)
+    params['bounds'] = (-5, 5)
     params['D'] = n_output * n_input * n_subs
     params['pop_size'] = pop_size
-    params['CR'] = 0.7
-    params['F'] = 0.3
+    #params['CR'] = 0.9
+    #params['F'] = 0.5
+    params['sigma0'] = 0.5
 
-    experiment = []
+    run_start = 170
     for arena in arenas:
-        for run in range(n_runs):
-            experiment_name = f"{arena}x{arena}"
+        for run in range(run_start, run_start+n_runs):
+            experiment_name = f"{arena}x{arena}_pop{pop_size}"
             arena_type = f"circle_{arena}x{arena}"
             genomes = []
             fitnesses = []
             swarms = []
             # prepare learners (/load from checkpoint)
             experiment_dir = os.path.join("./results", experiment_name, str(run))
-            learner = DE(params, output_dir=experiment_dir)
+            learner = CMAes(params, output_dir=experiment_dir)
             if os.path.exists(f"{experiment_dir}/genomes.npy"):
                 try:
                     learner.load_checkpoint()
@@ -106,7 +108,6 @@ def main():
                                                                                arena=arena_type)
                     fitnesses_gen = np.min((fitnesses_gen, fitnesses_gen_rep), axis=0)
 
-
                 # %% Some bookkeeping
                 genomes.append(learner.x_new.tolist())
                 fitnesses.append(fitnesses_gen)
@@ -115,7 +116,7 @@ def main():
                 learner.save_checkpoint()
                 np.save(f"{learner.directory_name}/genomes.npy", genomes)
                 np.save(f"{learner.directory_name}/fitnesses.npy", fitnesses)
-                print(f"Experiment {experiment_name}: {run}/{n_runs} | {learner.directory_name}\n"
+                print(f"Experiment {experiment_name}: {run}/{run_start+n_runs} | {learner.directory_name}\n"
                       f"Finished gen: {fitnesses.__len__()}/{n_generations}\n"
                       f"\tBest gen: {learner.x_best_so_far[-1]}\n"
                       f"\tBest fit: {-learner.f_best_so_far[-1]}\n"

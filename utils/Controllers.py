@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from graph_network.GCN_layer import GCNLayerNumpy
+from .graph_network.GCN_layer import GCNLayerNumpy
 
 torch.set_grad_enabled(False)
 
