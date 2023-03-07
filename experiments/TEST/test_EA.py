@@ -2,6 +2,8 @@ from pathlib import Path
 import sys
 import os
 import unittest
+from typing import AnyStr
+
 import numpy as np
 import argparse
 import matplotlib
@@ -9,32 +11,45 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 print('Python %s on %s' % (sys.version, sys.platform))
 sys.path.append(Path(os.path.abspath(__file__)).parents[2].__str__())
-from utils import EA
+from utils import EA, CMAES
 
 # matplotlib.use('module://backend_interagg')
 # matplotlib.use('TkAgg')
 
 
-def rosenbrock_fitness(genome):
-    x, y = genome
-    return 100 * ((y - (x ** 2)) ** 2) + ((1 - (x ** 2)) ** 2)
+def fitness_fun(genome):
+    # rosenbrock_fitness
+    # x, y = genome
+    # return 100 * ((y - (x ** 2)) ** 2) + ((1 - (x ** 2)) ** 2)
+    import cma
+    return cma.ff.rosen(np.array(genome) + np.array([0.0, 0.0]))
 
 
 class TestEA(unittest.TestCase):
-    def test_EA(self, EA_type='de', verbose=True):
-        if EA_type == 'de':
-            params = {}
-            params['bounds'] = (-10, 10)
-            params['D'] = 2
-            params['evaluate_objective_type'] = 'full'
-            params['pop_size'] = 250
-            params['CR'] = 0.7
-            params['F'] = 0.3
+    def test_DE(self, verbose=True):
+        params = {}
+        params['bounds'] = (-10, 10)
+        params['D'] = 2
+        params['evaluate_objective_type'] = 'full'
+        params['pop_size'] = 250
+        params['CR'] = 0.7
+        params['F'] = 0.3
 
-            learner = EA.DE(params, output_dir=None)
-        else:
-            raise Exception(f"Undefined type: {EA_type}")
+        learner = EA.DE(params, output_dir=None)
+        self.EA(learner, params, verbose, 'de')
 
+    def test_CMA(self, verbose=True):
+        params = {}
+        params['bounds'] = (-10, 10)
+        params['D'] = 2
+        params['evaluate_objective_type'] = 'full'
+        params['pop_size'] = 250
+        params['sigma0'] = 0.5
+
+        learner = CMAES.CMAes(params, output_dir=None)
+        self.EA(learner, params, verbose, 'CMAes')
+
+    def EA(self, learner, params, verbose: bool, EA_type: AnyStr):
         if verbose:
             plt.ion()
             fig = plt.figure()
@@ -45,7 +60,7 @@ class TestEA(unittest.TestCase):
             Z = []
             for x in cont_x:
                 for y in cont_y:
-                    Z.append(rosenbrock_fitness([x, y]))
+                    Z.append(fitness_fun([x, y]))
             ax.grid(True)
 
         # setting number of:
@@ -56,7 +71,7 @@ class TestEA(unittest.TestCase):
         for gen in range(n_generations):  # loop over generations
             fitnesses = []
             for individual in learner.x_new:  # loop over individuals
-                fitness = rosenbrock_fitness(individual)
+                fitness = fitness_fun(individual)
                 fitnesses.append(fitness)
 
             learner.f_new = np.array(fitnesses)
@@ -83,9 +98,10 @@ class TestEA(unittest.TestCase):
                          levels=[0.1, 1, 100, 1000, 10_000, 100_000, 1000_000, 10_000_000],
                          cmap='Reds'
                          )
+            ax.set_title(EA_type)
             plt.show()
             fig.savefig(f"./results/TEST_{EA_type.upper()}.pdf")
-        self.assertAlmostEqual(rosenbrock_fitness(learner.x_best_so_far[-1].flatten()), 0.0, delta=0.01)  # add assertion here
+        self.assertAlmostEqual(fitness_fun(learner.x_best_so_far[-1].flatten()), 0.0, delta=0.01)  # add assertion here
 
 
 if __name__ == '__main__':
