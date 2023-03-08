@@ -10,7 +10,7 @@ print("Experiment root: ", Path(os.path.abspath(__file__)).parents[1].__str__())
 sys.path.append(Path(os.path.abspath(__file__)).parents[1].__str__())
 
 import numpy as np
-from utils.Simulate_swarm_population import simulate_swarm_with_restart_population
+from utils.Simulate_swarm_population import simulate_swarm_with_restart_population_split
 
 # from utils.Simulate_swarm import simulate_swarm_with_restart
 from utils.EA import DE
@@ -94,17 +94,18 @@ def main():
             for gen in range(gen_start, n_generations):  # loop over generations
                 population = [[] for _ in range(pop_size)]
 
-                for n_sub in range(n_subs):
-                    sub_swarm = copy.deepcopy(swarms[n_sub])
-                    for (individual, x) in enumerate(learner.x_new):  # loop over individuals
+                for (individual, x) in enumerate(learner.x_new):  # loop over individuals
+                    for n_sub in range(n_subs):
+                        sub_swarm = copy.deepcopy(swarms[n_sub])
                         sub_swarm.geno2pheno(x[n_sub*n_input*n_output:(1 + n_sub)*n_input*n_output])
                         population[individual] += [sub_swarm]*int(swarm_size/n_subs)
 
                 fitnesses_gen = np.zeros((pop_size, reps))
                 for r in range(reps):
-                    fitnesses_gen[:,r] = simulate_swarm_with_restart_population(simulation_time, population, swarm_size,
+                    fitnesses_gen[:,r] = simulate_swarm_with_restart_population_split(simulation_time, population, swarm_size,
 	                                                                        headless=True,
 	                                                                        objectives=[0, 0, 0, 0, 1],
+                                                                            splits=15,
 	                                                                        arena=arena_type)
                 fitnesses_gen = np.median(fitnesses_gen, axis=1)
 
