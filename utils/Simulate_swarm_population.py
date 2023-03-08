@@ -335,11 +335,35 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
 
     return gen_fitnesses
 
-
-def simulate_swarm_with_restart_population(life_timeout: float, individuals: list, swarm_size: int,
+def simulate_swarm_with_restart_population_split(life_timeout: float, individuals: list, swarm_size: int,
                                            headless: bool,
                                            objectives: list,
+                                           splits: int,
                                            arena: str = "circle_30x30") -> np.ndarray:
+    processes = []
+    shared_memories = []
+    results = []
+    n= int(len(individuals) / splits)
+    individuals_split = [individuals[i:i + n] for i in range(0, len(individuals), n)]
+    for i, individuals_s in zip(range(splits), individuals_split):
+        process, shared_memory, result = simulate_swarm_with_restart_population_start(
+            life_timeout,individuals_s,swarm_size,headless,objectives,arena
+        )
+        processes.append(process)
+        shared_memories.append(shared_memory)
+        results.append(result)
+
+    result_array = []
+    for individuals_s, process, shared_memory, result in zip(individuals_split, processes, shared_memories, results):
+        r = simulate_swarm_with_restart_population_end(process, shared_memory, result, len(individuals_s))
+        result_array += r.tolist()
+
+    return np.array(result_array)
+
+def simulate_swarm_with_restart_population_start(life_timeout: float, individuals: list, swarm_size: int,
+                                           headless: bool,
+                                           objectives: list,
+                                           arena: str = "circle_30x30"):
     """
     Obtains the results for simulate_swarm() with forced gpu memory clearance for restarts.
 
@@ -356,8 +380,11 @@ def simulate_swarm_with_restart_population(life_timeout: float, individuals: lis
     process = Process(target=_inner_simulator_multiple_process_population,
                       args=(life_timeout, individuals, swarm_size, headless, objectives, arena, shared_mem.name))
     process.start()
+    return process, shared_mem, result
+
+def simulate_swarm_with_restart_population_end(process, shared_mem, result, pop_size: int) -> np.ndarray:
     process.join()
-    remote_result = np.ndarray((len(individuals),), dtype=float, buffer=shared_mem.buf)
+    remote_result = np.ndarray((pop_size,), dtype=float, buffer=shared_mem.buf)
     result[:] = remote_result[:]
     shared_mem.close()
     shared_mem.unlink()
