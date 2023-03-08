@@ -384,6 +384,8 @@ def simulate_swarm_with_restart_population_start(life_timeout: float, individual
 
 def simulate_swarm_with_restart_population_end(process, shared_mem, result, pop_size: int) -> np.ndarray:
     process.join()
+    if process.exitcode != 0:
+        raise RuntimeError(f'Simulation for {process} exited with code {process.exitcode}')
     remote_result = np.ndarray((pop_size,), dtype=float, buffer=shared_mem.buf)
     result[:] = remote_result[:]
     shared_mem.close()
