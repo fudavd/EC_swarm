@@ -40,7 +40,7 @@ def main():
     params['pop_size'] = pop_size
     #params['CR'] = 0.9
     #params['F'] = 0.5
-    params['sigma0'] = 0.5
+    params['sigma0'] = 1
 
     run_start = 0
     for arena in arenas:
