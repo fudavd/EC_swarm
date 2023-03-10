@@ -120,6 +120,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
         robot_handles = []
         initial_positions = np.zeros((2, num_robots))  # Allocation to save initial positions of robots
 
+        r=1.0
         if if_random_start:
             flag = 0
             init_area = 3.0 * np.sqrt(swarm_size/14)
@@ -127,8 +128,8 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
             init_failure_1 = 1
             rng = default_rng()
             iangle = 6.28 * rng.random()
-            iy = (15 + 12 * (np.cos(iangle))) * spacing/30
-            ix = (15 + 12 * (np.sin(iangle))) * spacing/30
+            iy = (15 + 12*r * (np.cos(iangle))) * spacing/30
+            ix = (15 + 12*r * (np.sin(iangle))) * spacing/30
             a_x = ix + (init_area / 2)
             b_x = ix - (init_area / 2)
             a_y = iy + (init_area / 2)
