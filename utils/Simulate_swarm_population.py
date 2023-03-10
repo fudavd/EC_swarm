@@ -407,6 +407,8 @@ def _inner_simulator_multiple_process_population(life_timeout: float, individual
         return 0
     except Exception as e:
         print(e)
+        import sys, traceback
+        traceback.print_exc(file=sys.stderr)
         remote_result[:] = -np.inf
         existing_shared_mem.close()
         return -1
