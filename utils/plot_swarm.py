@@ -1,9 +1,12 @@
 import re
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io as sio
 from scipy.ndimage import rotate
+
+matplotlib.use('Qt5Agg')
 
 class swarm_plotter:
 
