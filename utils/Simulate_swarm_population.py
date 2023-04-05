@@ -12,6 +12,7 @@ from .calculate_fitness import FitnessCalculator
 from .sensors import Sensors
 from .plot_swarm import swarm_plotter
 
+radius_spawn=1.0
 
 def calc_vel_targets(controller, states):
     velocity_target = controller.velocity_commands(np.array(states))
@@ -120,16 +121,27 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
         robot_handles = []
         initial_positions = np.zeros((2, num_robots))  # Allocation to save initial positions of robots
 
-        r=1.0
         if if_random_start:
             flag = 0
             init_area = 3.0 * np.sqrt(swarm_size/14)
             init_flag = 0
             init_failure_1 = 1
             rng = default_rng()
-            iangle = 6.28 * rng.random()
-            iy = (15 + 12*r * (np.cos(iangle))) * spacing/30
-            ix = (15 + 12*r * (np.sin(iangle))) * spacing/30
+
+            global radius_spawn
+            # circle corner
+            #  iangle = np.pi/2 * rng.random()
+            #  iy = ((15 + 12)*radius_spawn * (np.cos(iangle))) * spacing/30
+            #  ix = ((15 + 12)*radius_spawn * (np.sin(iangle))) * spacing/30
+            # circle
+            print(f'loading with radius_spawn={radius_spawn}')
+            iangle = np.pi*2 * rng.random()
+            iy = (15 + 12*radius_spawn * (np.cos(iangle))) * spacing/30
+            ix = (15 + 12*radius_spawn * (np.sin(iangle))) * spacing/30
+            # linear
+            #   iy = 27
+            #   ix = 15 + 2*radius_spawn*(rng.random()-0.5)
+
             a_x = ix + (init_area / 2)
             b_x = ix - (init_area / 2)
             a_y = iy + (init_area / 2)
@@ -257,6 +269,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
 
         if len(individuals) == 1:
             plotter = swarm_plotter(arena)  # Plotter init
+            print("plotting")
             plot = True
 
     # %% Simulate
@@ -407,6 +420,8 @@ def _inner_simulator_multiple_process_population(life_timeout: float, individual
         return 0
     except Exception as e:
         print(e)
+        import sys, traceback
+        traceback.print_exc(file=sys.stderr)
         remote_result[:] = -np.inf
         existing_shared_mem.close()
         return -1
