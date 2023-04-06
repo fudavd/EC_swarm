@@ -15,7 +15,10 @@ class FitnessCalculator:
         :param arena: Type of arena
         """
 
-
+        self.current_sub_1_grad = 0
+        self.current_sub_2_grad = 0
+        self.current_sub_1_alignment = 0
+        self.current_sub_2_alignment = 0
         self.current_cohesion = 0
         self.current_separation = 0
         self.current_alignment = 0
@@ -26,6 +29,9 @@ class FitnessCalculator:
         self.map = self.map['I']
         self.size_x = int(re.findall('\d+', arena)[-1])
         self.size_y = int(re.findall('\d+', arena)[-1])
+        max_ind = np.unravel_index(self.map.argmax(), self.map.shape)
+        relative_distance = np.divide(np.array(max_ind)+1, self.map.shape)
+        self.source_pos = relative_distance*self.size_x
         self.grad_constant_x = (len(np.arange(start=0.00, stop=self.size_x, step=0.04))) / self.size_x
         self.grad_constant_y = (len(np.arange(start=0.00, stop=self.size_y, step=0.04))) / self.size_y
 
@@ -52,6 +58,26 @@ class FitnessCalculator:
         self.current_grad = self.current_grad + (np.sum(self.grad_vals) / self.num_robots) / 255.0
 
         return self.current_grad
+
+    def calculate_subgroup_grad(self, positions, ratio) -> np.array :
+        self.grad_y = np.ceil(np.multiply(positions[0], self.grad_constant_x))
+        self.grad_x = np.ceil(np.multiply(positions[1], self.grad_constant_y))
+        self.grad_x = self.grad_x.astype(int)
+        self.grad_y = self.grad_y.astype(int)
+
+        self.grad_x[self.grad_x < 0] = 0
+        self.grad_x[self.grad_x >= self.size_x/0.04] = 0
+        self.grad_y[self.grad_y < 0] = 0
+        self.grad_y[self.grad_y >= self.size_y/0.04] = 0
+
+        self.grad_vals = self.map[self.grad_x, self.grad_y]
+
+        subgroup_ind = int(self.num_robots*ratio)
+        self.current_grad = self.current_grad + (np.sum(self.grad_vals) / self.num_robots) / 255.0
+        self.current_sub_1_grad = self.current_sub_1_grad + (np.sum(self.grad_vals[:subgroup_ind]) / max(1, subgroup_ind)) / 255.0
+        self.current_sub_2_grad = self.current_sub_2_grad + (np.sum(self.grad_vals[subgroup_ind:]) / max(1, self.num_robots-subgroup_ind)) / 255.0
+
+        return np.array([self.current_grad, self.current_sub_1_grad, self.current_sub_2_grad])
 
     def calculate_cohesion_and_separation(self, positions):
         """
@@ -138,6 +164,61 @@ class FitnessCalculator:
         self.current_alignment = self.current_alignment + alignment_at_t/self.num_robots
 
         return np.array([self.current_alignment])
+
+    def calculate_subgroup_alignment(self, headings, ratio):
+        """
+        The "alignment", fitness function element, as in "Evolving flocking in embodied agents based
+        on local and global application of Reynolds". Requires calculate_cohesion_and_separation() method to work
+        alongside, this method use some information from there.
+
+        :param headings: heading angles of all robots, in radians
+
+        :return: alignment value [0, 1]
+        In case of no neighbors, "alignment" is calculated as zero for that robot, separation is naturally zero.
+        """
+        sum_cosh = np.zeros((1, self.num_robots))
+        sum_sinh = np.zeros((1, self.num_robots))
+        number_of_neighbors = np.zeros((1, self.num_robots))
+        alignment_at_t = 0
+
+        subgroup_ind = int(self.num_robots*ratio)
+
+        for i in range(0, subgroup_ind):
+            sum_cosh[0,i] = np.cos(headings[i])
+            sum_sinh[0,i] = np.sin(headings[i])
+
+            for j in range(0, subgroup_ind):
+                if self.dij[i,j] < self.cohesion_range and i != j:
+
+                    sum_cosh[0,i] = sum_cosh[0,i] + np.cos(headings[j])
+                    sum_sinh[0,i] = sum_sinh[0,i] + np.sin(headings[j])
+                    number_of_neighbors[0][i] = number_of_neighbors[0][i] + 1
+
+            if number_of_neighbors[0][i]>0:
+                alignment_at_t = alignment_at_t + np.sqrt(np.power(sum_cosh[0,i],2)+np.power(sum_sinh[0,i],2))/(number_of_neighbors[0][i]+1)
+        self.current_sub_1_alignment = self.current_sub_1_alignment + alignment_at_t/self.num_robots
+
+        sum_cosh = np.zeros((1, self.num_robots))
+        sum_sinh = np.zeros((1, self.num_robots))
+        number_of_neighbors = np.zeros((1, self.num_robots))
+        alignment_at_t = 0
+
+        for i in range(subgroup_ind, self.num_robots):
+            sum_cosh[0,i] = np.cos(headings[i])
+            sum_sinh[0,i] = np.sin(headings[i])
+
+            for j in range(subgroup_ind, self.num_robots):
+                if self.dij[i,j] < self.cohesion_range and i != j:
+
+                    sum_cosh[0,i] = sum_cosh[0,i] + np.cos(headings[j])
+                    sum_sinh[0,i] = sum_sinh[0,i] + np.sin(headings[j])
+                    number_of_neighbors[0][i] = number_of_neighbors[0][i] + 1
+
+            if number_of_neighbors[0][i]>0:
+                alignment_at_t = alignment_at_t + np.sqrt(np.power(sum_cosh[0,i],2)+np.power(sum_sinh[0,i],2))/(number_of_neighbors[0][i]+1)
+        self.current_sub_2_alignment = self.current_sub_2_alignment + alignment_at_t/self.num_robots
+
+        return np.array([self.current_sub_1_alignment, self.current_sub_2_alignment])
 
     def calculate_movement(self, positions):
         """

@@ -225,6 +225,8 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
                 state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], own_headings[ii]))
             elif controller_type == "NN":
                 state = np.hstack((sensor_input_distance[ii, :], sensor_input_heading[ii, :], sensor_input_grad[ii]))
+            elif controller_type == "GNN":
+                raise NotImplementedError
             elif controller_type == "default":
                 state = np.empty(controller.n_input)
             else:
@@ -298,6 +300,8 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
                 grad_sensor_outputs = sensor.grad_sensor(positions)
                 update_robot(distance_sensor_outputs, heading_sensor_outputs, own_headings=headings,
                              sensor_input_grad=grad_sensor_outputs)
+            elif controller_type == "GNN":
+                raise NotImplementedError
             elif controller_type == "default":
                 distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
                 heading_sensor_outputs = sensor.heading_sensor_ae(positions,

@@ -1,4 +1,4 @@
-/results/*
+results/
 *.log
 
 venv/
@@ -12,3 +12,6 @@ Pipfile.lock
 
 # Visual Studio Code
 /.vscode/
+
+# python cache folders
+__pycache__/
