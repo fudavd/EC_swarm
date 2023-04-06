@@ -38,15 +38,16 @@ def main():
     params['bounds'] = (-5, 5)
     params['D'] = n_output * n_input * n_subs
     params['pop_size'] = pop_size
-    #params['CR'] = 0.9
-    #params['F'] = 0.5
+    # params['CR'] = 0.9
+    # params['F'] = 0.5
     params['sigma0'] = 1
 
     run_start = 0
     for arena in arenas:
-        for run in range(run_start, run_start+n_runs):
+        for run in range(run_start, run_start + n_runs):
             experiment_name = f"{arena}x{arena}_pop{pop_size}"
             arena_type = f"circle_{arena}x{arena}"
+            gen_start = 0
             genomes = []
             fitnesses = []
             swarms = []
@@ -80,9 +81,9 @@ def main():
                     os.makedirs(swarm_res_dir)
 
                 genotype['controller']["encoding"] = np.ones(n_output * n_input)
-                genotype['morphology']['rgb'] = [2*n_sub/n_subs, 2*n_sub/n_subs, 2*n_sub/n_subs]
+                genotype['morphology']['rgb'] = [2 * n_sub / n_subs, 2 * n_sub / n_subs, 2 * n_sub / n_subs]
                 sub_swarm = Individual(genotype, 0)
-                gen_start = 0
+
                 if not os.path.exists(f"{swarm_res_dir}/reservoir.npy"):
                     print("Could not find corresponding genomes restart experiment from gen 0!", file=sys.stderr)
                     sub_swarm.controller.save_geno(swarm_res_dir)
@@ -97,16 +98,17 @@ def main():
                 for (individual, x) in enumerate(learner.x_new):  # loop over individuals
                     for n_sub in range(n_subs):
                         sub_swarm = copy.deepcopy(swarms[n_sub])
-                        sub_swarm.geno2pheno(x[n_sub*n_input*n_output:(1 + n_sub)*n_input*n_output])
-                        population[individual] += [sub_swarm]*int(swarm_size/n_subs)
+                        sub_swarm.geno2pheno(x[n_sub * n_input * n_output:(1 + n_sub) * n_input * n_output])
+                        population[individual] += [sub_swarm] * int(swarm_size / n_subs)
 
                 fitnesses_gen = np.zeros((pop_size, reps))
                 for r in range(reps):
-                    fitnesses_gen[:,r] = simulate_swarm_with_restart_population_split(simulation_time, population, swarm_size,
-	                                                                        headless=True,
-	                                                                        objectives=[0, 0, 0, 0, 1],
-                                                                            splits=15,
-	                                                                        arena=arena_type)
+                    fitnesses_gen[:, r] = simulate_swarm_with_restart_population_split(simulation_time, population,
+                                                                                       swarm_size,
+                                                                                       headless=True,
+                                                                                       objectives=[0, 0, 0, 1, 0, 0],
+                                                                                       splits=15,
+                                                                                       arena=arena_type)
                 fitnesses_gen = np.median(fitnesses_gen, axis=1)
 
                 # %% Some bookkeeping
@@ -117,7 +119,7 @@ def main():
                 learner.save_checkpoint()
                 np.save(f"{learner.directory_name}/genomes.npy", genomes)
                 np.save(f"{learner.directory_name}/fitnesses.npy", fitnesses)
-                print(f"Experiment {experiment_name}: {run}/{run_start+n_runs} | {learner.directory_name}\n"
+                print(f"Experiment {experiment_name}: {run}/{run_start + n_runs} | {learner.directory_name}\n"
                       f"Finished gen: {fitnesses.__len__()}/{n_generations}\n"
                       f"\tBest gen: {learner.x_best_so_far[-1]}\n"
                       f"\tBest fit: {-learner.f_best_so_far[-1]}\n"
