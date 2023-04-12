@@ -10,9 +10,9 @@ from scipy.spatial.transform import Rotation as R
 
 import numpy as np
 
-from .calculate_fitness import FitnessCalculator  # Fitness calculator class, all functions are implemented as different
+from .Fitnesses import FitnessCalculator  # Fitness calculator class, all functions are implemented as different
 # methods of this class
-from .sensors import Sensors  # Sensor class, all types of sensors are implemented as different
+from .Sensors import Sensors  # Sensor class, all types of sensors are implemented as different
 # methods of this class
 from .plot_swarm import swarm_plotter  # Plotter class, to plot positions and headings of the swarm agents on the
 # gradient map
@@ -288,14 +288,14 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
                                                                   headings)  # The values recorded by on-board
                 update_robot(distance_sensor_outputs, heading_sensor_outputs, bearing_sensor_outputs, headings)
             elif controller_type == "4dir":
-                distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
+                distance_sensor_outputs = sensor.distance_sensor_4dir(positions, headings)
                 heading_sensor_outputs = sensor.heading_sensor_ae(positions,
                                                                   headings)  # The values recorded by on-board
                 grad_sensor_outputs = sensor.grad_sensor(positions)
                 update_robot(distance_sensor_outputs, heading_sensor_outputs, own_headings=headings,
                              sensor_input_grad=grad_sensor_outputs)
             elif controller_type == "NN":
-                distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
+                distance_sensor_outputs = sensor.distance_sensor_4dir(positions, headings)
                 heading_sensor_outputs = sensor.heading_sensor_4dir(headings)  # The values recorded by on-board
                 grad_sensor_outputs = sensor.grad_sensor(positions)
                 update_robot(distance_sensor_outputs, heading_sensor_outputs, own_headings=headings,
@@ -303,7 +303,7 @@ def simulate_swarm(life_timeout: float, individual: Individual, headless: bool, 
             elif controller_type == "GNN":
                 raise NotImplementedError
             elif controller_type == "default":
-                distance_sensor_outputs = sensor.four_dir_sensor(positions, headings)
+                distance_sensor_outputs = sensor.distance_sensor_4dir(positions, headings)
                 heading_sensor_outputs = sensor.heading_sensor_ae(positions,
                                                                   headings)  # The values recorded by on-board
                 update_robot(distance_sensor_outputs, heading_sensor_outputs, own_headings=headings)

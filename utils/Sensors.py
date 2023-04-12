@@ -1,11 +1,19 @@
+from typing import List
+
 import numpy as np
 import scipy.io as sio
 import re
 
+
 class Sensors:
     # Different sensor types for robots in the swarm. Each sensor is a "device" located in "each robot". This class put
     # all sensor outputs of all robots in a single matrix for convenience.
-    def __init__(self, arena: str = "circle_30x30"):
+    def __init__(self, sensor_list: List[str], arena: str = "circle_30x30"):
+        self.sensor_list = [key for key in set(sensor_list)]
+        self.indices = []
+        for sensor in self.sensor_list:
+            self.indices.append([i for i, x in enumerate(sensor_list) if x == sensor])
+        self.states = [np.empty(0)] * len(sensor_list)
         self.map = sio.loadmat(f'./utils/Gradient Maps/{arena}.mat')
         self.map = self.map['I']
         self.size_x = int(re.findall('\d+', arena)[-1])
@@ -17,13 +25,54 @@ class Sensors:
         rgs_xs = np.zeros(60)
         rgs_ys = np.zeros(60)
 
-        for theta in np.arange(start=0.01, stop=6.2832, step=6.2832/60):
-            rgs_xs[rgs_index] = 8*np.cos(theta)
-            rgs_ys[rgs_index] = 8*np.sin(theta)
+        for theta in np.arange(start=0.01, stop=6.2832, step=6.2832 / 60):
+            rgs_xs[rgs_index] = 8 * np.cos(theta)
+            rgs_ys[rgs_index] = 8 * np.sin(theta)
             rgs_index = rgs_index + 1
 
         self.rgs_xs = np.rint(rgs_xs)
         self.rgs_ys = np.rint(rgs_ys)
+
+    def get_current_state(self):
+        return self.states
+
+    def calculate_states(self, positions, headings):
+        headings = headings[np.newaxis].T
+        for i_sensor, sensor in enumerate(self.sensor_list):
+            state = None
+            if sensor == "omni":
+                distance_sensor_outputs, bearing_sensor_outputs = self.omni_dir_sensor(positions, headings)
+                heading_sensor_outputs = self.heading_sensor_ae(positions, headings)
+                state = np.hstack((distance_sensor_outputs, bearing_sensor_outputs,
+                                   heading_sensor_outputs,
+                                   headings))
+            if sensor == "k_nearest":
+                distance_sensor_outputs, bearing_sensor_outputs = self.k_nearest_sensor(positions,
+                                                                                        headings)
+                heading_sensor_outputs = self.heading_sensor_ae(positions, headings)
+                state = np.hstack((distance_sensor_outputs, bearing_sensor_outputs,
+                                   heading_sensor_outputs,
+                                   headings))
+            if sensor == "4dir":
+                distance_sensor_outputs = self.distance_sensor_4dir(positions, headings)
+                heading_sensor_outputs = self.heading_sensor_ae(positions, headings)
+                grad_sensor_outputs = self.grad_sensor(positions)
+                state = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
+                                   headings,
+                                   grad_sensor_outputs))
+            if sensor == "NN":
+                distance_sensor_outputs = self.distance_sensor_4dir(positions, headings)
+                heading_sensor_outputs = self.heading_sensor_4dir(headings)
+                grad_sensor_outputs = self.grad_sensor(positions)
+                state = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
+                                   grad_sensor_outputs))
+            if sensor == "default":
+                distance_sensor_outputs = self.distance_sensor_4dir(positions, headings)
+                heading_sensor_outputs = self.heading_sensor_ae(positions, headings)
+                state = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
+                                   headings))
+            for index in self.indices[i_sensor]:
+                self.states[index] = state[index, :]
 
     def grad_sensor(self, positions: np.ndarray) -> np.ndarray:
         """
@@ -39,15 +88,16 @@ class Sensors:
         self.grad_y = self.grad_y.astype(int)
 
         self.grad_x[self.grad_x < 0] = 0
-        self.grad_x[self.grad_x >= self.size_x/0.04] = 0
+        self.grad_x[self.grad_x >= self.size_x / 0.04] = 0
         self.grad_y[self.grad_y < 0] = 0
-        self.grad_y[self.grad_y >= self.size_y/0.04] = 0
+        self.grad_y[self.grad_y >= self.size_y / 0.04] = 0
 
         self.grad_vals = self.map[self.grad_x, self.grad_y]
 
-        return self.grad_vals
+        output_grad = self.grad_vals[np.newaxis].T
+        return output_grad
 
-    def four_dir_sensor(self, positions: np.ndarray, headings: np.ndarray) -> np.ndarray:
+    def distance_sensor_4dir(self, positions: np.ndarray, headings: np.ndarray) -> np.ndarray:
         """
         The sensor model used in "Evolving flocking in embodied agents based on local and global application of
         Reynolds"
@@ -225,14 +275,15 @@ class Sensors:
             if num_neigh[0, i] > 0:
                 distances_to_neighbors = np.array(distances_to_neighbors)
                 bearing_of_neighbors = np.array(bearing_of_neighbors)
-                output_distances.append(distances_to_neighbors)
-                output_angles.append(bearing_of_neighbors)
             else:
                 distances_to_neighbors = np.array(0.00)
                 bearing_of_neighbors = np.array(0.00)
-                output_distances.append(distances_to_neighbors)
-                output_angles.append(bearing_of_neighbors)
 
+            output_distances.append(distances_to_neighbors)
+            output_angles.append(bearing_of_neighbors)
+
+        output_distances = np.array(output_distances, dtype=object).reshape(robot_num, 1)
+        output_angles = np.array(output_angles, dtype=object).reshape(robot_num, 1)
         return output_distances, output_angles
 
     def heading_sensor(self, positions: np.ndarray, headings: np.ndarray) -> np.ndarray:
@@ -324,7 +375,6 @@ class Sensors:
                     sum_sinh[0, i] = sum_sinh[0, i] + np.sin(headings[j])
                     num_neigh[0, i] = num_neigh[0, i] + 1
 
-
             hbars[i, 0] = np.divide(sum_cosh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
             hbars[i, 1] = np.divide(sum_sinh[0, i], np.sqrt(np.square(sum_cosh[0, i]) + np.square(sum_sinh[0, i])))
 
@@ -370,9 +420,9 @@ class Sensors:
         self.grad_y = self.grad_y.astype(int)
 
         self.grad_x[self.grad_x < 0] = 0
-        self.grad_x[self.grad_x >= self.size_x/0.04] = 0
+        self.grad_x[self.grad_x >= self.size_x / 0.04] = 0
         self.grad_y[self.grad_y < 0] = 0
-        self.grad_y[self.grad_y >= self.size_y/0.04] = 0
+        self.grad_y[self.grad_y >= self.size_y / 0.04] = 0
         self.grad_vals = self.map[self.grad_x, self.grad_y]
 
         for i in range(robot_num):

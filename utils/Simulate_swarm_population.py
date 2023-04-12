@@ -1,7 +1,7 @@
 import copy
 import re
 from multiprocessing import shared_memory, Process
-from typing import AnyStr
+from typing import AnyStr, TypedDict
 from isaacgym import gymapi
 from isaacgym import gymutil
 from scipy.spatial.transform import Rotation as R
@@ -9,12 +9,10 @@ from scipy.spatial.transform import Rotation as R
 import numpy as np
 from numpy.random import default_rng
 
-from .calculate_fitness import FitnessCalculator
-from .sensors import Sensors
+from .Fitnesses import FitnessCalculator
+from .Sensors import Sensors
 from .plot_swarm import swarm_plotter
 
-radius_spawn=1.0
-record_video=False
 
 def calc_vel_targets(controller, states):
     velocity_target = controller.velocity_commands(np.array(states))
@@ -23,10 +21,20 @@ def calc_vel_targets(controller, states):
     return [n_l, n_r]
 
 
+EnvSettings = {
+    'arena_type': "circle_30x30",
+    'spawn_radius': 1.0,
+    'fitnesses': ['grad'],
+    'objectives': ['alignment_sub', 'alignment', 'gradient_sub'],
+    'record_video': False,
+    'save_full_fitness': False
+}
+
+
 def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size: int,
                               headless: bool,
-                              objectives: list,
-                              arena: str = "circle_30x30") -> np.ndarray:
+                              arena: str = "circle_30x30",
+                              env_params: TypedDict = EnvSettings) -> np.ndarray:
     """
     Parallelized simulation of all 'robot swarm' individuals in the population using Isaac gym
     
@@ -36,6 +44,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
     :param headless: Start UI for debugging
     :param objectives: specify which components of the fitness function should be returned
     :param arena: Type of arena
+    :param env_params: Dictionary of environment settings, if unspecified set to Default
     :return: fitness of the individual(s)
     """
 
@@ -103,6 +112,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
     robot_handles_list = []
     subgroup_ratio_list = []
     fitness_list = []
+    fitness_mat = []
     sensor_list = []
     num_robots = swarm_size
     controller_list = []
@@ -111,10 +121,9 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
     for i_env in range(num_envs):
         individual = individuals[i_env]
         controller_list.append(np.array([member.controller for member in individual]))
-        controller_types_list.append(np.array([member.controller.controller_type for member in individual]))
+        controller_types_list.append([member.controller.controller_type for member in individual])
         swarm_composition = [individual.count(i) for i in set(individual)]
-        num_subgroups = len(swarm_composition)
-        subgroup_ratio_list.append(swarm_composition[0]/len(individual))
+        subgroup_ratio = swarm_composition[0]/len(individual)
         # create env
         env = gym.create_env(sim, env_lower, env_upper, num_envs)
         env_list.append(env)
@@ -134,7 +143,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
             init_failure_1 = 1
             rng = default_rng()
 
-            global radius_spawn
+            radius_spawn = env_params['spawn_radius']
             # circle corner
             if arena.split('_')[:-1] == ['circle', 'corner']:
                  iangle = np.pi/2 * rng.random()
@@ -242,11 +251,14 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
                 gym.set_rigid_body_color(env, robot_handle, 0, gymapi.MESH_VISUAL, gymapi.Vec3(*color))
 
         positions = np.full([3, num_robots], 0.01)
-        fitness_list.append(FitnessCalculator(num_robots, initial_positions, desired_movement, arena=arena))
-        sensor_list.append(Sensors(arena=arena))
+        fitness_list.append(FitnessCalculator(num_robots, initial_positions, desired_movement,
+                                              arena=arena,
+                                              subgroup_ratio=subgroup_ratio,
+                                              objectives=env_params['objectives']))
+        sensor_list.append(Sensors(controller_types_list[i_env], arena=arena))
 
     def update_robot(env, controllers, robot_handles, states):
-        for ii in range(len(robot_handles)):
+        for ii in range(len(states)):
             velocity_command = calc_vel_targets(controllers[ii], states[ii])
             gym.set_actor_dof_velocity_targets(env, robot_handles[ii], velocity_command)
 
@@ -268,11 +280,12 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
 
     t = 0
     timestep = 0  # Counter to save total time steps, required for final step of fitness value calculation
-    fitness_mat = np.zeros((len(objectives), len(individuals)))
+    fitness_mat = np.zeros((fitness_list[0].get_fitness_size(), len(individuals)))
     # Create viewer
     viewer = None
     plot = False
-    global record_video
+    record_video = env_params['record_video']
+    save_full_fitness = env_params['save_full_fitness']
     if not headless:
         source_loc = fitness_list[0].source_pos
         x_dir = (ix - source_loc[0])
@@ -309,7 +322,7 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
     # %% Simulate
     start = gym.get_sim_time(sim)
     frame = 0
-    fitness_time = []
+    fitness_full = []
     while t <= life_timeout:
         t = gym.get_sim_time(sim)
 
@@ -322,50 +335,16 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
                 controller = controller_list[i_env]
                 # Update positions and headings of all robots
                 headings, positions[0], positions[1] = get_pos_and_headings(env, robot_handles)
-                if "omni" in controller_types:
-                    indices = [i for i, x in enumerate(controller_types) if x == "omni"]
-                    distance_sensor_outputs, bearing_sensor_outputs = sensor_list[i_env].omni_dir_sensor(positions, headings)
-                    heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions, headings)
-                    states = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
-                                        bearing_sensor_outputs.reshape((num_robots, 1)),
-                                        headings.reshape((num_robots, 1))))
-                    update_robot(env, controller[i_env][indices], robot_handles[indices], states[indices, :])
-                if "k_nearest" in controller_types:
-                    indices = [i for i, x in enumerate(controller_types) if x == "k_nearest"]
-                    distance_sensor_outputs, bearing_sensor_outputs = sensor_list[i_env].k_nearest_sensor(positions, headings)
-                    heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions, headings)
-                    states = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
-                                        bearing_sensor_outputs.reshape((num_robots, 1)),
-                                        headings.reshape((num_robots, 1))))
-                    update_robot(env, controller[indices], robot_handles[indices], states[indices, :])
-                if "4dir" in controller_types:
-                    indices = [i for i, x in enumerate(controller_types) if x == "4dir"]
-                    distance_sensor_outputs = sensor_list[i_env].four_dir_sensor(positions, headings)
-                    heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions, headings)
-                    grad_sensor_outputs = sensor_list[i_env].grad_sensor(positions)
-                    states = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
-                                        headings.reshape((num_robots, 1)),
-                                        grad_sensor_outputs.reshape((num_robots, 1))))
-                    update_robot(env, controller[indices], robot_handles[indices], states[indices, :])
-                if "NN" in controller_types:
-                    indices = [i for i, x in enumerate(controller_types) if x == "NN"]
-                    distance_sensor_outputs = sensor_list[i_env].four_dir_sensor(positions, headings)
-                    heading_sensor_outputs = sensor_list[i_env].heading_sensor_4dir(headings)
-                    grad_sensor_outputs = sensor_list[i_env].grad_sensor(positions)
-                    states = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
-                                        grad_sensor_outputs.reshape((num_robots, 1))))
-                    update_robot(env, controller[indices], robot_handles[indices], states[indices, :])
-                if "default" in controller_types:
-                    indices = [i for i, x in enumerate(controller_types) if x == "default"]
-                    distance_sensor_outputs = sensor_list[i_env].four_dir_sensor(positions, headings)
-                    heading_sensor_outputs = sensor_list[i_env].heading_sensor_ae(positions, headings)
-                    states = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
-                                        headings.reshape((num_robots, 1))))
-                    update_robot(env, controller[indices], robot_handles[indices], states[indices, :])
+                sensor_list[i_env].calculate_states(positions, headings)
+                states = sensor_list[i_env].get_current_state()
+                update_robot(env, controller, robot_handles, states)
 
-                fitness_mat[:2, i_env] = fitness_list[i_env].calculate_subgroup_alignment(headings, ratio=subgroup_ratio_list[i_env]) / timestep
-                fitness_mat[2, i_env] = fitness_list[i_env].calculate_alignment(headings) / timestep
-                fitness_mat[3:, i_env] = fitness_list[i_env].calculate_subgroup_grad(positions, ratio=subgroup_ratio_list[i_env]) / timestep
+                fitness_mat[:, i_env] = fitness_list[i_env].obtain_fitnesses(positions, headings)/timestep
+                if save_full_fitness:
+                    fitness_full.append(copy.deepcopy(fitness_mat))
+                    if not t < life_timeout:
+                        np.save(f'./results/fitness_full.npy', np.array(fitness_full).squeeze())
+
             if plot:
                 if record_video:
                     if (gym.get_sim_time(sim)%1) < 0.0005:
@@ -374,9 +353,6 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
                         gym.draw_viewer(viewer, sim, False)
                         gym.write_viewer_image_to_file(viewer, f'./results/images/viewer/{frame}.png')
                         frame += 1
-                        fitness_time.append(copy.deepcopy(fitness_mat))
-                        if not t < life_timeout:
-                            np.save(f'./results/Validation/alignment.npy', np.array(fitness_time).squeeze())
                 else:
                     plotter.plot_swarm_quiver(positions, headings)
             start = gym.get_sim_time(sim)
@@ -389,13 +365,9 @@ def simulate_swarm_population(life_timeout: float, individuals: list, swarm_size
             gym.draw_viewer(viewer, sim, False)
     if not headless:
         gym.destroy_viewer(viewer)
-
     gym.destroy_sim(sim)
 
-    binary_vector = objectives
-    gen_fitnesses = np.dot(binary_vector, np.array(fitness_mat).squeeze())
-
-    return gen_fitnesses
+    return fitness_mat
 
 def simulate_swarm_with_restart_population_split(life_timeout: float, individuals: list, swarm_size: int,
                                            headless: bool,

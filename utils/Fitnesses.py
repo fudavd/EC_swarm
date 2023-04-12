@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 from copy import deepcopy
 import re
@@ -5,7 +7,8 @@ import scipy.io as sio
 
 
 class FitnessCalculator:
-    def __init__(self, num_robots: int, initial_positions: np.ndarray, desired_movement: float, arena: str = "circle_30x30"):
+    def __init__(self, num_robots: int, initial_positions: np.ndarray, desired_movement: float,
+                 arena: str = "circle_30x30", subgroup_ratio: float = 1.0, objectives: List = ['gradient']):
         """
         A calculator class for all fitness functions/elements.
 
@@ -15,6 +18,7 @@ class FitnessCalculator:
         :param arena: Type of arena
         """
 
+        self.objectives = objectives
         self.current_sub_1_grad = 0
         self.current_sub_2_grad = 0
         self.current_sub_1_alignment = 0
@@ -24,6 +28,7 @@ class FitnessCalculator:
         self.current_alignment = 0
         self.current_movement = 0
         self.current_grad = 0
+        self.subgroup_ratio = subgroup_ratio
 
         self.map = sio.loadmat(f'./utils/Gradient Maps/{arena}.mat')
         self.map = self.map['I']
@@ -42,6 +47,37 @@ class FitnessCalculator:
 
         self.dij = np.zeros((self.num_robots,self.num_robots))
 
+    def obtain_fitnesses(self, positions, headings):
+        if self.objectives is None:
+            return 0
+        else:
+            fitnesses = []
+            for objective in self.objectives:
+                if objective == 'gradient':
+                    fitnesses.append(self.calculate_grad(positions)[:])
+                if objective == 'alignment':
+                    fitnesses.append(self.calculate_alignment(headings)[:])
+                if objective == 'movement':
+                    fitnesses.append(self.calculate_movement(positions)[:])
+                if objective == 'n_groups':
+                    fitnesses.append(self.calculate_number_of_groups(positions)[:])
+                if objective == 'cohesion_and_separation' or objective == 'coh_sep':
+                    fitnesses.append(self.calculate_cohesion_and_separation(positions)[:])
+                if objective == 'alignment_sub':
+                    fitnesses.append(self.calculate_subgroup_alignment(headings)[:])
+                if objective == 'gradient_sub':
+                    fitnesses.append(self.calculate_subgroup_grad(positions)[:])
+            return np.hstack(fitnesses)
+
+    def get_fitness_size(self):
+        length = 0
+        for objective in self.objectives:
+            if objective == 'gradient' or objective == 'alignment' or objective == 'movement' or objective == 'n_groups':
+                length += 1
+            if objective == 'cohesion_and_separation' or objective == 'coh_sep' or  objective == 'alignment_sub' or objective == 'gradient_sub':
+                length += 2
+        return length
+
     def calculate_grad(self, positions):
         self.grad_y = np.ceil(np.multiply(positions[0], self.grad_constant_x))
         self.grad_x = np.ceil(np.multiply(positions[1], self.grad_constant_y))
@@ -59,7 +95,7 @@ class FitnessCalculator:
 
         return self.current_grad
 
-    def calculate_subgroup_grad(self, positions, ratio) -> np.array :
+    def calculate_subgroup_grad(self, positions) -> np.array :
         self.grad_y = np.ceil(np.multiply(positions[0], self.grad_constant_x))
         self.grad_x = np.ceil(np.multiply(positions[1], self.grad_constant_y))
         self.grad_x = self.grad_x.astype(int)
@@ -72,12 +108,12 @@ class FitnessCalculator:
 
         self.grad_vals = self.map[self.grad_x, self.grad_y]
 
-        subgroup_ind = int(self.num_robots*ratio)
+        subgroup_ind = int(self.num_robots*self.subgroup_ratio)
         self.current_grad = self.current_grad + (np.sum(self.grad_vals) / self.num_robots) / 255.0
         self.current_sub_1_grad = self.current_sub_1_grad + (np.sum(self.grad_vals[:subgroup_ind]) / max(1, subgroup_ind)) / 255.0
         self.current_sub_2_grad = self.current_sub_2_grad + (np.sum(self.grad_vals[subgroup_ind:]) / max(1, self.num_robots-subgroup_ind)) / 255.0
 
-        return np.array([self.current_grad, self.current_sub_1_grad, self.current_sub_2_grad])
+        return np.array([self.current_sub_1_grad, self.current_sub_2_grad])
 
     def calculate_cohesion_and_separation(self, positions):
         """
@@ -165,7 +201,7 @@ class FitnessCalculator:
 
         return np.array([self.current_alignment])
 
-    def calculate_subgroup_alignment(self, headings, ratio):
+    def calculate_subgroup_alignment(self, headings):
         """
         The "alignment", fitness function element, as in "Evolving flocking in embodied agents based
         on local and global application of Reynolds". Requires calculate_cohesion_and_separation() method to work
@@ -181,7 +217,7 @@ class FitnessCalculator:
         number_of_neighbors = np.zeros((1, self.num_robots))
         alignment_at_t = 0
 
-        subgroup_ind = int(self.num_robots*ratio)
+        subgroup_ind = int(self.num_robots*self.subgroup_ratio)
 
         for i in range(0, subgroup_ind):
             sum_cosh[0,i] = np.cos(headings[i])

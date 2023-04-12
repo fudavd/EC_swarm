@@ -122,8 +122,6 @@ class NNController(Controller):
         assert (len(state) == self.n_input), "State does not correspond with expected input size"
         state[:4] = self.map_state(0, 2, -1, 1, state[:4])
         state[4:8] = self.map_state(-np.pi, np.pi, -1, 1, state[4:8])  # Assumed distance sensing range is 2.0 meters. If not, check!
-        # state[4] = self.map_state(-3.1416, 3.1416, -1, 1, state[4]) # Heading average, already converted
-        # state[5] = self.map_state(-3.1416, 3.1416, -1, 1, state[5])  # Own heading, [-pi, pi]
         state[-1] = self.map_state(0, 255.0, -1, 1, state[-1])  # Gradient value, [0, 255]
 
         action = self.model.forward(state)
@@ -383,8 +381,8 @@ class ActiveElastic_omni(Controller):
         self.distances = state[0]
         self.distances[self.distances == 0] = np.inf
         self.bearings = state[1]
-        self.headings = state[2]
-        self.own_heading = state[3]
+        self.headings = state[2:4]
+        self.own_heading = state[4]
 
         # Calculate proximal forces
         pi_s = -self.epsilon * (2 * (np.divide(np.power(self.sigma_const, 4), np.power(self.distances, 5))) - (

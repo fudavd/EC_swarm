@@ -10,9 +10,9 @@ def thymio_genotype(controller_type: AnyStr = "Rand", n_input: int = 5, n_output
     Default thymio genotype with empty encoding
 
     Inputs:
-        <AnyStr> controller_type : Type of Controller <Default: Rand>
-        <int> n_input : Number of inputs of Controller <Default: 5>
-        <int> n_output : Number of outputs of Controller <Default: 2>
+        :param controller_type : Type of Controller <Default: Rand>
+        :param n_input : Number of inputs of Controller <Default: 5>
+        :param n_output : Number of outputs of Controller <Default: 2>
 
     Outputs:
         <Dict> genotype : A genotype
