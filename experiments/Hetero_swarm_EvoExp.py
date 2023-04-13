@@ -11,11 +11,10 @@ sys.path.append(Path(os.path.abspath(__file__)).parents[1].__str__())
 
 import numpy as np
 from utils.Simulate_swarm_population import simulate_swarm_with_restart_population_split
-
-# from utils.Simulate_swarm import simulate_swarm_with_restart
-from utils.EA import DE
-from utils.CMAES import CMAes
+from utils.Simulate_swarm_population import EnvSettings
+from utils.EA import CMAes
 from utils.Individual import Individual, thymio_genotype
+from utils.Fitnesses import Calculate_fitness_size
 
 
 def main():
@@ -38,15 +37,17 @@ def main():
     params['bounds'] = (-5, 5)
     params['D'] = n_output * n_input * n_subs
     params['pop_size'] = pop_size
-    # params['CR'] = 0.9
-    # params['F'] = 0.5
     params['sigma0'] = 1
 
     run_start = 0
     for arena in arenas:
+        experiment_name = f"{arena}x{arena}_pop{pop_size}"
+        arena_type = f"circle_{arena}x{arena}"
+        simulator_settings = EnvSettings
+        simulator_settings['arena_type'] = arena_type
+        simulator_settings['objectives'] = ['gradient']
+
         for run in range(run_start, run_start + n_runs):
-            experiment_name = f"{arena}x{arena}_pop{pop_size}"
-            arena_type = f"circle_{arena}x{arena}"
             gen_start = 0
             genomes = []
             fitnesses = []
@@ -101,15 +102,14 @@ def main():
                         sub_swarm.geno2pheno(x[n_sub * n_input * n_output:(1 + n_sub) * n_input * n_output])
                         population[individual] += [sub_swarm] * int(swarm_size / n_subs)
 
-                fitnesses_gen = np.zeros((pop_size, reps))
+                simulator_settings['fitness_size'] = Calculate_fitness_size(population[0], simulator_settings)
+                fitnesses_gen = np.zeros((pop_size, simulator_settings['fitness_size'], reps))
                 for r in range(reps):
-                    fitnesses_gen[:, r] = simulate_swarm_with_restart_population_split(simulation_time, population,
-                                                                                       swarm_size,
+                    fitnesses_gen[:, :, r] = simulate_swarm_with_restart_population_split(simulation_time, population,
                                                                                        headless=True,
-                                                                                       objectives=[0, 0, 0, 1, 0, 0],
-                                                                                       splits=15,
-                                                                                       arena=arena_type)
-                fitnesses_gen = np.median(fitnesses_gen, axis=1)
+                                                                                       env_params=simulator_settings,
+                                                                                       splits=2)
+                fitnesses_gen = np.median(fitnesses_gen, axis=-1).squeeze()
 
                 # %% Some bookkeeping
                 genomes.append(learner.x_new.tolist())

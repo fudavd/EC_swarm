@@ -9,10 +9,10 @@ class Sensors:
     # Different sensor types for robots in the swarm. Each sensor is a "device" located in "each robot". This class put
     # all sensor outputs of all robots in a single matrix for convenience.
     def __init__(self, sensor_list: List[str], arena: str = "circle_30x30"):
-        self.sensor_list = [key for key in set(sensor_list)]
-        self.indices = []
+        self.sensor_list = list(dict.fromkeys(sensor_list))
+        self.robot_sensor_map = []
         for sensor in self.sensor_list:
-            self.indices.append([i for i, x in enumerate(sensor_list) if x == sensor])
+            self.robot_sensor_map.append([i for i, x in enumerate(sensor_list) if x == sensor])
         self.states = [np.empty(0)] * len(sensor_list)
         self.map = sio.loadmat(f'./utils/Gradient Maps/{arena}.mat')
         self.map = self.map['I']
@@ -71,7 +71,7 @@ class Sensors:
                 heading_sensor_outputs = self.heading_sensor_ae(positions, headings)
                 state = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
                                    headings))
-            for index in self.indices[i_sensor]:
+            for index in self.robot_sensor_map[i_sensor]:
                 self.states[index] = state[index, :]
 
     def grad_sensor(self, positions: np.ndarray) -> np.ndarray:

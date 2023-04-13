@@ -213,7 +213,7 @@ class RandomWalk(Controller):
         Given a state, give an appropriate action.
 
         :param state: A single observation of the current state, dimension is (state_dim)
-        :return: A vector of random motor inputs [-1, 1]
+        :return: A vector of random motor inputs [-1, 1]^n_output
         """
         return np.random.uniform(-1, 1, self.n_output).astype('f')
 

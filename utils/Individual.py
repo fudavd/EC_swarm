@@ -53,8 +53,8 @@ class Individual:
     def set_brain(self, brain_description: Dict):
         controller_type = brain_description['type']
         params = brain_description['params']
-        if not np.isreal(brain_description["encoding"]).any() and not controller_type == 'Rand':
-            print("Invalid encoding: set brain to Default (RandomWalk)")
+        if not np.isreal((params['input_space'], params['output_space'])).any() and not controller_type == 'Rand':
+            print("Invalid input/output space: set brain to Default (RandomWalk)")
             controller_type = "Rand"
             params['input_space'] = 0
             params['output_space'] = 2
@@ -76,7 +76,6 @@ class Individual:
             controller = Controllers.ActiveElastic_k_near(params['input_space'], params['output_space'])
         else:
             raise ValueError("ERROR: controller type not found")
-        controller.geno2pheno(brain_description["encoding"])
         return controller
 
     def set_fitness(self, fitness: float):

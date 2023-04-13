@@ -11,16 +11,13 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 print('Python %s on %s' % (sys.version, sys.platform))
 sys.path.append(Path(os.path.abspath(__file__)).parents[2].__str__())
-from utils import EA, CMAES
+from utils import EA
 
 # matplotlib.use('module://backend_interagg')
 # matplotlib.use('TkAgg')
 
 
 def fitness_fun(genome):
-    # rosenbrock_fitness
-    # x, y = genome
-    # return 100 * ((y - (x ** 2)) ** 2) + ((1 - (x ** 2)) ** 2)
     import cma
     return cma.ff.rosen(np.array(genome) + np.array([7.0, 7.0]))
 
@@ -36,7 +33,7 @@ class TestEA(unittest.TestCase):
         params['F'] = 0.3
 
         learner = EA.DE(params, output_dir=None)
-        self.EA(learner, params, verbose, 'de')
+        self.TEST_EA(learner, params, verbose, 'de')
 
     def test_CMA(self, verbose=True):
         params = {}
@@ -45,10 +42,33 @@ class TestEA(unittest.TestCase):
         params['pop_size'] = 250
         params['sigma0'] = 0.5
 
-        learner = CMAES.CMAes(params, output_dir=None)
-        self.EA(learner, params, verbose, 'CMAes')
+        learner = EA.CMAes(params, output_dir=None)
+        self.TEST_EA(learner, params, verbose, 'CMAes')
 
-    def EA(self, learner, params, verbose: bool, EA_type: AnyStr):
+    def test_MAP(self, verbose=True):
+        params = {}
+        params['D'] = 2
+        params['pop_size'] = 250
+        params['bounds'] = (-10, 10)
+        params['sigma0'] = 0.5
+        params['N_emitters'] = 10
+
+        def x_pos(sol, fitness):
+            return sol[:,0]
+        def y_pos(sol, fitness):
+            return sol[:,1]
+
+        measures = {'names': ['x', 'y'],
+                    'bounds': [(-10, 10), (-10, 10)],
+                    'D': [8, 100],
+                    'functions': [x_pos, y_pos]
+                    }
+        params['measures'] = measures
+
+        learner = EA.MAP_elites(params, output_dir=None)
+        self.TEST_EA(learner, params, verbose, 'MAP_elites')
+
+    def TEST_EA(self, learner, params, verbose: bool, EA_type: AnyStr):
         if verbose:
             plt.ion()
             fig = plt.figure()
