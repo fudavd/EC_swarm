@@ -164,7 +164,6 @@ class CMAes(EA):
 class MAP_elites(EA):
     def __init__(self, params, output_dir='./results'):
         super().__init__(params, output_dir)
-        self.measured = False
         self.x_measures = None
         self.Np = params['pop_size']  # Number of individuals
         self.D = params['D']  # Dimension
@@ -177,11 +176,11 @@ class MAP_elites(EA):
         self.N_measures = len(params['measures']['bounds'])
         self.bounds_measure = params['measures']['bounds']
         self.D_measure = params['measures']['D']
-        self.measures = params['measures']['functions']
+        self.measure_funcs = params['measures']['functions']
 
         self.archive = GridArchive(
-            solution_dim=self.D,  # Dimensionality of solutions in the archive.
-            dims=self.D_measure,  # 50 cells along each dimension.
+            solution_dim=self.D,
+            dims=self.D_measure,
             ranges=self.bounds_measure,  # (-1, 1) for x-pos and (-3, 0) for y-vel.
             qd_score_offset=-600,  # See the note below.
         )
@@ -215,14 +214,12 @@ class MAP_elites(EA):
     def update_measure(self, measures=None):
         if measures is None:
             measures = []
-            for measure_func in self.measures:
+            for measure_func in self.measure_funcs:
                 measures.append(measure_func(self.x_new, self.f_new))
-        # measures = np.array(measures).reshape((len(self.f_new), self.N_measures))
-        measures = np.array(measures).T
-        self.measured = True
+            measures = np.array(measures).T
         self.x_measures = measures
 
-    def get_new_genome(self):
+    def get_new_genome(self, measures=None):
         pop_best = np.min(self.f_new)  # some book keeping
         if self.f_best_so_far == [] or pop_best < self.f_best_so_far[-1]:
             self.f_best_so_far.append(pop_best)
@@ -231,14 +228,13 @@ class MAP_elites(EA):
             self.f_best_so_far.append(self.f_best_so_far[-1])
             self.x_best_so_far.append(self.x_best_so_far[-1])
 
-        self.update_measure()
+        self.update_measure(measures)
 
-        self.scheduler.tell(-self.f_new, self.x_measures)
+        self.scheduler.tell(-self.f_new.squeeze(), self.x_measures)
         self.x = copy.deepcopy(self.x_new)
         self.f = copy.deepcopy(self.f_new)
         self.x_new = np.array(self.scheduler.ask())
         self.x_new = np.clip(self.x_new, self.bounds[0], self.bounds[1])
-        self.measured = False
         if True:
             print(f"  - Size: {self.archive.stats.num_elites}")
             print(f"  - Coverage: {self.archive.stats.coverage}")

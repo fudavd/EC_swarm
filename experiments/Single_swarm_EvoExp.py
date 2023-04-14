@@ -23,7 +23,7 @@ def main():
     genotype = thymio_genotype("NN", n_input, n_output)
     genotype['controller']["params"]['torch'] = False
 
-    simulation_time = 60
+    simulation_time = 600
     # setting number of:
     n_runs = 30  # runs
     n_generations = 100  # generations
@@ -57,7 +57,6 @@ def main():
             learner = DE(params, output_dir=experiment_dir)
             genotype['controller']["encoding"] = np.ones(n_output * n_input)
             swarm = Individual(genotype, 0)
-            gen_start = 0
             if not os.path.exists(f"{experiment_dir}/reservoir.npy"):
                 swarm.controller.save_geno(experiment_dir)
             else:
@@ -102,9 +101,9 @@ def main():
                                                                                      splits=5).squeeze()
                     fitnesses_gen = np.min((fitnesses_gen, fitnesses_gen_rep), axis=0)
                 # %% Some bookkeeping
+                avg_time = (time.time()-start_t)/(gen+1-gen_start)
                 genomes.append(learner.x_new.tolist())
                 fitnesses.append(fitnesses_gen)
-                avg_time = (time.time()-start_t)/(gen+1-gen_start)
                 learner.f_new = -np.array(fitnesses_gen)
                 learner.x_new = learner.get_new_genome()
                 learner.save_checkpoint()

@@ -2,6 +2,7 @@
 import copy
 import os
 import sys
+import time
 
 print('Python %s on %s' % (sys.version, sys.platform))
 from pathlib import Path
@@ -93,6 +94,7 @@ def main():
                 swarms.append(sub_swarm)
 
             # Run evolution
+            start_t = time.time()
             for gen in range(gen_start, n_generations):  # loop over generations
                 population = [[] for _ in range(pop_size)]
 
@@ -112,6 +114,7 @@ def main():
                 fitnesses_gen = np.median(fitnesses_gen, axis=-1).squeeze()
 
                 # %% Some bookkeeping
+                avg_time = (time.time()-start_t)/(gen+1-gen_start)
                 genomes.append(learner.x_new.tolist())
                 fitnesses.append(fitnesses_gen)
                 learner.f_new = -np.array(fitnesses_gen)
@@ -120,7 +123,7 @@ def main():
                 np.save(f"{learner.directory_name}/genomes.npy", genomes)
                 np.save(f"{learner.directory_name}/fitnesses.npy", fitnesses)
                 print(f"Experiment {experiment_name}: {run}/{run_start + n_runs} | {learner.directory_name}\n"
-                      f"Finished gen: {fitnesses.__len__()}/{n_generations}\n"
+                      f"Finished gen: {fitnesses.__len__()}/{n_generations} - {avg_time.__round__(2)}s\n"
                       f"\tBest gen: {learner.x_best_so_far[-1]}\n"
                       f"\tBest fit: {-learner.f_best_so_far[-1]}\n"
                       f"\tMean fit: {np.mean(-learner.f)}\n")
