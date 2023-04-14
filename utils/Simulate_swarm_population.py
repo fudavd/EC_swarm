@@ -80,18 +80,11 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
     sim_params.up_axis = gymapi.UP_AXIS_Z
     sim_params.gravity = gymapi.Vec3(0.0, 0.0, -9.81)
 
-    if args.physics_engine == gymapi.SIM_FLEX:
-        sim_params.flex.solver_type = 5
-        sim_params.flex.num_outer_iterations = 4
-        sim_params.flex.num_inner_iterations = 15
-        sim_params.flex.relaxation = 0.75
-        sim_params.flex.warm_start = 0.8
-    elif args.physics_engine == gymapi.SIM_PHYSX:
-        sim_params.physx.solver_type = 1
-        sim_params.physx.num_position_iterations = 4
-        sim_params.physx.num_velocity_iterations = 1
-        sim_params.physx.num_threads = args.num_threads
-        sim_params.physx.use_gpu = False
+    sim_params.physx.solver_type = 1
+    sim_params.physx.num_position_iterations = 4
+    sim_params.physx.num_velocity_iterations = 1
+    sim_params.physx.num_threads = args.num_threads
+    sim_params.physx.use_gpu = False
 
     sim = gym.create_sim(args.compute_device_id, args.graphics_device_id, args.physics_engine, sim_params)
 
@@ -99,9 +92,6 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
         print("*** Failed to create sim")
         quit()
 
-    # %% Initialize environment
-    # print("Initialize environment")
-    # Add ground plane
     plane_params = gymapi.PlaneParams()
     plane_params.normal = gymapi.Vec3(0, 0, 1)  # z-up!
     plane_params.distance = 0
@@ -127,11 +117,14 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
     env_list = []
     robot_handles_list = []
     fitness_list = []
+    fitness_full = []
     sensor_list = []
     num_robots = len(individuals[0])
     controller_list = []
     controller_types_list = []
-    print("Creating %d environments" % num_envs)
+
+    # %% Initialize environment
+    print(f"Creating {num_envs} {arena} environments")
     for i_env in range(num_envs):
         individual = individuals[i_env]
         controller_list.append(np.array([member.controller for member in individual]))
@@ -139,8 +132,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
         # create env
         env = gym.create_env(sim, env_lower, env_upper, num_envs)
         env_list.append(env)
-        # %% Initialize robot: Robobo
-        # print("Initialize Robot")
+        # %% Initialize robot
         # Load robot asset
         asset_root = "./"
 
@@ -161,7 +153,6 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
                 ix = ((15 + 12) * radius_spawn * (np.sin(iangle))) * spacing / 30
             # circle
             elif arena.split('_')[:-1] == ['circle']:
-                print(f'loading with radius_spawn={radius_spawn}')
                 iangle = np.pi * 2 * rng.random()
                 iy = (15 + 12 * radius_spawn * (np.cos(iangle))) * spacing / 30
                 ix = (15 + 12 * radius_spawn * (np.sin(iangle))) * spacing / 30
@@ -206,7 +197,6 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
                 pose.r.z = ihs_i[2]
                 pose.r.w = ihs_i[3]
 
-                # print("Loading asset '%s' from '%s', #%i" % (robot_asset_file, asset_root, i))
                 robot_asset_file = individual[i].body
                 robot_asset = gym.load_asset(
                     sim, asset_root, robot_asset_file, asset_options)
@@ -230,7 +220,6 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
                 initial_positions[0][i] = pose.p.x  # Save initial position x of i'th robot
                 initial_positions[1][i] = pose.p.y  # Save initial position y of i'th robot
 
-                # print("Loading asset '%s' from '%s', #%i" % (robot_asset_file, asset_root, i))
                 robot_asset = gym.load_asset(
                     sim, asset_root, robot_asset_file, asset_options)
 
@@ -265,6 +254,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
                                               objectives=env_params['objectives']))
         sensor_list.append(Sensors(controller_types_list[i_env], arena=arena))
 
+    # %% Create function
     def update_robot(env, controllers, robot_handles, states):
         for ii in range(len(states)):
             velocity_command = calc_vel_targets(controllers[ii], states[ii])
@@ -286,10 +276,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
 
         return headings, positions_x, positions_y
 
-    t = 0
-    timestep = 0  # Counter to save total time steps, required for final step of fitness value calculation
-    fitness_current = np.zeros((fitness_list[0].get_fitness_size(), len(individuals)))
-    # Create viewer
+    # %% Create viewer
     viewer = None
     plot = False
     record_video = env_params['record_video']
@@ -330,9 +317,11 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
                                      gymapi.Vec3(0.0, 0.0, -1.0))
 
     # %% Simulate
+    t = 0
+    timestep = 0  # Counter to save total time steps, required for final step of fitness value calculation
     start = gym.get_sim_time(sim)
     frame = 0
-    fitness_full = []
+    fitness_current = np.zeros((fitness_list[0].get_fitness_size(), len(individuals)))
     while t <= life_timeout:
         t = gym.get_sim_time(sim)
 
