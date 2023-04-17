@@ -24,12 +24,12 @@ def main():
     genotype = thymio_genotype("NN", n_input, n_output)
     genotype['controller']["params"]['torch'] = False
 
-    simulation_time = 6
+    simulation_time = 600
     # setting number of:
     n_subs = 2  # number of subgroups
     n_runs = 10  # runs
     n_generations = 100  # generations
-    pop_size = 10  # number of individuals
+    pop_size = 30  # number of individuals
     swarm_size = 20
     reps = 3  # repetitions per individual
     arenas = [30]
