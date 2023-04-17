@@ -243,3 +243,7 @@ class MAP_elites(EA):
             print(f"  - Mean Obj: {self.archive.stats.obj_mean}")
         return self.x_new
 
+    def save_results(self):
+        np.save(self.directory_name + '/' + 'f_best', np.array(self.f_best_so_far))
+        np.save(self.directory_name + '/' + 'x_best', np.array(self.x_best_so_far))
+        self.archive.as_pandas().to_csv(self.directory_name + '/' + f"MAP_archive.csv")

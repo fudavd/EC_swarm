@@ -5,10 +5,10 @@ Pipeline for using Evolutionary Computing techniques applied on swarm robotics.
 REQUIREMENTS
 ------------
 
-This EC pipeline requires the following for the simulator [Isaac Gym](https://developer.nvidia.com/isaac-gym):
+This EC pipeline requires the following for the simulator <a href="https://developer.nvidia.com/isaac-gym" target="_blank">Isaac Gym</a>:
 * Ubuntu 18.04 or 20.04
 * CUDAnn (only an installation is required, there is no need to use it)
-* Python 3.6, 3.7, 3.8
+* Python 3.8
 
 ## Installation
 - clone the repository
@@ -16,7 +16,7 @@ This EC pipeline requires the following for the simulator [Isaac Gym](https://de
 git clone https://github.com/fudavd/EC_swarm
 ```
 
-- Download and extract Isaac Gym in the `/thirdparty/` folder (can be downloaded from [here](https://developer.nvidia.com/isaac-gym))
+- Download and extract Isaac Gym in the `/thirdparty/` folder (can be downloaded from <a href="https://developer.nvidia.com/isaac-gym" target="_blank">here</a>)
 - Create a Python virtual environment in the `EC_swarm` root directory:
 ```bash
 virtualenv -p=python3.8 .venv
