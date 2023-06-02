@@ -129,8 +129,6 @@ class FitnessCalculator:
         """
 
         distance_to_com_of_neighbors = np.zeros((1, self.num_robots))
-        cohesion_metric = np.zeros((1, self.num_robots))
-        collision_counter = np.zeros((1, self.num_robots))
         collision_assumption = 0.2
 
         xx1, xx2 = np.meshgrid(positions[0], positions[0])
@@ -144,7 +142,8 @@ class FitnessCalculator:
 
         collisions[collisions > collision_assumption] = 0.0
         collision_counter = np.count_nonzero(collisions, axis=1)
-        collision_at_t = np.sum(collision_counter) / self.num_robots
+        collision_counter = np.count_nonzero(collision_counter)
+        collision_at_t = collision_counter / self.num_robots
         self.current_separation = self.current_separation + collision_at_t
 
         neighbors[neighbors > self.cohesion_range] = 0.0
@@ -153,19 +152,17 @@ class FitnessCalculator:
         cohesion_at_t = 0
 
         for i in range(self.num_robots):
-            nsx = np.multiply(d_ij_x, neighbors[i][:])
+            nsx = np.multiply(d_ij_x[i][:], neighbors[i][:])
             nsx = nsx[np.nonzero(nsx)]
-            nsy = np.multiply(d_ij_y, neighbors[i][:])
+            nsy = np.multiply(d_ij_y[i][:], neighbors[i][:])
             nsy = nsy[np.nonzero(nsy)]
 
             if len(nsx) != 0:
                 distance_to_com_of_neighbors_x = np.mean(nsx)
                 distance_to_com_of_neighbors_y = np.mean(nsy)
 
-                distance_to_com_of_neighbors[0][i] = np.sqrt(
-                    np.power(distance_to_com_of_neighbors_x, 2) + np.power(distance_to_com_of_neighbors_y, 2))
-                cohesion_at_t = cohesion_at_t + (1 - (distance_to_com_of_neighbors[0][i] / self.cohesion_range))
-
+                distance_to_com_of_neighbors[0][i] = np.hypot(distance_to_com_of_neighbors_x,
+                                                              distance_to_com_of_neighbors_y)
         self.current_cohesion = self.current_cohesion + cohesion_at_t / self.num_robots
 
         return np.array([self.current_cohesion, self.current_separation])

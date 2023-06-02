@@ -324,7 +324,6 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
     fitness_current = np.zeros((fitness_list[0].get_fitness_size(), len(individuals)))
     while t <= life_timeout:
         t = gym.get_sim_time(sim)
-
         if (gym.get_sim_time(sim) - start) > 0.0995:
             timestep += 1  # Time step counter
             for i_env in range(num_envs):
@@ -347,7 +346,6 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
                 if record_video:
                     if (gym.get_sim_time(sim) % 1) < 0.0005:
                         plotter.plot_swarm_quiver(positions, headings, frame)
-                        gym.step_graphics(sim)
                         gym.draw_viewer(viewer, sim, False)
                         gym.write_viewer_image_to_file(viewer, f'./results/images/viewer/{frame}.png')
                         frame += 1

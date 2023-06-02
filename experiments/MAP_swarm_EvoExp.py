@@ -43,7 +43,7 @@ def main():
 
     measures = {'names': ['alignment', 'cohesion', 'seperation'],
                 'bounds': [(0, 1), (0, 1), (0, 1)],
-                'D': [50, 50, 50],
+                'D': [10, 10, 10],
                 'functions': []
                 }
     params['measures'] = measures
