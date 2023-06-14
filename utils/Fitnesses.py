@@ -128,7 +128,7 @@ class FitnessCalculator:
         In case of no neighbors, "cohesion" is calculated as zero for that robot, separation is naturally zero.
         """
 
-        distance_to_com_of_neighbors = np.zeros((1, self.num_robots))
+        distance_to_com_of_neighbors = np.ones((1, self.num_robots))*self.cohesion_range
         collision_assumption = 0.2
 
         xx1, xx2 = np.meshgrid(positions[0], positions[0])
@@ -163,6 +163,9 @@ class FitnessCalculator:
 
                 distance_to_com_of_neighbors[0][i] = np.hypot(distance_to_com_of_neighbors_x,
                                                               distance_to_com_of_neighbors_y)
+
+            cohesion_at_t += 1 - distance_to_com_of_neighbors[0][i]/self.cohesion_range
+
         self.current_cohesion = self.current_cohesion + cohesion_at_t / self.num_robots
 
         return np.array([self.current_cohesion, self.current_separation])
