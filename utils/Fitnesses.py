@@ -153,9 +153,10 @@ class FitnessCalculator:
 
         for i in range(self.num_robots):
             nsx = np.multiply(d_ij_x[i][:], neighbors[i][:])
-            nsx = nsx[np.nonzero(nsx)]
             nsy = np.multiply(d_ij_y[i][:], neighbors[i][:])
-            nsy = nsy[np.nonzero(nsy)]
+            idx = (nsx != 0) | (nsy != 0)
+            nsx = nsx[idx]
+            nsy = nsy[idx]
 
             if len(nsx) != 0:
                 distance_to_com_of_neighbors_x = np.mean(nsx)
