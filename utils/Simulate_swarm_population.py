@@ -1,5 +1,6 @@
 import copy
 import re
+import time
 from multiprocessing import shared_memory, Process
 from typing import AnyStr, TypedDict, List
 from isaacgym import gymapi
@@ -84,7 +85,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
     sim_params.physx.num_position_iterations = 4
     sim_params.physx.num_velocity_iterations = 1
     sim_params.physx.num_threads = args.num_threads
-    sim_params.physx.use_gpu = False
+    sim_params.physx.use_gpu = True
 
     sim = gym.create_sim(args.compute_device_id, args.graphics_device_id, args.physics_engine, sim_params)
 
@@ -127,8 +128,8 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
     print(f"Creating {num_envs} {arena} environments")
     for i_env in range(num_envs):
         individual = individuals[i_env]
-        controller_list.append(np.array([member.controller for member in individual]))
-        controller_types_list.append([member.controller.controller_type for member in individual])
+        controller_list.append(np.array([member.controller for member in copy.deepcopy(individual)]))
+        controller_types_list.append([member.controller.controller_type for member in copy.deepcopy(individual)])
         # create env
         env = gym.create_env(sim, env_lower, env_upper, num_envs)
         env_list.append(env)
@@ -140,7 +141,10 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
         initial_positions = np.zeros((2, num_robots))  # Allocation to save initial positions of robots
 
         if env_params['random_start']:
-            init_area = 3.0 * np.sqrt(num_robots / 14)
+            arena_length = spacing
+            init_area = arena_length/5
+            arena_center = arena_length/2
+            r_distance = arena_center - init_area
             init_flag = 0
             init_failure_1 = 1
             rng = default_rng()
@@ -149,35 +153,34 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
             # circle corner
             if arena.split('_')[:-1] == ['circle', 'corner']:
                 iangle = np.pi / 2 * rng.random()
-                iy = ((15 + 12) * radius_spawn * (np.cos(iangle))) * spacing / 30
-                ix = ((15 + 12) * radius_spawn * (np.sin(iangle))) * spacing / 30
+                iy = (arena_center + r_distance) * radius_spawn * (np.cos(iangle))
+                ix = (arena_center + r_distance) * radius_spawn * (np.sin(iangle))
             # circle
             elif arena.split('_')[:-1] == ['circle']:
                 iangle = np.pi * 2 * rng.random()
-                iy = (15 + 12 * radius_spawn * (np.cos(iangle))) * spacing / 30
-                ix = (15 + 12 * radius_spawn * (np.sin(iangle))) * spacing / 30
+                iy = (arena_center + r_distance * radius_spawn * (np.cos(iangle)))
+                ix = (arena_center + r_distance * radius_spawn * (np.sin(iangle)))
             # linear
-            elif arena.split('_')[:-1] == ['linear']:
-                iy = 27
-                ix = 15 + 2 * radius_spawn * (rng.random() - 0.5)
+            elif arena.split('_')[:-1] == ['linear'] or arena.split('_')[:-1] == ['bimodal']:
+                iy = arena_center + r_distance
+                ix = arena_center + 2 * r_distance * radius_spawn * (rng.random() - 0.5)
+            elif arena.split('_')[:-1] == ['banana']:
+                iy = rng.random() * 2 * r_distance + init_area
+                ix = rng.random() * 2 * r_distance + init_area
 
-            a_x = ix + (init_area / 2)
-            b_x = ix - (init_area / 2)
-            a_y = iy + (init_area / 2)
-            b_y = iy - (init_area / 2)
+            a_x = ix + (init_area )
+            b_x = ix - (init_area )
+            a_y = iy + (init_area )
+            b_y = iy - (init_area )
 
             while init_failure_1 == 1 and init_flag == 0:
                 ixs = a_x + (b_x - a_x) * rng.random(num_robots)
                 iys = a_y + (b_y - a_y) * rng.random(num_robots)
-                flag = 0
 
-                for i in range(num_robots):
-                    for j in range(num_robots):
-                        if i != j and np.sqrt(np.square(ixs[i] - ixs[j]) + np.square(iys[i] - iys[j])) < 0.4:
-                            init_failure_1 = 1
-                            flag = 1
-                        elif flag == 0:
-                            init_failure_1 = 0
+                x_diff = ixs.reshape((1, num_robots)) - ixs.reshape((num_robots, 1))
+                y_diff = iys.reshape((1, num_robots)) - iys.reshape((num_robots, 1))
+                dist = np.hypot(x_diff, y_diff)
+                init_failure_1 = (dist[np.triu_indices(num_robots, k=1)] < 0.4).any()
 
             ihs = 6.28 * rng.random(num_robots)
 
@@ -322,10 +325,10 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
     start = gym.get_sim_time(sim)
     frame = 0
     fitness_current = np.zeros((fitness_list[0].get_fitness_size(), len(individuals)))
+    print(f"Starting simulation at: {time.asctime()}")
     while t <= life_timeout:
         t = gym.get_sim_time(sim)
-
-        if (gym.get_sim_time(sim) - start) > 0.0995:
+        if (t - start) > 0.0995:
             timestep += 1  # Time step counter
             for i_env in range(num_envs):
                 env = env_list[i_env]
