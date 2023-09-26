@@ -142,7 +142,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
 
         if env_params['random_start']:
             arena_length = spacing
-            init_area = arena_length/5
+            init_area = arena_length/10
             arena_center = arena_length/2
             r_distance = arena_center - init_area
             init_flag = 0
@@ -165,13 +165,13 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
                 iy = arena_center + r_distance
                 ix = arena_center + 2 * r_distance * radius_spawn * (rng.random() - 0.5)
             elif arena.split('_')[:-1] == ['banana']:
-                iy = rng.random() * 2 * r_distance + init_area
-                ix = rng.random() * 2 * r_distance + init_area
+                iy = arena_center + rng.random() * 2 * r_distance
+                ix = arena_center + rng.random() * 2 * r_distance
 
-            a_x = ix + (init_area )
-            b_x = ix - (init_area )
-            a_y = iy + (init_area )
-            b_y = iy - (init_area )
+            a_x = ix + (init_area /2)
+            b_x = ix - (init_area /2)
+            a_y = iy + (init_area /2)
+            b_y = iy - (init_area /2)
 
             while init_failure_1 == 1 and init_flag == 0:
                 ixs = a_x + (b_x - a_x) * rng.random(num_robots)
