@@ -59,8 +59,8 @@ pip install -r requirements.txt
 ---
 Publications
 ------
-#### This repo is directly related to the following paper:
-
+#### This repo is directly related to the following papers:
+* Van Diggelen, F., Luo, J., Karagüzel, T. A., Cambier, N., Ferrante, E., & Eiben, A. E. (2022, July). Environment induced emergence of collective behavior in evolving swarms with limited sensing. In _Proceedings of the Genetic and Evolutionary Computation Conference_ (pp. 31-39). https://doi.org/10.1145/3512290.3528735. [**[Branch]**](https://github.com/fudavd/EC_swarm/tree/GECCO_2022)
 [//]: # (* Van Diggelen, F., De Carlo, M., Cambier, N., Ferrante, E., & Eiben, A. E. &#40;2024, July&#41;. Environment induced emergence of collective behavior in evolving swarms with limited sensing. In _Proceedings of the Genetic and Evolutionary Computation Conference_ &#40;pp. 31-39&#41;. https://arxiv.org/abs/2402.04763. [**[Branch]**]&#40;https://github.com/fudavd/EC_swarm/tree/GECCO_2024&#41;)
 * Van Diggelen, F., De Carlo, M., Cambier, N., Ferrante, E., & Eiben, A. E. (2024). Emergence of specialized Collective Behaviors in Evolving Heterogeneous Swarms. _Arxiv_: https://arxiv.org/abs/2402.04763. [**[Branch]**](https://github.com/fudavd/EC_swarm/tree/GECCO_2024)
 
