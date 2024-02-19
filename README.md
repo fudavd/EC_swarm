@@ -1,6 +1,39 @@
 # EC_swarm
 Pipeline for using Evolutionary Computing techniques applied on swarm robotics.
 
+------
+#### This branch is directly related to the following paper:
+### Emergence of specialized Collective Behaviors in Evolving Heterogeneous Swarms
+
+Link to this work can be found here
+https://arxiv.org/abs/2402.04763
+
+To run the same evolutionary experiments as presented in the paper run the following line after [Installation](#installation):
+
+```
+./run-experiment.sh Hetero_swarm_EvoExp
+```
+
+To retest the best controllers and re-run the validation experiments:
+```
+wget https://dataverse.nl/dataset.xhtml?persistentId=doi%3A10.34894%2F0VSN8Z#
+unzip ./results.zip
+python ./results/RetestBest.py
+```
+
+
+### Citation:
+```
+@article{van2024emergence,
+  title={Emergence of specialized Collective Behaviors in Evolving Heterogeneous Swarms},
+  author={van Diggelen, Fuda and De Carlo, Matteo and Cambier, Nicolas and Ferrante, Eliseo and Eiben, AE},
+  journal={arXiv preprint arXiv:2402.04763},
+  year={2024}
+}
+```
+
+Replication data can be downloaded from here https://doi.org/10.34894/0VSN8Z
+
 ---
 REQUIREMENTS
 ------------
