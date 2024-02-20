@@ -68,6 +68,8 @@ class Individual:
             controller = Controllers.adaptiveNNController(params['input_space'], params['output_space'])
         elif controller_type == "GNN":
             controller = Controllers.GNNController(params['input_space'], params['output_space'])
+        elif controller_type == 'hNN':
+            controller = Controllers.hebbianNNController(params['input_space'], params['output_space'])
         elif controller_type == 'Rand':
             controller = Controllers.RandomWalk(params['input_space'], params['output_space'])
         elif controller_type == '4dir':

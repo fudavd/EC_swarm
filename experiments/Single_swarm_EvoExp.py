@@ -13,30 +13,31 @@ sys.path.append(Path(os.path.abspath(__file__)).parents[1].__str__())
 import numpy as np
 from utils.Simulate_swarm_population import simulate_swarm_with_restart_population_split
 from utils.Simulate_swarm_population import EnvSettings
-from utils.EA import DE
+from utils.EA import CMAes
 from utils.Individual import Individual, thymio_genotype
+from utils.Fitnesses import Calculate_fitness_size
 
 
 def main():
     n_input = 9
     n_output = 2
-    genotype = thymio_genotype("NN", n_input, n_output)
+    genotype = thymio_genotype("hNN", n_input, n_output)
     genotype['controller']["params"]['torch'] = False
 
     simulation_time = 600
     # setting number of:
     n_runs = 30  # runs
     n_generations = 100  # generations
-    pop_size = 25  # number of individuals
-    reps = 2  # repetitions per individual
-    arenas = [10, 30, 45]
+    pop_size = 50  # number of individuals
+    swarm_size = 10
+    reps = 3  # repetitions per individual
+    arenas = [30]
 
     params = {}
-    params['bounds'] = (-10, 10)
-    params['D'] = n_output * n_input
+    params['bounds'] = (-5, 5)
+    params['D'] = 4 * n_input * (n_output + 2 * n_input)
     params['pop_size'] = pop_size
-    params['CR'] = 0.9
-    params['F'] = 0.5
+    params['sigma0'] = 1
 
     run_start = 0
     for arena in arenas:
@@ -54,10 +55,10 @@ def main():
             if not os.path.exists(experiment_dir):
                 os.makedirs(experiment_dir)
 
-            learner = DE(params, output_dir=experiment_dir)
-            genotype['controller']["encoding"] = np.ones(n_output * n_input)
+            learner = CMAes(params, output_dir=experiment_dir)
+            genotype['controller']["encoding"] = np.ones(params['D'])
             swarm = Individual(genotype, 0)
-            if not os.path.exists(f"{experiment_dir}/reservoir.npy"):
+            if not os.path.exists(f"{experiment_dir}/ABCD.npy"):
                 swarm.controller.save_geno(experiment_dir)
             else:
                 if os.path.exists(f"{experiment_dir}/genomes.npy"):
@@ -88,18 +89,22 @@ def main():
 
             start_t = time.time()
             for gen in range(gen_start, n_generations):  # loop over generations
-                population = []
+                population = [[] for _ in range(pop_size)]
                 for (individual, x) in enumerate(learner.x_new):  # loop over individuals
                     swarm.geno2pheno(x)
-                    population.append([copy.deepcopy(swarm)]*14)
+                    swarm_members = []
+                    for _ in range(swarm_size):
+                        swarm_members += [copy.deepcopy(swarm)]
+                    population[individual] += swarm_members
 
-                fitnesses_gen = np.ones(pop_size)*np.inf
-                for _ in range(reps):
-                    fitnesses_gen_rep = simulate_swarm_with_restart_population_split(simulation_time, population,
+                simulator_settings['fitness_size'] = Calculate_fitness_size(population[0], simulator_settings)
+                fitnesses_gen = np.zeros((pop_size, simulator_settings['fitness_size'], reps))
+                for r in range(reps):
+                    fitnesses_gen[:, :, r] = simulate_swarm_with_restart_population_split(simulation_time, population,
                                                                                      headless=True,
                                                                                      env_params=simulator_settings,
-                                                                                     splits=5).squeeze()
-                    fitnesses_gen = np.min((fitnesses_gen, fitnesses_gen_rep), axis=0)
+                                                                                     splits=5)
+                fitnesses_gen = np.median(fitnesses_gen, axis=-1).squeeze()
                 # %% Some bookkeeping
                 avg_time = (time.time()-start_t)/(gen+1-gen_start)
                 genomes.append(learner.x_new.tolist())

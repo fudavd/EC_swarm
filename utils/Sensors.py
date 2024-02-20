@@ -60,7 +60,7 @@ class Sensors:
                 state = np.hstack((distance_sensor_outputs, heading_sensor_outputs,
                                    headings,
                                    grad_sensor_outputs))
-            if sensor == "NN" or sensor == "aNN":
+            if sensor in ["NN", "aNN", "hNN"]:
                 distance_sensor_outputs = self.distance_sensor_4dir(positions, headings)
                 heading_sensor_outputs = self.heading_sensor_4dir(headings)
                 grad_sensor_outputs = self.grad_sensor(positions)

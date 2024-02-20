@@ -258,6 +258,81 @@ class GNNController(Controller):
             self.gcn.W = np.load(path + "/reservoir_gcn.npy", allow_pickle=True)
 
 
+class hebbianNNController(Controller):
+    def __init__(self, n_states, n_actions):
+        super().__init__(n_states, n_actions)
+        self.controller_type = "hNN"
+        self.weights_l1 = np.random.normal(0, 0.1, (n_states, n_states))
+        self.weights_l2 = np.random.normal(0, 0.1, (n_states, n_states))
+        self.weights_out = np.random.normal(0, 0.1, (n_actions, n_states))
+
+        self.lr = 0.1
+        self.A = np.random.normal(0, 0.1, n_states*(n_actions+2*n_states))
+        self.B = np.random.normal(0, 0.1, n_states*(n_actions+2*n_states))
+        self.C = np.random.normal(0, 0.1, n_states*(n_actions+2*n_states))
+        self.D = np.random.normal(0, 0.1, n_states*(n_actions+2*n_states))
+
+        self.update_n = 0
+        self.update_freq = 10
+        self.refract_n = 0
+        self.current_controller = None
+
+    def map_state(self, min_from, max_from, min_to, max_to, state_portion):
+        return min_to + np.multiply((max_to - min_to), np.divide((state_portion - min_from), (max_from - min_from)))
+
+    def velocity_commands(self, state: np.ndarray) -> np.ndarray:
+        """
+        Given a state, give an appropriate action
+
+        :param <np.array> state: A single observation of the current state, dimension is (state_dim)
+        :return: <np.array> action: A vector of motor inputs
+        """
+        assert (len(state) == self.n_input), "State does not correspond with expected input size"
+
+        state[:4] = self.map_state(0, 2, -1, 1, state[:4])
+        state[4:8] = self.map_state(-np.pi, np.pi, -1, 1,
+                                    state[4:8])  # Assumed distance sensing range is 2.0 meters. If not, check!
+        state[-1] = self.map_state(0, 255.0, -1, 1, state[-1])  # Gradient value, [0, 255]
+
+        x1 = np.tanh(np.dot(self.weights_l1, state))
+        x2 = np.tanh(np.dot(self.weights_l2, x1))
+        out = np.tanh(np.dot(self.weights_out, x2))
+
+        if (self.update_n % self.update_freq) == 0:
+            pre_synaptic = np.hstack((np.tile(state, x1.size),
+                                      np.tile(x1, x2.size),
+                                      np.tile(x2, out.size)))
+            pos_synaptic = np.hstack((x1, x2, out)).repeat(state.size)
+
+            weights_delta = self.lr*(self.A*pre_synaptic*pos_synaptic +
+                                     self.B*pre_synaptic +
+                                     self.C*pos_synaptic +
+                                     self.D)
+
+            self.weights_l1 += weights_delta[:self.weights_l1.size].reshape(self.weights_l1.shape)
+            self.weights_l2 += weights_delta[self.weights_l1.size:-self.weights_out.size].reshape(self.weights_l2.shape)
+            self.weights_out += weights_delta[-self.weights_out.size:].reshape(self.weights_out.shape)
+            self.refract_n = 0
+
+        self.refract_n += 1
+        control_input = out * np.array([self.umax_const, self.wmax])
+        return control_input
+
+    def geno2pheno(self, genotype: np.array):
+        abcd = np.array(genotype).reshape(4, self.A.size)
+        self.A = np.array(abcd[0, :])
+        self.B = np.array(abcd[1, :])
+        self.C = np.array(abcd[2, :])
+        self.D = np.array(abcd[3, :])
+
+    def load_geno(self, path: str):
+        genotype = np.load(path + "/ABCD.npy", allow_pickle=True)
+        self.geno2pheno(genotype)
+
+    def save_geno(self, path: str):
+        np.save(path + "/ABCD", [[self.A], [self.B], [self.C], [self.D]], allow_pickle=True)
+
+
 class RandomWalk(Controller):
     def velocity_commands(self, state: np.ndarray) -> np.ndarray:
         """
