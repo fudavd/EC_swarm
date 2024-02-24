@@ -37,6 +37,7 @@ class __EnvSet(TypedDict):
     spawn_radius: float
     objectives: List[str]
     record_video: bool
+    save_sim_state: bool
     save_full_fitness: bool
     random_start: bool
     fitness_size: int
@@ -48,6 +49,7 @@ EnvSettings: __EnvSet = {
     'objectives': ['gradient'],
     'fitness_size': 1,
     'record_video': False,
+    'save_sim_state': False,
     'save_full_fitness': False,
     'random_start': True
 }
@@ -119,6 +121,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
     robot_handles_list = []
     fitness_list = []
     fitness_full = []
+    sim_state = []
     sensor_list = []
     num_robots = len(individuals[0])
     controller_list = []
@@ -283,6 +286,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
     viewer = None
     plot = False
     record_video = env_params['record_video']
+    save_sim_state = env_params['save_sim_state']
     save_full_fitness = env_params['save_full_fitness']
     if not headless:
         source_loc = fitness_list[0].source_pos
@@ -345,6 +349,10 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
                     fitness_full.append(copy.deepcopy(fitness_current))
                     if not t < life_timeout:
                         np.save(f'./results/fitness_full.npy', np.array(fitness_full).squeeze())
+                if save_sim_state:
+                    sim_state.append(copy.deepcopy((positions, headings)))
+                    if not t < life_timeout:
+                        np.save(f'./results/sim_state.npy')
 
             if plot:
                 if record_video:

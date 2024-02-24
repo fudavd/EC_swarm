@@ -21,7 +21,7 @@ from utils.Fitnesses import Calculate_fitness_size
 def main():
     n_input = 9
     n_output = 2
-    genotype = thymio_genotype("hNN", n_input, n_output)
+    genotype = thymio_genotype("NN", n_input, n_output)
     genotype['controller']["params"]['torch'] = False
 
     simulation_time = 600
@@ -35,7 +35,7 @@ def main():
 
     params = {}
     params['bounds'] = (-5, 5)
-    params['D'] = 4 * n_input * (n_output + 2 * n_input)
+    params['D'] = n_input * n_output
     params['pop_size'] = pop_size
     params['sigma0'] = 1
 
@@ -58,7 +58,7 @@ def main():
             learner = CMAes(params, output_dir=experiment_dir)
             genotype['controller']["encoding"] = np.ones(params['D'])
             swarm = Individual(genotype, 0)
-            if not os.path.exists(f"{experiment_dir}/ABCD.npy"):
+            if not os.path.exists(f"{experiment_dir}/reservoir.npy"):
                 swarm.controller.save_geno(experiment_dir)
             else:
                 if os.path.exists(f"{experiment_dir}/genomes.npy"):
@@ -91,7 +91,6 @@ def main():
             for gen in range(gen_start, n_generations):  # loop over generations
                 population = [[] for _ in range(pop_size)]
                 for (individual, x) in enumerate(learner.x_new):  # loop over individuals
-                    swarm = Individual(genotype, individual)
                     swarm.geno2pheno(x)
                     swarm_members = []
                     for _ in range(swarm_size):
