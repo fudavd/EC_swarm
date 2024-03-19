@@ -14,6 +14,7 @@ from .Fitnesses import FitnessCalculator
 from .Individual import Individual
 from .Sensors import Sensors
 from .plot_swarm import swarm_plotter
+from .utils import generate_inital_swarm
 
 
 def calc_vel_targets(controller, states):
@@ -41,6 +42,7 @@ class __EnvSet(TypedDict):
     save_full_fitness: bool
     random_start: bool
     fitness_size: int
+    init_distance: float
 
 
 EnvSettings: __EnvSet = {
@@ -51,7 +53,8 @@ EnvSettings: __EnvSet = {
     'record_video': False,
     'save_sim_state': False,
     'save_full_fitness': False,
-    'random_start': True
+    'random_start': True,
+    'init_distance': 1.0,
 }
 
 
@@ -76,7 +79,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
 
     # configure sim
     sim_params = gymapi.SimParams()
-    sim_params.dt = 0.1
+    sim_params.dt = 0.05
     sim_params.substeps = 2
 
     # defining axis of rotation!
@@ -147,9 +150,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
             arena_length = spacing
             init_area = arena_length/10
             arena_center = arena_length/2
-            r_distance = arena_center - init_area
-            init_flag = 0
-            init_failure_1 = 1
+            r_distance = (arena_center - init_area)*env_params['init_distance']
             rng = default_rng()
 
             radius_spawn = env_params['spawn_radius']
@@ -170,20 +171,14 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
             elif arena.split('_')[:-1] == ['banana']:
                 iy = arena_center + rng.random() * 2 * r_distance
                 ix = arena_center + rng.random() * 2 * r_distance
+            else:
+                OSError("NO arena selected")
 
-            a_x = ix + (init_area /2)
-            b_x = ix - (init_area /2)
-            a_y = iy + (init_area /2)
-            b_y = iy - (init_area /2)
+            ix_robs, iy_robs = generate_inital_swarm(init_area, init_area,
+                                                     np.clip(init_area / np.sqrt(num_robots), 0.1, 0.4), num_robots)
 
-            while init_failure_1 == 1 and init_flag == 0:
-                ixs = a_x + (b_x - a_x) * rng.random(num_robots)
-                iys = a_y + (b_y - a_y) * rng.random(num_robots)
-
-                x_diff = ixs.reshape((1, num_robots)) - ixs.reshape((num_robots, 1))
-                y_diff = iys.reshape((1, num_robots)) - iys.reshape((num_robots, 1))
-                dist = np.hypot(x_diff, y_diff)
-                init_failure_1 = (dist[np.triu_indices(num_robots, k=1)] < 0.4).any()
+            ixs = ix + ix_robs - (init_area / 2)
+            iys = iy + iy_robs - (init_area / 2)
 
             ihs = 6.28 * rng.random(num_robots)
 
@@ -332,7 +327,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
     print(f"Starting simulation at: {time.asctime()}")
     while t <= life_timeout:
         t = gym.get_sim_time(sim)
-        if (t - start) > 0.0995:
+        if (t - start) >= 0.04999:
             timestep += 1  # Time step counter
             for i_env in range(num_envs):
                 env = env_list[i_env]

@@ -27,12 +27,12 @@ def main():
     simulation_time = 600
     # setting number of:
     n_subs = 2  # number of subgroups
-    n_runs = 10  # runs
+    n_runs = 1  # runs
     n_generations = 100  # generations
     pop_size = 30  # number of individuals
-    swarm_size = 20
+    swarm_size = 10
     reps = 3  # repetitions per individual
-    arenas = [30]
+    arenas = [10]
 
     params = {}
     params['bounds'] = (-5, 5)
@@ -110,7 +110,7 @@ def main():
                     fitnesses_gen[:, :, r] = simulate_swarm_with_restart_population_split(simulation_time, population,
                                                                                        headless=True,
                                                                                        env_params=simulator_settings,
-                                                                                       splits=2)
+                                                                                       splits=6)
                 fitnesses_gen = np.median(fitnesses_gen, axis=-1).squeeze()
 
                 # %% Some bookkeeping

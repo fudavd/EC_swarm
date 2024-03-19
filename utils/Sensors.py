@@ -33,8 +33,24 @@ class Sensors:
         self.rgs_xs = np.rint(rgs_xs)
         self.rgs_ys = np.rint(rgs_ys)
 
+        self.sensor_range = np.hstack(([2]*4,[2*np.pi]*4, [255]))
+        self.noise_model = np.hstack(([0.004624489441151099]*4,
+                                      [0.043254121974921116]*4,
+                                      [0.05*255]))
+
     def get_current_state(self):
-        return self.states
+        int_state = [np.empty(0)] * len(self.states)
+        for ind, state in enumerate(self.states):
+            # add sensor noise
+            state_t = state + np.random.normal(0, 1, state.shape) * self.noise_model
+            # UINT_8 truncation noise
+            state_t = np.round(state_t/self.sensor_range*255)/255*self.sensor_range
+
+            arte_fact_idx = np.where(np.random.rand(4) < (26/1339))[0]
+            state_t[arte_fact_idx] = 2.0
+            state_t[arte_fact_idx+4] = 0
+            int_state[ind] = state_t
+        return int_state
 
     def calculate_states(self, positions, headings):
         headings = headings[np.newaxis].T
