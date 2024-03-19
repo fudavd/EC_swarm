@@ -54,7 +54,7 @@ def main():
             fitnesses = []
             swarms = []
             # prepare learners (/load from checkpoint)
-            experiment_dir = os.path.join("./results", experiment_name, str(run))
+            experiment_dir = os.path.join("./results", "Heterogeneous", str(run))
             learner = CMAes(params, output_dir=experiment_dir)
             if os.path.exists(f"{experiment_dir}/genomes.npy"):
                 try:

@@ -51,7 +51,7 @@ def main():
             gen_start = 0
             genomes = []
             fitnesses = []
-            experiment_dir = os.path.join("./results", experiment_name, str(run))
+            experiment_dir = os.path.join("./results", "Baseline", str(run))
             if not os.path.exists(experiment_dir):
                 os.makedirs(experiment_dir)
 

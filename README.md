@@ -3,10 +3,10 @@ Pipeline for using Evolutionary Computing techniques applied on swarm robotics.
 
 ------
 #### This branch is directly related to the following paper:
-### Emergence of specialized Collective Behaviors in Evolving Heterogeneous Swarms
+### Learning online adaptive emergent control for heterogeneous robot swarms
 
 Link to this work can be found here
-https://arxiv.org/abs/2402.04763
+
 
 To run the Evolutionary experiment for the _Baseline_ as presented in the paper run the following line after [Installation](#installation):
 
@@ -28,7 +28,7 @@ python ./results/RetestBest.py
 
 ### Citation:
 ```
-@article{van2024emergence,
+@article{van2024learning,
   title={ Learning online adaptive emergent control for heterogeneous robot swarms},
   author={van Diggelen, Fuda and Alperen Karagüzel, Tugay and Rincón, Andrés García and Ferrante, Eliseo},
   year={2024}
