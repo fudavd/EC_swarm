@@ -615,34 +615,3 @@ class ActiveElastic_omni(Controller):
         self.K2 = genotype[3]
         return
 
-
-class DDPG(Controller):
-    def __init__(self, n_states, n_actions, n_agents: int, curr_agent_id: int):
-        super().__init__(n_states, n_actions)
-        self.controller_type = "ddpg"
-
-        self.NET_CONFIG = {
-            'arch': 'mlp',  # Network architecture
-            'h_size': [32, 32]  # Network hidden size
-        }
-        self.agent = MADDPG(state_dims=[(n_states,1)]*n_agents,
-               action_dims=[n_actions]*n_agents,
-               one_hot=False,
-               n_agents=n_agents,
-               agent_ids=[str(agent_id) for agent_id in range(n_agents)],
-               max_action=[[1]*n_actions]*n_agents,
-               min_action=[[0]*n_actions]*n_agents,
-               discrete_actions=False,
-               net_config=self.NET_CONFIG)   # Create MADDPG agent
-
-        self.masks = np.eye(n_agents)
-
-        self.info = {'agent_mask': agent_mask, 'env_defined_actions': env_defined_actions}
-
-    def velocity_commands(self, state: np.array) -> np.array:
-        actions = self.agent.getAction(
-            states=state,
-            agent_mask=self.info['agent_mask'],
-            env_defined_actions=self.info['env_defined_actions'],
-        )
-        return actions[0]

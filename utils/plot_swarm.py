@@ -21,7 +21,7 @@ class swarm_plotter:
 
         self.mapp = sio.loadmat(f'./utils/Gradient Maps/{arena}.mat')
         self.mapp = self.mapp['I']
-        self.mapp = rotate(self.mapp, angle=90)
+        self.mapp = rotate(self.mapp, angle=-90)
         self.size_x = int(re.findall('\d+', arena)[-1])
         self.size_y = int(re.findall('\d+', arena)[-1])
         self.x_trace = []

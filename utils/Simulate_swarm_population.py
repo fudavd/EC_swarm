@@ -113,7 +113,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
     # Set up the env grid
     num_envs = len(individuals)
     arena = env_params['arena_type']
-    arena2 = "circle_corner_30x30"
+    arena2 = "circle_30x30_shifted"
     spacing = int(re.findall('\d+', arena)[-1])
     env_lower = gymapi.Vec3(0.0, 0.0, 0.0)
     env_upper = gymapi.Vec3(spacing, spacing, spacing)
