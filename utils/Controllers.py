@@ -72,42 +72,6 @@ class NeuralNetwork(torch.nn.Module):
         return self.NN(torch.tensor(state, dtype=torch.float)).numpy()
 
 
-class NumpyNetwork:
-    def __init__(self, n_input, n_hidden, n_output, reservoir=True):
-        self.reservoir = reservoir
-        self.n_con1 = n_input * n_hidden
-        self.n_con2 = n_hidden * n_output
-        self.lin1 = np.random.uniform(-1, 1, (n_hidden, n_input))
-        if reservoir:
-            self.lin2 = np.random.uniform(-1, 1, (n_hidden, n_input))
-        self.output = np.random.uniform(-1, 1, (n_output, n_hidden))
-
-    def set_weights(self, weights: np.array):
-        """
-        Set the weights of the Neural Network controller
-        """
-        if self.reservoir:
-            assert len(weights) == self.n_con2, f"Got {len(weights)} but expected {self.n_con2}"
-            weight_matrix = weights[-self.n_con2:].reshape(self.output.shape)
-            self.output = weight_matrix
-        else:
-            assert len(
-                weights) == self.n_con1 + self.n_con2, f"Got {len(weights)} but expected {self.n_con1 + self.n_con2}"
-            weight_matrix1 = weights[:self.n_con1].reshape(self.lin1.shape)
-            weight_matrix2 = weights[-self.n_con2:].reshape(self.output.shape)
-            self.lin1 = weight_matrix1
-            self.output = weight_matrix2
-
-    def forward(self, state: numpy.array):
-        # hid_l = np.maximum(np.dot(self.lin1, state)*0.01, np.dot(self.lin1, state))
-        hid_l = np.log(1 + np.exp(np.dot(self.lin1, state)))
-        if self.reservoir:
-            hid_l = np.log(1 + np.exp(np.dot(self.lin2, state)))
-        output_l = 1 / (1 + np.exp(-np.dot(self.output, hid_l)))
-        output_l[1] = output_l[1] * 2 - 1
-        return output_l
-
-
 class NNController(Controller):
     def __init__(self, n_states, n_actions, torch_=True):
         super().__init__(n_states, n_actions)
@@ -149,14 +113,11 @@ class NNController(Controller):
             self.model.lin1, self.model.lin2, self.model.output = np.load(path + "/reservoir.npy", allow_pickle=True)
 
 
-class recurrentNNController(Controller):
-    def __init__(self, n_states, n_actions, torch_=True):
-        super().__init__(n_states, n_actions)
-        self.controller_type = "RNN"
-        if torch_:
-            self.model = NeuralNetwork(n_states, n_states, n_actions)
-        else:
-            self.model = NumpyNetwork(n_states, n_states, n_actions)
+class widthNNController(Controller):
+    def __init__(self, n_states, n_actions, width):
+        super().__init__(n_states, n_actions, width)
+        self.controller_type = "tinyNN"
+        self.model = NumpyNetwork(n_states, width, n_actions)
 
     def geno2pheno(self, genotype: np.array):
         self.model.set_weights(genotype)
@@ -183,6 +144,89 @@ class recurrentNNController(Controller):
 
     def save_geno(self, path: str):
         if self.model.reservoir:
+            np.save(path + "/wide_reservoir", [self.model.lin1, self.model.output], allow_pickle=True)
+
+    def load_geno(self, path: str):
+        if self.model.reservoir:
+            self.model.lin1, self.model.lin2, self.model.output = np.load(path + "/wide_reservoir.npy", allow_pickle=True)
+
+
+class NumpyNetwork:
+    def __init__(self, n_input, n_hidden, n_output, reservoir=True):
+        self.reservoir = reservoir
+        self.n_con1 = n_input * n_hidden
+        self.n_con2 = n_hidden * n_output
+        self.lin1 = np.random.uniform(-1, 1, (n_hidden, n_input))
+        # if reservoir:
+        #     self.lin2 = np.random.uniform(-1, 1, (n_hidden, n_hidden))
+        #     self.lin3 = np.random.uniform(-1, 1, (n_hidden, n_hidden))
+        self.output = np.random.uniform(-1, 1, (n_output, n_hidden))
+
+    def set_weights(self, weights: np.array):
+        """
+        Set the weights of the Neural Network controller
+        """
+        if self.reservoir:
+            assert len(weights) == self.n_con2, f"Got {len(weights)} but expected {self.n_con2}"
+            weight_matrix = weights[-self.n_con2:].reshape(self.output.shape)
+            self.output = weight_matrix
+        else:
+            assert len(
+                weights) == self.n_con1 + self.n_con2, f"Got {len(weights)} but expected {self.n_con1 + self.n_con2}"
+            weight_matrix1 = weights[:self.n_con1].reshape(self.lin1.shape)
+            weight_matrix2 = weights[-self.n_con2:].reshape(self.output.shape)
+            self.lin1 = weight_matrix1
+            self.output = weight_matrix2
+
+    def forward(self, state: numpy.array):
+        # hid_l = np.maximum(np.dot(self.lin1, state)*0.01, np.dot(self.lin1, state))
+        hid_l = np.log(1 + np.exp(np.dot(self.lin1, state)))
+        # if self.reservoir:
+            # hid_l = np.log(1 + np.exp(np.dot(self.lin2, hid_l)))
+        # hid_l = state
+        output_l = 1 / (1 + np.exp(-np.dot(self.output, hid_l)))
+        output_l[1] = output_l[1] * 2 - 1
+        return output_l
+
+
+class recurrentNNController(Controller):
+    def __init__(self, n_states, n_actions, torch_=False):
+        super().__init__(n_states, n_actions)
+        self.controller_type = "RNN"
+        self.prev_output = np.array([0., 0.])
+        if torch_:
+            self.model = NeuralNetwork(n_states+n_actions, n_states, n_actions)
+        else:
+            self.model = NumpyNetwork(n_states+n_actions, n_states, n_actions, reservoir=True)
+
+    def geno2pheno(self, genotype: np.array):
+        self.model.set_weights(genotype)
+
+    def map_state(self, min_from, max_from, min_to, max_to, state_portion):
+        return min_to + np.multiply((max_to - min_to), np.divide((state_portion - min_from), (max_from - min_from)))
+
+    def velocity_commands(self, state: np.ndarray) -> np.ndarray:
+        """
+        Given a state, give an appropriate action
+
+        :param <np.array> state: A single observation of the current state, dimension is (state_dim)
+        :return: <np.array> action: A vector of motor inputs
+        """
+
+        assert (len(state) == self.n_input), "State does not correspond with expected input size"
+        state[:4] = self.map_state(0, 2, -1, 1, state[:4])
+        state[4:8] = self.map_state(-np.pi, np.pi, -1, 1, state[4:8])  # Assumed distance sensing range is 2.0 meters. If not, check!
+        state[-1] = self.map_state(0, 255.0, -1, 1, state[-1])  # Gradient value, [0, 255]
+
+        rnn_input = np.hstack((state, self.prev_output))
+
+        action = self.model.forward(rnn_input)
+        self.prev_output = copy.deepcopy(action)
+        control_input = action * np.array([self.umax_const, self.wmax])
+        return control_input
+
+    def save_geno(self, path: str):
+        if self.model.reservoir:
             np.save(path + "/reservoir", [self.model.lin1, self.model.lin2, self.model.output], allow_pickle=True)
 
     def load_geno(self, path: str):
@@ -201,7 +245,7 @@ class adaptiveNNController(Controller):
         self.probabilities = np.array([1., 0.75, 0.75, 0.5, 0.5])
         self.intensity_thr = np.array([229.14699, 178.0845, 127.02098, 75.957306, 0])
         self.current_controller = None
-        self.refract_time = 10
+        self.refract_time = 50
         self.refract_n = 0
 
     def velocity_commands(self, state: np.ndarray) -> np.ndarray:
@@ -221,7 +265,7 @@ class adaptiveNNController(Controller):
             else:
                 self.current_controller = self.rnn2
             self.refract_n = 0
-        self.refract_n += 50
+        self.refract_n += 1
         control_input = self.current_controller.velocity_commands(state)
         return control_input
 

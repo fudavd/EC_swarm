@@ -11,15 +11,20 @@ https://arxiv.org/abs/2402.04763
 To run the same evolutionary experiments as presented in the paper run the following line after [Installation](#installation):
 
 ```
-./run-experiment.sh Hetero_swarm_EvoExp
+./run-experiment.sh Hebbian_swarm_EvoExp
 ```
 
-To retest the best controllers and re-run the validation experiments:
-```
-wget https://dataverse.nl/dataset.xhtml?persistentId=doi%3A10.34894%2F0VSN8Z#
-unzip ./results.zip
-python ./results/RetestBest.py
-```
+[//]: # (To retest the best controllers and re-run the validation experiments:)
+
+[//]: # (```)
+
+[//]: # (wget https://dataverse.nl/dataset.xhtml?persistentId=doi%3A10.34894%2F0VSN8Z#)
+
+[//]: # (unzip ./results.zip)
+
+[//]: # (python ./results/RetestBest.py)
+
+[//]: # (```)
 
 
 ### Citation:
@@ -61,7 +66,5 @@ Publications
 ------
 #### This repo is directly related to the following papers:
 * Van Diggelen, F., Luo, J., Karagüzel, T. A., Cambier, N., Ferrante, E., & Eiben, A. E. (2022, July). Environment induced emergence of collective behavior in evolving swarms with limited sensing. In _Proceedings of the Genetic and Evolutionary Computation Conference_ (pp. 31-39). https://doi.org/10.1145/3512290.3528735. [**[Branch]**](https://github.com/fudavd/EC_swarm/tree/GECCO_2022)
-[//]: # (* Van Diggelen, F., De Carlo, M., Cambier, N., Ferrante, E., & Eiben, A. E. &#40;2024, July&#41;. Environment induced emergence of collective behavior in evolving swarms with limited sensing. In _Proceedings of the Genetic and Evolutionary Computation Conference_ &#40;pp. 31-39&#41;. https://arxiv.org/abs/2402.04763. [**[Branch]**]&#40;https://github.com/fudavd/EC_swarm/tree/GECCO_2024&#41;)
-* Van Diggelen, F., De Carlo, M., Cambier, N., Ferrante, E., & Eiben, A. E. (2024). Emergence of specialized Collective Behaviors in Evolving Heterogeneous Swarms. _Arxiv_: https://arxiv.org/abs/2402.04763. [**[Branch]**](https://github.com/fudavd/EC_swarm/tree/GECCO_2024)
-
+* van Diggelen, F., De Carlo, M., Cambier, N., Ferrante, E., & Eiben, G. (2024, September). Emergence of Specialised Collective Behaviors in Evolving Heterogeneous Swarms. In International Conference on Parallel Problem Solving from Nature (pp. 53-69). Cham: Springer Nature Switzerland. https://doi.org/10.1007/978-3-031-70068-2_4. [**[Branch]**](https://github.com/fudavd/EC_swarm/tree/PPSN_2024)
 ---

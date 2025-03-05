@@ -21,7 +21,7 @@ from utils.Fitnesses import Calculate_fitness_size
 def main():
     n_input = 9
     n_output = 2
-    genotype = thymio_genotype("RNN", n_input, n_output)
+    genotype = thymio_genotype("tinyNN", n_input, n_output)
     genotype['controller']["params"]['torch'] = False
 
     simulation_time = 600
@@ -31,16 +31,17 @@ def main():
     pop_size = 30  # number of individuals
     swarm_size = 20
     reps = 3  # repetitions per individual
-    arenas = [30]
+    arena = 30
+    widths = [3, 10, 40]
 
     params = {}
     params['bounds'] = (-5, 5)
-    params['D'] = n_input * n_output
+    params['D'] = int(n_output * n_input * 10)
     params['pop_size'] = pop_size
     params['sigma0'] = 1
 
     run_start = 0
-    for arena in arenas:
+    for width in widths:
         experiment_name = f"{arena}x{arena}_pop{pop_size}"
         arena_type = f"circle_{arena}x{arena}"
         simulator_settings = EnvSettings
@@ -51,14 +52,16 @@ def main():
             gen_start = 0
             genomes = []
             fitnesses = []
-            experiment_dir = os.path.join("./results",'RNN', experiment_name, str(run))
+            experiment_dir = os.path.join("./results", f'L1_W{width}NN', experiment_name, str(run))
             if not os.path.exists(experiment_dir):
                 os.makedirs(experiment_dir)
 
             learner = CMAes(params, output_dir=experiment_dir)
             genotype['controller']["encoding"] = np.ones(params['D'])
+            genotype['controller']["params"]['width'] = width
+
             swarm = Individual(genotype, 0)
-            if not os.path.exists(f"{experiment_dir}/reservoir.npy"):
+            if not os.path.exists(f"{experiment_dir}/tiny_reservoir.npy"):
                 swarm.controller.save_geno(experiment_dir)
             else:
                 if os.path.exists(f"{experiment_dir}/genomes.npy"):

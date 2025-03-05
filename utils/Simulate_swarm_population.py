@@ -123,11 +123,9 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
     env_list = []
     robot_handles_list = []
     fitness_list = []
-    fitness_list2 = []
     fitness_full = []
     sim_state = []
     sensor_list = []
-    sensor_list2 = []
     num_robots = len(individuals[0])
     controller_list = []
     controller_types_list = []
@@ -170,11 +168,11 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
                 ix = (arena_center + r_distance * radius_spawn * (np.sin(iangle)))
             # linear
             elif arena.split('_')[:-1] == ['linear'] or arena.split('_')[:-1] == ['bimodal']:
-                iy = arena_center + 2 * r_distance * radius_spawn * (rng.random() - 0.5)
-                ix = arena_center + r_distance
-            elif arena.split('_')[:-1] == ['banana']:
-                iy = arena_center + 2 * r_distance * radius_spawn * (rng.random() - 0.5)
+                iy = arena_center + r_distance
                 ix = arena_center + 2 * r_distance * radius_spawn * (rng.random() - 0.5)
+            elif arena.split('_')[:-1] == ['banana']:
+                iy = arena_center + (rng.random() * 2 -1 )* r_distance
+                ix = arena_center + (rng.random() * 2 -1 )* r_distance
 
             a_x = ix + (init_area /2)
             b_x = ix - (init_area /2)
@@ -263,11 +261,7 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
         fitness_list.append(FitnessCalculator(individual, initial_positions, desired_movement,
                                               arena=arena,
                                               objectives=env_params['objectives']))
-        fitness_list2.append(FitnessCalculator(individual, initial_positions, desired_movement,
-                                              arena=arena2,
-                                              objectives=env_params['objectives']))
         sensor_list.append(Sensors(controller_types_list[i_env], arena=arena))
-        sensor_list2.append(Sensors(controller_types_list[i_env], arena=arena2))
 
     # %% Create function
     def update_robot(env, controllers, robot_handles, states):
@@ -317,7 +311,6 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
 
         if len(individuals) == 1:
             plotter = swarm_plotter(arena, colors)  # Plotter init
-            plotter2 = swarm_plotter(arena2, colors)  # Plotter init
             plot = True
 
             light_options = gymapi.AssetOptions()
@@ -351,24 +344,13 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
                 controller = controller_list[i_env]
                 # Update positions and headings of all robots
                 headings, positions[0], positions[1] = get_pos_and_headings(env, robot_handles)
-                if frame >= 300 and env_perturb:
-                    sensor_list2[i_env].calculate_states(positions, headings)
-                    states = sensor_list2[i_env].get_current_state()
-                else:
-                    sensor_list[i_env].calculate_states(positions, headings)
-                    states = sensor_list[i_env].get_current_state()
+                sensor_list[i_env].calculate_states(positions, headings)
+                states = sensor_list[i_env].get_current_state()
                 update_robot(env, controller, robot_handles, states)
 
                 fitness_current[:, i_env] = fitness_list[i_env].obtain_fitnesses(positions, headings) / timestep
-                fitness_list2[i_env].obtain_fitnesses(positions, headings) / timestep
                 if save_full_fitness:
-                    if frame >= 300 and env_perturb:
-                        sensor_list2[i_env].calculate_states(positions, headings)
-                        curr_val = copy.deepcopy(np.sum(fitness_list2[i_env].grad_vals) / fitness_list2[i_env].num_robots / 255.0)
-                    else:
-                        curr_val = copy.deepcopy(np.sum(fitness_list[i_env].grad_vals) / fitness_list[i_env].num_robots / 255.0)
-                    fitness_full.append(curr_val)
-
+                    fitness_full.append(copy.deepcopy(fitness_current))
                     if not t < life_timeout:
                         np.save(f'./results/fitness_full.npy', np.array(fitness_full).squeeze())
                 if save_sim_state:
@@ -379,17 +361,11 @@ def simulate_swarm_population(life_timeout: float, individuals: List[List[Indivi
             if plot:
                 if record_video:
                     if (gym.get_sim_time(sim) % 1) < 0.0005:
-
-                        if frame >= 300 and env_perturb:
-                            plotter2.plot_swarm_quiver(positions, headings, frame)
-                        else:
-                            plotter.plot_swarm_quiver(positions, headings, frame)
-
+                        plotter.plot_swarm_quiver(positions, headings, frame)
                         gym.step_graphics(sim)
                         gym.draw_viewer(viewer, sim, False)
                         gym.write_viewer_image_to_file(viewer, f'./results/images/viewer/{frame}.png')
                         frame += 1
-
                 else:
                     plotter.plot_swarm_quiver(positions, headings)
             start = gym.get_sim_time(sim)
@@ -463,7 +439,8 @@ def simulate_swarm_with_restart_population_start(life_timeout: float, individual
     return process, shared_mem, result
 
 
-def simulate_swarm_with_restart_population_end(process, shared_mem, result, pop_size: int, env_params: __EnvSet) -> np.ndarray:
+def simulate_swarm_with_restart_population_end(process, shared_mem, result, pop_size: int,
+                                               env_params: __EnvSet) -> np.ndarray:
     process.join()
     if process.exitcode != 0:
         raise RuntimeError(f'Simulation for {process} exited with code {process.exitcode}')
