@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
+  <!-- Replace the content tag with appropriate information -->
+  <meta name="description" content="Nature Communications publication on Hebbian learning for heterogeneous swarm control. Blog written by Fuda van Diggelen, EPFL">
+  <meta property="og:title" content="Emergent Heterogeneous Swarm Control Through Hebbian Learning"/>
+  <meta property="og:description" content="SOCIAL MEDIA DESCRIPTION TAG TAG"/>
+  <meta property="og:url" content="https://fudavd.github.io/Hebbian-Swarms/"/>
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X630-->
+  <meta property="og:image" content="static/images/Banner.jpg" />
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+
+
+  <meta name="twitter:title" content="Emergent Heterogeneous Swarm Control Through Hebbian Learning">
+  <meta name="twitter:description" content="Nature Communications publication on Hebbian learning for heterogeneous swarm control. Blog written by Fuda van Diggelen, EPFL">
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X600-->
+  <meta name="twitter:image" content="static/images/your_twitter_banner_image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- Keywords for your paper to be indexed by-->
+  <meta name="keywords" content="Hebbian Learning; Swarm robotics; Meta Learning">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <title>Emergent Heterogeneous Swarm Control Through Hebbian Learning</title>
+  <link rel="icon" type="image/x-icon" href="../static/favicon.ico/favicon.ico">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+  rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
+  <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<style>
+  .author-block a {
+    color: #b5b5b5;              /* custom blue color */
+    text-decoration: none;       /* remove underline */
+  }
+  .author-block a:hover {
+    color: #fffa70;              /* darker on hover */
+    text-decoration: underline;  /* optional hover effect */
+  }
+</style>
+
+  <section class="hero custom-hero-color" style="background-image: url('static/images/Banner.jpg');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                width: 100%;">
+    <div class="hero-body">
+      <div class="container is-max-widescreen">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">Emergent Heterogeneous Swarm Control Through Hebbian Learning</h1>
+            <div class="is-size-5 publication-authors"  style="color: #8c8484">
+              <!-- Paper authors -->
+              <span class="author-block">
+                <a href="https://fudavd.github.io/" target="_blank">Fuda van Diggelen</a><sup>1,2</sup>
+                </span><br>
+              <span class="author-block">
+                  <a href="https://scholar.google.com/citations?user=O4e6QO4AAAAJ&hl=en" target="_blank">Tugay Alperen Karagüzel</a><sup>1 </sup> </span>
+                  <span class="author-block">
+                    <a href="https://scholar.google.com/citations?user=9uBeVr0AAAAJ&hl=en" target="_blank">  Andres Garcia Rincon</a><sup>1 </sup> </span>
+                   <span class="author-block">
+                     <a href="https://www.cs.vu.nl/~gusz/" target="_blank"> A.E. Eiben</a><sup>1 </sup> </span>
+                   <span class="author-block">
+                     <a href="https://people.epfl.ch/dario.floreano" target="_blank"> Dario Floreano</a><sup>2</sup> </span>
+                   <span class="author-block">
+                     <a href="https://nyuad.nyu.edu/en/academics/divisions/science/faculty/eliseo-ferrante.html" target="_blank"> Eliseo Ferrante</a><sup>1,3</sup>
+                   </span>
+                  </div>
+             <hr style="border: none; height: 1px; background-color: #2f2f2f;">
+                  <div class="is-size-6 publication-authors"  style="color: #8c8484">
+                    <span class="author-block"><a href="https://cs.vu.nl/ci/" target="_blank">Vrije Universiteit Amsterdam</a><sup>1</sup> · </span>
+                    <span class="author-block"><a href="https://www.epfl.ch/labs/lis/" target="_blank">École Polytechnique Fédérale de Lausanne</a><sup>2</sup> · </span>
+                    <span class="author-block"><a href="https://nyuad.nyu.edu/en/" target="_blank">NYU Abu Dhabi</a><sup>3</sup></span>
+<!--                    <span class="eql-cntrb"><small><br><sup>*</sup>Indicates Equal Contribution</small></span>-->
+                  </div>
+
+                  <div class="column has-text-centered">
+                    <div class="publication-links">
+                         <!-- Arxiv PDF link -->
+                      <span class="link-block">
+                        <a href="https://arxiv.org/pdf/2507.11566" target="_blank"
+                        class="external-link button is-normal is-rounded is-dark">
+                        <span class="icon">
+                          <i class="fas fa-file-pdf"></i>
+                        </span>
+                        <span>Paper</span>
+                      </a>
+                    </span>
+
+<!--                    &lt;!&ndash; Supplementary PDF link &ndash;&gt;-->
+<!--                    <span class="link-block">-->
+<!--                      <a href="static/pdfs/supplementary_material.pdf" target="_blank"-->
+<!--                      class="external-link button is-normal is-rounded is-dark">-->
+<!--                      <span class="icon">-->
+<!--                        <i class="fas fa-file-pdf"></i>-->
+<!--                      </span>-->
+<!--                      <span>Supplementary</span>-->
+<!--                    </a>-->
+<!--                  </span>-->
+
+                  <!-- Github link -->
+                  <span class="link-block">
+                    <a href="https://github.com/fudavd/EC_swarm/tree/Hebbian" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+
+                <!-- ArXiv abstract Link -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/2507.11566" target="_blank"
+                  class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <section class="section ">
+  <div class="container is-max-widescreen">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            In this paper, we introduce Hebbian learning as a novel method for swarm robotics, enabling the automatic emergence of heterogeneity. Hebbian learning presents a biologically inspired form of neural adaptation that solely relies on local information.
+By doing so, we resolve several major challenges for learning heterogeneous control:
+1) Hebbian learning removes the complexity of attributing emergent phenomena to single agents via local updates, thus circumventing the micro-macro problem; 2) uniform Hebbian learning rules across all swarm members limit the number of parameters needed, mitigating the curse of dimensionality with scaling swarm sizes; and 3) evolving Hebbian learning rules based on swarm-level behaviour minimises the need for extensive prior knowledge typically required for optimising heterogeneous swarms. This work demonstrates that with Hebbian learning heterogeneity indeed naturally emerges, resulting in swarm-level behavioural switching and significantly improving the capability of the swarm.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Teaser video-->
+<section class="hero teaser">
+  <div class="container is-max-widescreen">
+    <div class="hero-body">
+      <div class="parent" id="fig_meth">
+        <img class="image1" src="static/images/frontpage.png" alt="Method" />
+        <img class="image2" src="static/videos/swarm.gif" alt="Real" />
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<section class="section hero is-light is-small">
+  <div class="container is is-max-widescreen">
+        <h2 class="title is-3 is-centered has-text-centered">Heterogeneous swarms</h2>
+        <div class="item has-text-centered">
+          <hr style="border: none; height: 1px; background-color: #2f2f2f; margin-left: 16%; margin-right: 16%">
+          <h2 class="subtitle has-text-justified"><br>
+            From fish evading predators to ants that organise to building elaborate tunnel structures, in nature collective behaviour in groups of animals have demonstrated the effectiveness of group coordination.
+            The complex dynamics of collective behaviour is hard to dissect and often cannot be understood when analysing the behaviour of a single individual, as group-level properties <strong>emerge</strong> through interaction with other group members.
+            This obfuscation is exacerbated when we consider swarms with different behaviours, reflected in heterogeneous properties and specialisation within the swarm.
+            Designing robot controllers on an individual level such that a group of robots obtains emergent properties at the group level, lies at the heart of swarm robotics.
+            Three main challenges arise in the design of heterogeneous swarm controllers:
+          </h2>
+        </div>
+        <div class="item has-text-centered">
+          <h2 class="subtitle has-text-justified">
+            <ol type="1" style="margin-left: 6%; margin-right: 5%;"}>
+              <li style="padding-left: 4%"> <strong>Micro-macro problem</strong>: Emergent capabilities are measured at the swarm-level but adaptation are made on an individual control-level, thus attributing individual contributions to the whole is ambiguous.</li>
+              <li style="padding-left: 4%"> <strong>Curse of dimensionality</strong>: The number of possible interactions between swarm-members explode when increasing the size of the swarm. Optimising larger swarms become exponentially hard. </li>
+              <li style="padding-left: 4%"> <strong>Prior knowledge</strong>: Pre-defining heterogeneous composition —for example number of sub-tasks and types of specialisation— reduces the flexibility of the swarm to scale or adapt during deployment, making the system more brittle.</li>
+            </ol>
+            <br>
+          </h2>
+        </div>
+  </div>
+</section>
+<!-- End paper abstract -->
+
+<section class="section hero is-small">
+  <div class="container is is-max-widescreen">
+    <h2 class="title is-3 is-centered has-text-centered">Continuous Hebbian adaptation</h2>
+    <hr style="border: none; height: 1px; background-color: #2f2f2f; margin-left: 16%; margin-right: 16%">
+       <div class="item has-text-centered">
+        <h2 class="subtitle has-text-justified"><br>
+            We propose <strong>Hebbian learning</strong> as an elegant solution to these problems.
+            In contrast to conventional neural network optimisation —where a training phase results in a network with a set of <i>fixed weights</i> during deployment— Hebbian continuously adapt <i>dynamic weights</i> during deployment through the use of local learning rules (i.e. \(\textrm{Hebbian-Rules}\)).
+            In swarms, these local \(\textrm{Hebbian-Rules}\) result in the emergence of heterogeneity, as each individual experiences a unique sequence of sensory inputs.
+        </h2>
+      </div>
+  </div>
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-video1">
+          <video poster="" id="video1" autoplay controls muted loop>
+            <source src="static/videos/HebbianSwarmUpload.mp4" type="video/mp4">
+          </video>
+
+          <div class="video-description">
+            <h2 class="subtitle has-text-left">
+              Each robot applies the same Hebbian adaptation rules.
+              Distributing <strong>uniform \(\textrm{Hebbian-Rules}\)</strong> decouples the optimisation search space from the swarm size, making it independent of the number of robots.<br><br>
+            </h2>
+          </div>
+        </div>
+
+        <div class="item item-video2">
+          <video poster="" id="video2" autoplay controls muted loop>
+            <source src="static/videos/HebbianSwarmUpdate.mp4" type="video/mp4">
+          </video>
+
+          <div class="video-description">
+            <h2 class="subtitle has-text-left">
+              During deployment, adaptations are governed by the \(\textrm{Hebbian-Rules}\), that update the weights inside the network.
+              Only <strong>local information</strong> is used, namely, correlations between input activity and output activity of the neurons directly associated with each weight. <br><br>
+            </h2>
+          </div>
+        </div>
+
+        <div class="item item-video3">
+          <video poster="" id="video3" autoplay controls muted loop>\
+            <source src="static/videos/HebbianSwarmUpdateSwarm.mp4" type="video/mp4">
+          </video>
+
+          <div class="video-description">
+            <h2 class="subtitle has-text-left">
+              The same \(\textrm{Hebbian-Rules}\) result in unique adaptations as each individual experiences a unique sequence of network activations.
+              Among swarm members network weights diverge during deployment, leading to the <strong>emergence of heterogeneity</strong>.
+            </h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light">
+  <div class="container is is-max-widescreen">
+    <h2 class="title is-3 is-centered has-text-centered">
+        Results</h2>
+    <hr style="border: none; height: 1px; background-color: #2f2f2f; margin-left: 16%; margin-right: 16%">
+    <div class="item has-text-centered">
+      <h2 class="subtitle has-text-justified"><br>
+        Emergent heterogeneous swarm control through hebbian learning elegantly solves the aforementioned challenges:
+        1) <strong>Local information</strong> governs the updates of the network weights during deployment, which alleviates the micro-macro problem;
+        2) <strong>Uniform \(\textrm{Hebbian-Rules}\)</strong> constrains number of design variables, thus circumventing the curse of dimensionality;
+        3) <strong>Emergence of heterogeneity</strong> is a consequence of the online adaptation mechanism, thereby removing the choice on heterogeneous structure based on prior knowledge.
+        <br><br>
+        We optimise our \(\textrm{Hebbian-Rules}\) for a source-localisation task, by using an evolutionary algorithm (CMAES see <a href="#fig_meth" style="color: #1d72aa">Top Figure</a>).
+        For a more detailed description on the task and why the swarm requires collaboration we refer to the <a href="https://arxiv.org/pdf/2507.11566" target="_blank" style="color: #1d72aa">Paper</a>.
+        The best set of \(\textrm{Hebbian-Rules}\) are tested in a set of validation experiments —the same light source task starting from a random position in the arena— are shown <a href="#best_swarm" style="color: #1d72aa">Below</a>.
+      </h2>
+    </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="best_swarm">
+  <div class="container ">
+    <div class="container is is-max-widescreen">
+      <h2 class="title is-4 is-centered has-text-right">
+      Hebbian adaptation leads to behavioural switching</h2>
+    </div>
+    <div class="item has-text-centered">
+      <video poster="" id="fitness_stat" autoplay controls muted loop style="width: 30%; height: auto;">
+        <source src="static/videos/static_f.mp4" type="video/mp4">
+      </video>
+      <video poster="" id="swarm_stat" autoplay controls muted loop style="width: 30%; height: auto;">
+        <source src="static/videos/static_plot.mp4" type="video/mp4">
+      </video>
+      <video poster="" id="corr_stat" autoplay controls muted loop style="width: 30%; height: auto;">
+        <source src="static/videos/static_autocor.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+  <div class="container is is-max-widescreen">
+    <div class="item has-text-centered">
+      <h2 class="subtitle has-text-justified">
+
+        During deployment, we notice distinct behavioural transitions in the swarm.
+        Initially (circular spiral trajectories), the individuals in the swarm scatter to find the direction (i.e. the gradient) of the light source as a collective.
+        Once the gradient is found (straight trajectory lines), the swarm collectively aligns and moves towards the source, i.e. an online behavioural switch emerges by adaptation.
+        In a final stage (rotation around the centre), the behaviour of the swarm scatters the individual around the centre, circling back when individuals are leaving the group.
+        This switching is not pre-programmed but rather emerges through local adaptation, showcasing real-time adaptation and decision-making.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light" id="best_swarm_pert">
+  <div class="container">
+    <div class="container is is-max-widescreen">
+      <h2 class="title is-4 is-centered has-text-right" style="">
+      Persistent weight dynamics under perturbation</h2>
+    </div>
+    <div class="item has-text-centered">
+      <video poster="" id="fitness_pert" autoplay controls muted loop style="width: 30%;">
+        <source src="static/videos/dynamic_f.mp4" type="video/mp4">
+      </video>
+      <video poster="" id="swarm_pert" autoplay controls muted loop style="width: 30%;">
+        <source src="static/videos/dynamic_plot.mp4" type="video/mp4">
+      </video>
+      <video poster="" id="corr_pert" autoplay controls muted loop style="width: 30%;">
+        <source src="static/videos/dynamic_autocor.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+  <div class="container is is-max-widescreen">
+    <div class="item has-text-centered">
+      <h2 class="subtitle has-text-justified">
+        We found that the switching dynamics are persistent during deployment.
+        The first half of this perturbation experiment is indistinguishable from the previous static trial, with the scattered spiralling behaviour for gradient estimation and collective switching towards the centre of the arena.
+        After we perturb the position of the light we can see the same sequence of behaviours reoccurring, indicating that the online behavioural switching is a persistent capability of the local adaptations in the swarm.
+        This is further evidenced by the average autocorrelation of the network weights that increase in the Perturbation experiment, indicating higher similarity of weights after switching the light.
+<!--        The dynamics of this behaviour is persistent during deployment, which we show in a  <a href="#best_swarm_pert" style="color: #1d72aa">Light Perturbation Experiment</a>.-->
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="real_swarm">
+  <div class="container ">
+    <div class="container is is-max-widescreen">
+      <h2 class="title is-4 is-centered has-text-right">
+      Increased robustness in sim-to-real transfer</h2>
+    </div>
+    <div class="image-wrapper has-text-centered">
+      <img src="static/images/RG.png" alt="Reality Gap" style="width: 40%; vertical-align: middle">
+      <img src="static/videos/swarm.gif" alt="Real swarm" style="width: 41%; vertical-align: middle">
+    </div>
+  </div>
+  <div class="container is is-max-widescreen">
+    <div class="item has-text-centered">
+      <h2 class="subtitle has-text-justified">
+        Finally, we test our \(\textrm{Hebbian-Rules}\) on a real robot swarm.
+        Due to limited resources, we scale down our experiment in terms of size (\(8\times8\) metre arena) and swarm size (10 robots), while keeping all other conditions equal.
+        We present the difference between the average simulator performance (striped bars, \(N=60\)) and average real swarm performance (solid, \(N=3\)) in the bar graph, as a metric for the <strong>Reality Gap</strong>.
+        The percentage performance drop (\(\Delta\)) is the Lowest for our Hebbian controllers with respect to two state-of-the-art methods that evolve neural networks (again we refer to the <a href="https://arxiv.org/pdf/2507.11566" target="_blank" style="color: #1d72aa">Paper</a> for more details).
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container"><br>
+      <h2 class="title is-3 is-centered has-text-centered">
+        Closing remarks and additional links</h2>
+      <hr style="border: none; height: 1px; background-color: #2f2f2f; margin-left: 16%; margin-right: 16%">
+    <div class="container is is-max-widescreen">
+      <div class="item has-text-centered">
+        <h2 class="subtitle has-text-justified"><br>
+          Hebbian learning enables adaptive, heterogeneous behaviors in robot swarms—without the need for central coordination, role definitions, or hand-crafted designs.
+          The key takeaway is the emergence of diversity and seemingly collective switching as a consequence of purely local interaction through \(\textrm{Hebbian-Rules}\).
+          Consequently, Hebbian learning is a robust approach that effectively works when transferring controllers from sim-to-real.
+          This approach opens new avenues in designing flexible, adaptive, and autonomous robotic collectives.
+          <br><br>
+          This post presents a high-level overview of our full <a href="https://arxiv.org/pdf/2507.11566" target="_blank" style="color: #1d72aa">Research Paper</a>, which includes:
+          <ul style="margin-left: 6%; margin-right: 5%; list-style-type: disc; font-size: large">
+            <li style="padding-left: 2%"> <strong>Methodological design</strong> that provides in-depth analysis on why Hebbian networks are more effective </li>
+            <li style="padding-left: 2%"> <strong>Comparison in a multi-agent setting</strong> with state-of-the-art Multi-Agent Reinforcement Learning algorithms </li>
+            <li style="padding-left: 2%"> <strong>Scalability, and flexibility analysis</strong> highlighting the robustness of Hebbian learning when tasks change </li>
+            <li style="padding-left: 2%"> <strong>Performance analysis on neural architecture</strong> that motivate our choice of the specific network structure used </li>
+          </ul>
+          <br><br><br>
+        </h2>
+      </div>
+    </div>
+
+      <div class="container is is-max-widescreen">
+        <h2 class="title is-3">Video Presentation</h2>
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+
+            <div class="publication-video">
+              <!-- Youtube embed code here -->
+              <iframe src="https://www.youtube.com/embed/JkaxUblCGz0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End youtube video -->
+
+
+<!-- Paper poster -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container is-max-widescreen">
+      <h2 class="title">Poster</h2>
+
+      <iframe  src="static/pdfs/sample.pdf" width="100%" height="550">
+          </iframe>
+
+      </div>
+    </div>
+  </section>
+
+
+<!--End paper poster -->
+
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-widescreen content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>@article{van2025hebbianswarm,
+  title={Emergent Heterogeneous Swarm Control Through Hebbian Learning},
+  author={van Diggelen, Fuda and Karag{\"u}zel, Tugay Alperen and Rincon, Andres Garcia and Eiben, A.E. and Floreano, Dario and Ferrante, Eliseo},
+  journal={arXiv preprint arXiv:2507.11566},
+  doi={"10.48550/arXiv.2507.11566"},
+  year={2025},
+}</code></pre>
+    </div>
+</section>
+<!--End BibTex citation -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is is-max-widescreen">
+        <h2 class="subtitle" style="color: #0a0a0a">
+        Acknowledgements</h2>
+       <div class="item has-text-centered">
+        <h2 class="content has-text-justified" style="color: #0a0a0a">
+            We thank the department of Human Movement Science at the Vrije Universiteit Amsterdam for providing access to their testing facilities.
+This work has been partly supported by the NYUAD Center for Artificial Intelligence and Robotics, funded by Tamkeen under the NYUAD Research Institute Award CG010.</h2>
+    </div>
+      </div>
+    </div>
+    <div class="columns is-centered">
+        <div class="content">
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.<br><br>
+          </p>
+        </div>
+    </div>
+</section>
+
+  <footer class="footer is custom-hero-color">
+  <div class="container">
+    <div class="columns is-centered">
+        <div class="content has-text-centered" style="margin-top: 1%; margin-bottom: -2%; display: flex; justify-content: center; gap: 20px;">
+                    <div style="width: 30%; max-height: 70px">
+              <a href="https://cs.vu.nl/ci/" target="_blank">
+                <img src="static/images/Logo_VU.png" alt="VU logo" style="height: 100%;">
+              </a>
+          </div>
+          <div style="width: 30%; max-height: 70px">
+              <a href="https://www.epfl.ch/labs/lis" target="_blank">
+                <img src="static/images/Logo_EPFL.png" alt="EPFL logo" style="height: 100%;">
+              </a>
+          </div>
+          <div style="width: 30%; max-height: 70px">
+            <a href="https://nyuad.nyu.edu/en/" target="_blank">
+              <img src="static/images/Logo_NYUAD.png" alt="NYUAD logo" style="height: 100%;">
+            </a>
+          </div>
+        </div>
+    </div>
+  </div>
+</footer>
+<!-- Statcounter tracking code -->
+
+<!-- You can add a tracker to track page visits by creating an account at statcounter.com -->
+
+    <!-- End of Statcounter Code -->
+
+  </body>
+  </html>
+
